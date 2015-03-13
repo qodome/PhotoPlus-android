@@ -39,18 +39,11 @@
     </LinearLayout>    
 
     <LinearLayout 
+        android:id="@+id/fragment_container"
     	android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="6"
     	android:orientation="horizontal">
-
-    	<com.edmodo.cropper.CropImageView
-    		xmlns:custom="http://schemas.android.com/apk/res-auto"
-        	android:id="@+id/crop_image_view"
-        	android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:layout_gravity="center"
-        	custom:imageResource="@drawable/butterfly" />        
         	
     </LinearLayout>        
    
