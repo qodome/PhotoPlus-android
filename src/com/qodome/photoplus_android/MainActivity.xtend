@@ -24,6 +24,9 @@ import java.io.FileOutputStream
 import java.util.List
 import java.util.Calendar
 import java.nio.ByteBuffer
+import android.graphics.drawable.BitmapDrawable
+import android.text.TextWatcher
+import android.text.Editable
 
 @AndroidActivity(R.layout.activity_main) class MainActivity {
 	val String sinapackage = "com.sina.weibo"
@@ -34,61 +37,79 @@ import java.nio.ByteBuffer
 	//var String folderName
 	var CropFragment cropFrag
 	var EditFragment editFrag
+	var boolean cutFunc = false
 	
 	@OnCreate
     def init(Bundle savedInstanceState) {
-    	/*
-    	// Storage
-		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			Log.e(getString(R.string.LOGTAG), "External storage not mounted")
-	        return
-	    }
-		
-		var reportFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "PhotoPlus")
-		if (!reportFolder.exists()) {
-			Log.i(getString(R.string.LOGTAG), "Creating missing directory iDoStatsMonitor")
-			reportFolder.mkdirs()
+     	var backgroundBitmap = (getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()    	
+    	var blankArray = Utils.getIntArray(backgroundBitmap.getWidth() * backgroundBitmap.getHeight())
+    	backgroundBitmap.getPixels(blankArray, 0, backgroundBitmap.getWidth(), 0, 248, backgroundBitmap.getWidth(), backgroundBitmap.getWidth())
+    	var blankBitmap = Bitmap.createBitmap(blankArray, 0, backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), Bitmap.Config.ARGB_8888)
+
+		cropFrag = new CropFragment()
+		editFrag = new EditFragment()
+		editFrag.c = this
+		editFrag.pBlank = blankBitmap
+		for (var i = 0; i < 9; i++) {
+			editFrag.pChar.add(blankBitmap.copy(blankBitmap.getConfig(), true))
 		}
-		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
-		*/
-		cropFrag = new CropFragment()		
-		getFragmentManager().beginTransaction().add(R.id.fragment_container, cropFrag).commit()
+		getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
+		
+		inputText.addTextChangedListener(new TextWatcher() {
+        	override afterTextChanged(Editable s) {}
+        	override beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        	override onTextChanged(CharSequence s, int start, int before, int count) {
+        		Log.i(getString(R.string.LOGTAG), "onTextChanged " + s + " " + start + " " + before + " " + count)
+        		editFrag.cs = s
+        		editFrag.applyText()
+        		editFrag.refreshGridView()
+        	}
+		})
     }
 	
 	override loadPhoto(View v) { 
-		startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 42)
-	}
-
-	override cutPhoto(View v) { 
-		var List<Bitmap> pieces = new ArrayList<Bitmap>()
-		var int[] intArray
-		var int width
-        var int height
+		if (cutFunc == false) {
+			startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 42)			
+		} else {
+			var List<Bitmap> pieces = new ArrayList<Bitmap>()
+			var int[] intArray
+			var int width
+        	var int height
 		
-		cropFrag?.cropImageView.queryCoordinate()
-		var croppedImage = cropFrag?.cropImageView.getCroppedImage().copy(Bitmap.Config.ARGB_8888, false)
-		Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth() + " " + Calendar.getInstance().getTimeInMillis() / 1000L)
-		width = croppedImage.getWidth() / 3
-        height = croppedImage.getHeight() / 3
-		intArray = Utils.getIntArray(croppedImage.getWidth() * croppedImage.getHeight())
+			cropFrag.getCropImageView().queryCoordinate()
+			var croppedImage = cropFrag.getCropImageView().getCroppedImage().copy(Bitmap.Config.ARGB_8888, false)
+			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth() + " " + Calendar.getInstance().getTimeInMillis() / 1000L)
+			width = croppedImage.getWidth() / 3
+        	height = croppedImage.getHeight() / 3
+			intArray = Utils.getIntArray(croppedImage.getWidth() * croppedImage.getHeight())
 
-        for (var i = 0; i < 3; i++) {
-        	for (var j = 0; j < 3; j++) {
-        		croppedImage.getPixels(intArray, 0, croppedImage.getWidth(), j * width, i * height, width, height)
-        		var piece = Bitmap.createBitmap(intArray, 0, croppedImage.getWidth(), width, height, Bitmap.Config.ARGB_8888)
-        		pieces.add(piece)
+        	for (var i = 0; i < 3; i++) {
+        		for (var j = 0; j < 3; j++) {
+        			croppedImage.getPixels(intArray, 0, croppedImage.getWidth(), j * width, i * height, width, height)
+        			var piece = Bitmap.createBitmap(intArray, 0, croppedImage.getWidth(), width, height, Bitmap.Config.ARGB_8888)
+        			pieces.add(piece)
+        		}
         	}
-        }
-       	editFrag = new EditFragment()		
-		getFragmentManager().beginTransaction().replace(R.id.fragment_container, editFrag).commit()
-		editFrag.p = pieces
-		editFrag.c = this
+       		editFrag.updatePhoto(pieces)
+			getFragmentManager().beginTransaction().replace(R.id.fragment_container, editFrag).commit()
+			cutFunc = false			
+		}
 	}
 	
 	override onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (requestCode == 42 && resultCode == RESULT_OK) {
-        	cropFrag?.cropImageView.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData()))
+    	if (requestCode == 42 && resultCode == RESULT_OK) {   		
+    		// Show Crop now
+    		getFragmentManager().beginTransaction().replace(R.id.fragment_container, cropFrag).commit()
+    		// Change button view option
+    		open.setText("CUT")
+    		share.setVisibility(View.GONE)
+    		cutFunc = true
+    		cropFrag.bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData())		
     	}
+	}	
+
+	override share(View v) { 
+
 	}
 		
 	def shareMultiplePictureToTimeLine() {
@@ -106,16 +127,4 @@ import java.nio.ByteBuffer
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
 		startActivity(intent);
 	}
-	
-	/*
-	def shareToTimeLine(Uri selectedImage) {
-		var intent = new Intent();
-		var comp = new ComponentName("com.tencent.mm","com.tencent.mm.ui.tools.ShareToTimeLineUI");
-		intent.setComponent(comp);
-		intent.setAction("android.intent.action.SEND");
-		intent.setType("image/*");
-		intent.putExtra(Intent.EXTRA_STREAM, selectedImage);
-		startActivity(intent);
-	}
-	*/
 }
