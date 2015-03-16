@@ -22,6 +22,8 @@ import android.graphics.Rect
 import android.os.Environment
 import java.io.FileOutputStream
 import java.util.List
+import java.util.Calendar
+import java.nio.ByteBuffer
 
 @AndroidActivity(R.layout.activity_main) class MainActivity {
 	val String sinapackage = "com.sina.weibo"
@@ -58,33 +60,23 @@ import java.util.List
 	}
 
 	override cutPhoto(View v) { 
-		cropFrag?.cropImageView.queryCoordinate()
-		var croppedImage = cropFrag?.cropImageView.getCroppedImage()
-		Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth())
+		var List<Bitmap> pieces = new ArrayList<Bitmap>()
+		var int[] intArray
+		var int width
+        var int height
 		
-		var baos = new ByteArrayOutputStream()
-        croppedImage.compress(Bitmap.CompressFormat.PNG, 100, baos)
-        var is = new ByteArrayInputStream(baos.toByteArray())
-        var decoder = BitmapRegionDecoder.newInstance(is, false)
-        val width = croppedImage.getWidth() / 3
-        val height = croppedImage.getHeight() / 3
-        var List<Bitmap> pieces = new ArrayList<Bitmap>()
+		cropFrag?.cropImageView.queryCoordinate()
+		var croppedImage = cropFrag?.cropImageView.getCroppedImage().copy(Bitmap.Config.ARGB_8888, false)
+		Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth() + " " + Calendar.getInstance().getTimeInMillis() / 1000L)
+		width = croppedImage.getWidth() / 3
+        height = croppedImage.getHeight() / 3
+		intArray = Utils.getIntArray(croppedImage.getWidth() * croppedImage.getHeight())
+
         for (var i = 0; i < 3; i++) {
         	for (var j = 0; j < 3; j++) {
-        		/*
-        		var fn = new File(folderName + "test" + i + j + ".png")
-				if (!fn.exists()) {
-					fn.createNewFile()
-				}
-				*/
-        		var re = new Rect((j * width), (i * height), ((j + 1) * width), ((i + 1) * height))
-        		var piece = decoder.decodeRegion(re, null)
+        		croppedImage.getPixels(intArray, 0, croppedImage.getWidth(), j * width, i * height, width, height)
+        		var piece = Bitmap.createBitmap(intArray, 0, croppedImage.getWidth(), width, height, Bitmap.Config.ARGB_8888)
         		pieces.add(piece)
-        		/*
-        		var out = new FileOutputStream(folderName + "test" + i + j + ".png")
-    			piece.compress(Bitmap.CompressFormat.PNG, 100, out)
-    			out.close()
-    			*/
         	}
         }
        	editFrag = new EditFragment()		

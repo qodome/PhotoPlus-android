@@ -11,7 +11,7 @@ import org.xtendroid.adapter.BeanAdapter
 import android.content.Context
 
 @Accessors class GridBitmaps {
-  Bitmap gridImage
+  Bitmap pictureView
 }
 
 @AndroidFragment(R.layout.fragment_edit) class EditFragment {
@@ -23,7 +23,7 @@ import android.content.Context
 		var List<GridBitmaps> gridList = new ArrayList<GridBitmaps>()
 		for (var i = 0; i < p.size(); i++) {
 			var gridElement = new GridBitmaps()
-			gridElement.gridImage = p.get(i)
+			gridElement.pictureView = p.get(i)
 			gridList.add(gridElement)
 		}
 		var adapter = new BeanAdapter<GridBitmaps>(c, R.layout.element_edit, gridList)
