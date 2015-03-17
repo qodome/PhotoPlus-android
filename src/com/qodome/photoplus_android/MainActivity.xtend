@@ -37,22 +37,29 @@ import android.text.Editable
 	//var String folderName
 	var CropFragment cropFrag
 	var EditFragment editFrag
+	var String inputString
+	var Bitmap blankBitmap
 	var boolean cutFunc = false
+	
+	def EditFragment newEditFrag() {
+		var frag = new EditFragment()
+		frag.c = this
+		frag.pBlank = blankBitmap
+		for (var i = 0; i < 9; i++) {
+			frag.pChar.add(blankBitmap.copy(blankBitmap.getConfig(), true))
+		}
+		return frag
+	}
 	
 	@OnCreate
     def init(Bundle savedInstanceState) {
      	var backgroundBitmap = (getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()    	
     	var blankArray = Utils.getIntArray(backgroundBitmap.getWidth() * backgroundBitmap.getHeight())
     	backgroundBitmap.getPixels(blankArray, 0, backgroundBitmap.getWidth(), 0, 248, backgroundBitmap.getWidth(), backgroundBitmap.getWidth())
-    	var blankBitmap = Bitmap.createBitmap(blankArray, 0, backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), Bitmap.Config.ARGB_8888)
+    	blankBitmap = Bitmap.createBitmap(blankArray, 0, backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), Bitmap.Config.ARGB_8888)
 
-		cropFrag = new CropFragment()
-		editFrag = new EditFragment()
-		editFrag.c = this
-		editFrag.pBlank = blankBitmap
-		for (var i = 0; i < 9; i++) {
-			editFrag.pChar.add(blankBitmap.copy(blankBitmap.getConfig(), true))
-		}
+		inputString = new String("")
+		editFrag = newEditFrag()
 		getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 		
 		inputText.addTextChangedListener(new TextWatcher() {
@@ -60,6 +67,7 @@ import android.text.Editable
         	override beforeTextChanged(CharSequence s, int start, int count, int after) {}
         	override onTextChanged(CharSequence s, int start, int before, int count) {
         		Log.i(getString(R.string.LOGTAG), "onTextChanged " + s + " " + start + " " + before + " " + count)
+        		inputString = s.toString()
         		editFrag.cs = s
         		editFrag.applyText()
         		editFrag.refreshGridView()
@@ -78,7 +86,7 @@ import android.text.Editable
 		
 			cropFrag.getCropImageView().queryCoordinate()
 			var croppedImage = cropFrag.getCropImageView().getCroppedImage().copy(Bitmap.Config.ARGB_8888, false)
-			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth() + " " + Calendar.getInstance().getTimeInMillis() / 1000L)
+			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth())
 			width = croppedImage.getWidth() / 3
         	height = croppedImage.getHeight() / 3
 			intArray = Utils.getIntArray(croppedImage.getWidth() * croppedImage.getHeight())
@@ -90,16 +98,24 @@ import android.text.Editable
         			pieces.add(piece)
         		}
         	}
+        	editFrag = newEditFrag()
+        	editFrag.cs = inputString
+        	editFrag.applyText()
        		editFrag.updatePhoto(pieces)
-			getFragmentManager().beginTransaction().replace(R.id.fragment_container, editFrag).commit()
-			cutFunc = false			
+       		getFragmentManager().beginTransaction().remove(cropFrag).commit()
+			getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
+			cutFunc = false
+			open.setText("OPEN")
+    		share.setVisibility(View.VISIBLE)			
 		}
 	}
 	
 	override onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (requestCode == 42 && resultCode == RESULT_OK) {   		
     		// Show Crop now
-    		getFragmentManager().beginTransaction().replace(R.id.fragment_container, cropFrag).commit()
+    		cropFrag = new CropFragment()
+    		getFragmentManager().beginTransaction().remove(editFrag).commit()
+    		getFragmentManager().beginTransaction().add(R.id.fragment_container, cropFrag).commit()
     		// Change button view option
     		open.setText("CUT")
     		share.setVisibility(View.GONE)

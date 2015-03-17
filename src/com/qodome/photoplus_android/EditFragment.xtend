@@ -29,7 +29,8 @@ import android.util.Log
 	
 	public def applyText() {
 		for (var i = 0; i < 9; i++) {
-			if (i < cs.length() && cs.charAt(i) != ' ') {
+			pChar.set(i, pBlank.copy(pBlank.getConfig(), true))
+			if (i < cs.length() && !Character.isWhitespace(cs.charAt(i))) {
 		 		var canvas = new Canvas(pChar.get(i))
   				var paint = new Paint(Paint.ANTI_ALIAS_FLAG)
   				paint.setColor(Color.rgb(61, 61, 61))
@@ -42,28 +43,39 @@ import android.util.Log
   				var y = (pChar.get(i).getHeight() + bounds.height())/2
 
   				canvas.drawText(cs.charAt(i).toString(), x, y, paint)
-			} else {
-				pChar.set(i, pBlank.copy(pBlank.getConfig(), true))
 			}
 		}
+	}
+	
+	public def List<Bitmap> getShareResource() {
+		var shareRes = new ArrayList<Bitmap>()
+		for (var i = 0; i < 9; i++) {
+			if (pPhotoValid == false) {
+				shareRes.add(pChar.get(i))
+			} else {
+				if (i < cs.length() && !Character.isWhitespace(cs.charAt(i))) {				
+					shareRes.add(pChar.get(i))					
+				} else {
+					shareRes.add(pPhoto.get(i))
+				}
+			}
+		}		
+		return shareRes
 	}
 	
 	def refreshGridView() {
 		var List<GridBitmaps> gridList = new ArrayList<GridBitmaps>()
 		for (var i = 0; i < 9; i++) {
 			if (pPhotoValid == false) {
-				Log.i("PhotoPlus", "1")
 				var gridElement = new GridBitmaps()
 				gridElement.pictureView = pChar.get(i)
 				gridList.add(gridElement)
 			} else {
-				if (i < cs.length() && cs.charAt(i) != ' ') {
-					Log.i("PhotoPlus", "2")					
+				if (i < cs.length() && !Character.isWhitespace(cs.charAt(i))) {				
 					var gridElement = new GridBitmaps()
 					gridElement.pictureView = pChar.get(i)
 					gridList.add(gridElement)					
 				} else {
-					Log.i("PhotoPlus", "3")	
 					var gridElement = new GridBitmaps()
 					gridElement.pictureView = pPhoto.get(i)
 					gridList.add(gridElement)
