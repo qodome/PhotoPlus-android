@@ -15,91 +15,22 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.util.Log
 
-@Accessors class GridBitmaps {
-  Bitmap pictureView
-}
-
 @AndroidFragment(R.layout.fragment_edit) class EditFragment {
-	public var pPhotoValid = false
-	public var List<Bitmap> pPhoto = new ArrayList<Bitmap>()
-	public var List<Bitmap> pChar = new ArrayList<Bitmap>()
-	public var Bitmap pBlank
-	public var CharSequence cs = ""
-	public var Context c
+	var Bitmap show = null
+	var Boolean initDone = false
 	
-	public def applyText() {
-		for (var i = 0; i < 9; i++) {
-			pChar.set(i, pBlank.copy(pBlank.getConfig(), true))
-			if (i < cs.length() && !Character.isWhitespace(cs.charAt(i))) {
-		 		var canvas = new Canvas(pChar.get(i))
-  				var paint = new Paint(Paint.ANTI_ALIAS_FLAG)
-  				paint.setColor(Color.rgb(61, 61, 61))
-  				paint.setTextSize(256)
-  				paint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
- 
-  				var bounds = new Rect()
-  				paint.getTextBounds(cs.charAt(i).toString(), 0, 1, bounds)
-  				var x = (pChar.get(i).getWidth() - bounds.width())/2
-  				var y = (pChar.get(i).getHeight() + bounds.height())/2
-
-  				canvas.drawText(cs.charAt(i).toString(), x, y, paint)
-			}
+	def setBitmap(Bitmap b) {
+		show = b
+		if (initDone == true) {
+			getPhotoGridView().setImageBitmap(show)
 		}
-	}
-	
-	public def List<Bitmap> getShareResource() {
-		var shareRes = new ArrayList<Bitmap>()
-		for (var i = 0; i < 9; i++) {
-			if (pPhotoValid == false) {
-				shareRes.add(pChar.get(i))
-			} else {
-				if (i < cs.length() && !Character.isWhitespace(cs.charAt(i))) {				
-					shareRes.add(pChar.get(i))					
-				} else {
-					shareRes.add(pPhoto.get(i))
-				}
-			}
-		}		
-		return shareRes
-	}
-	
-	def refreshGridView() {
-		var List<GridBitmaps> gridList = new ArrayList<GridBitmaps>()
-		for (var i = 0; i < 9; i++) {
-			if (pPhotoValid == false) {
-				var gridElement = new GridBitmaps()
-				gridElement.pictureView = pChar.get(i)
-				gridList.add(gridElement)
-			} else {
-				if (i < cs.length() && !Character.isWhitespace(cs.charAt(i))) {				
-					var gridElement = new GridBitmaps()
-					gridElement.pictureView = pChar.get(i)
-					gridList.add(gridElement)					
-				} else {
-					var gridElement = new GridBitmaps()
-					gridElement.pictureView = pPhoto.get(i)
-					gridList.add(gridElement)
-				}
-			}
-		}
-		var adapter = new BeanAdapter<GridBitmaps>(c, R.layout.element_edit, gridList)
-		photoGridView.adapter = adapter		
 	}
 	
 	@OnCreate
     def init(Bundle savedInstanceState) {
-		refreshGridView()
-    }
-    
-    def updatePhoto(List<Bitmap> b) {
-    	pPhoto = b
-    	pPhotoValid = true
-    	Log.i("PhotoPlus", "update photo")
-    }
-    
-    override onStart () {
-    	super.onStart()
-    	Log.i(getString(R.string.LOGTAG), "onStart")
-    	refreshGridView()
+		if (show != null) {
+			getPhotoGridView().setImageBitmap(show)
+		}
+		initDone = true
     }
 }

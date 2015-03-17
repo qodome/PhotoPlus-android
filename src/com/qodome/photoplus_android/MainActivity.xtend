@@ -40,19 +40,19 @@ import android.text.Editable
 	var String inputString
 	var Bitmap blankBitmap
 	var boolean cutFunc = false
+	var OverlayManager om
 	
 	def EditFragment newEditFrag() {
 		var frag = new EditFragment()
-		frag.c = this
-		frag.pBlank = blankBitmap
-		for (var i = 0; i < 9; i++) {
-			frag.pChar.add(blankBitmap.copy(blankBitmap.getConfig(), true))
-		}
 		return frag
 	}
 	
 	@OnCreate
     def init(Bundle savedInstanceState) {
+    	Log.i(getString(R.string.LOGTAG), "before OM init")
+    	om = new OverlayManager(this)
+    	Log.i(getString(R.string.LOGTAG), "after OM init")
+    	
      	var backgroundBitmap = (getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()    	
     	var blankArray = Utils.getIntArray(backgroundBitmap.getWidth() * backgroundBitmap.getHeight())
     	backgroundBitmap.getPixels(blankArray, 0, backgroundBitmap.getWidth(), 0, 248, backgroundBitmap.getWidth(), backgroundBitmap.getWidth())
@@ -60,6 +60,7 @@ import android.text.Editable
 
 		inputString = new String("")
 		editFrag = newEditFrag()
+		editFrag.setBitmap(om.getBG(8))
 		getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 		
 		inputText.addTextChangedListener(new TextWatcher() {
@@ -67,10 +68,8 @@ import android.text.Editable
         	override beforeTextChanged(CharSequence s, int start, int count, int after) {}
         	override onTextChanged(CharSequence s, int start, int before, int count) {
         		Log.i(getString(R.string.LOGTAG), "onTextChanged " + s + " " + start + " " + before + " " + count)
-        		inputString = s.toString()
-        		editFrag.cs = s
-        		editFrag.applyText()
-        		editFrag.refreshGridView()
+        		om.inputString(s)
+        		editFrag.setBitmap(om.getBitmapForDraw())
         	}
 		})
     }
@@ -99,9 +98,6 @@ import android.text.Editable
         		}
         	}
         	editFrag = newEditFrag()
-        	editFrag.cs = inputString
-        	editFrag.applyText()
-       		editFrag.updatePhoto(pieces)
        		getFragmentManager().beginTransaction().remove(cropFrag).commit()
 			getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 			cutFunc = false
