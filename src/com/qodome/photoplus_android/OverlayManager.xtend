@@ -9,22 +9,32 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.Canvas
+import android.graphics.Typeface
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Color
 
 class OverlayManager {
 	val String[] bgDesc = #["bg0_0", "bg2_e6e6e6", "bg10_0", "bg20_0", 
 							"bg30_0", "bg40_0", "bg50_ffffff", "bg60_ffffff", 
 							"bg70_ffffff", "bg80_ffffff", "bg90_ffffff"]
+	val bgColor = #[0xFF000000, 0xFFe6e6e6, 0xFF000000, 0xFF000000,
+							0xFF000000, 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF,
+							0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF]
 	var Bitmap gridMap
 	var Bitmap photoMap
+	var Bitmap textMap
 	var Bitmap bgMap
 	var Bitmap bgOrigMap
 	var int bgIdx = 0
 	var List<Bitmap> bg
 	var List<Bitmap> bgOrig
 	var MainActivity parent
+	var Typeface ysTf
 	
 	new(MainActivity activity) {
 		parent = activity
+		photoMap = null
 		bg = new ArrayList<Bitmap>()
 		bgOrig = new ArrayList<Bitmap>()
 		for (String desc : bgDesc) {
@@ -50,14 +60,22 @@ class OverlayManager {
 			gridArray.set(i, 0x00000000)
 		}
 		for (var i = 0; i < bg.get(0).getHeight(); i++) {
-			gridArray.set(i * bg.get(0).getWidth() + bgOrig.get(0).getWidth(), 0xFF000000)
-			gridArray.set(i * bg.get(0).getWidth() + 2 * bgOrig.get(0).getWidth() + 1, 0xFF000000)
+			gridArray.set(i * bg.get(0).getWidth() + bgOrig.get(0).getWidth(), 0xFFFFFFFF)
+			gridArray.set(i * bg.get(0).getWidth() + 2 * bgOrig.get(0).getWidth() + 1, 0xFFFFFFFF)
 		}
 		for (var i = 0; i < bg.get(0).getWidth(); i++) {
-			gridArray.set(bgOrig.get(0).getHeight() * bg.get(0).getWidth() + i, 0xFF000000)
-			gridArray.set((2 * bgOrig.get(0).getHeight() + 1) * bg.get(0).getWidth() + i, 0xFF000000)
+			gridArray.set(bgOrig.get(0).getHeight() * bg.get(0).getWidth() + i, 0xFFFFFFFF)
+			gridArray.set((2 * bgOrig.get(0).getHeight() + 1) * bg.get(0).getWidth() + i, 0xFFFFFFFF)
 		}
 		gridMap = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888)
+		
+		// Generate textMap
+		for (var i = 0; i < bg.get(0).getWidth() * bg.get(0).getHeight(); i++) {
+			gridArray.set(i, 0x00000000)
+		}
+		textMap = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
+		
+		ysTf = Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")
 	}
 	
 	def getBG(int idx) {
@@ -86,18 +104,43 @@ class OverlayManager {
 		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
 		bgOrigMap = bgOrig.get(bgIdx)
 		for (var i = 0; i < 9; i++) {
-			if (i < input.length() && Character.isWhitespace(input.charAt(i))) {
+			if (i < input.length() && !Character.isWhitespace(input.charAt(i))) {
+				var canvas = new Canvas(textMap)
+  				var paint = new Paint(Paint.ANTI_ALIAS_FLAG)
+  				paint.setColor(bgColor.get(bgIdx))
+  				paint.setTextSize(64)
+  				paint.setShadowLayer(1f, 0f, 1f, Color.TRANSPARENT)
+  				paint.setTypeface(ysTf)
+ 
+  				var bounds = new Rect()
+  				paint.getTextBounds(input.charAt(i).toString(), 0, 1, bounds)
+  				val row = i / 3
+				val col = i % 3
+  				var x = col * (bgOrig.get(0).getWidth() + 1) + (bgOrig.get(0).getWidth() - bounds.width())/2
+  				var y = row * (bgOrig.get(0).getHeight() + 1) + (bgOrig.get(0).getHeight() + bounds.height())/2
+
+  				canvas.drawText(input.charAt(i).toString(), x, y, paint)
+			} else if (i < input.length() && Character.isWhitespace(input.charAt(i))) {
 		 		bgMap = disableGrid(bgMap, bgOrigMap, i)
 			}
 		}
 	}
 	
 	def getBitmapForDraw() {
-		var layers = #[new BitmapDrawable(parent.getResources(), gridMap), new BitmapDrawable(parent.getResources(), bgMap)] as Drawable[]
+		var Drawable[] layers
+		if (photoMap != null) {
+			layers = #[new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
+		} else {
+			layers = #[new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
+		}
     	var layerDrawable = new LayerDrawable(layers)
 		var b = Bitmap.createBitmap(bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888)
 		layerDrawable.setBounds(0, 0, bg.get(0).getWidth(), bg.get(0).getHeight())
 		layerDrawable.draw(new Canvas(b))
 		return b
+	}
+	
+	def setPhoto(Bitmap photo) {
+		photoMap = photo
 	}
 }

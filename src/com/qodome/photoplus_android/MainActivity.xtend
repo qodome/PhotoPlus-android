@@ -49,9 +49,7 @@ import android.text.Editable
 	
 	@OnCreate
     def init(Bundle savedInstanceState) {
-    	Log.i(getString(R.string.LOGTAG), "before OM init")
     	om = new OverlayManager(this)
-    	Log.i(getString(R.string.LOGTAG), "after OM init")
     	
      	var backgroundBitmap = (getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()    	
     	var blankArray = Utils.getIntArray(backgroundBitmap.getWidth() * backgroundBitmap.getHeight())
@@ -86,17 +84,7 @@ import android.text.Editable
 			cropFrag.getCropImageView().queryCoordinate()
 			var croppedImage = cropFrag.getCropImageView().getCroppedImage().copy(Bitmap.Config.ARGB_8888, false)
 			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth())
-			width = croppedImage.getWidth() / 3
-        	height = croppedImage.getHeight() / 3
-			intArray = Utils.getIntArray(croppedImage.getWidth() * croppedImage.getHeight())
-
-        	for (var i = 0; i < 3; i++) {
-        		for (var j = 0; j < 3; j++) {
-        			croppedImage.getPixels(intArray, 0, croppedImage.getWidth(), j * width, i * height, width, height)
-        			var piece = Bitmap.createBitmap(intArray, 0, croppedImage.getWidth(), width, height, Bitmap.Config.ARGB_8888)
-        			pieces.add(piece)
-        		}
-        	}
+			om.setPhoto(croppedImage)
         	editFrag = newEditFrag()
        		getFragmentManager().beginTransaction().remove(cropFrag).commit()
 			getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
