@@ -13,6 +13,9 @@ import android.graphics.Typeface
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Color
+import android.os.Environment
+import java.io.File
+import java.io.FileOutputStream
 
 class OverlayManager {
 	val String[] bgDesc = #["bg0_0", "bg2_e6e6e6", "bg10_0", "bg20_0", 
@@ -32,8 +35,10 @@ class OverlayManager {
 	var Bitmap bgOrigMap
 	var List<Bitmap> bg
 	var List<Bitmap> bgOrig
+	var List<Bitmap> cardFrame
 	var MainActivity parent
 	var CharSequence textCS
+	var String folderName
 	
 	new(MainActivity activity) {
 		parent = activity
@@ -76,11 +81,21 @@ class OverlayManager {
 		for (var i = 0; i < bg.get(0).getWidth() * bg.get(0).getHeight(); i++) {
 			gridArray.set(i, 0x00000000)
 		}
+		
+		// Generate card frame
+		var background1Bitmap = (parent.getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()
+		var background2Bitmap = (parent.getResources().getDrawable(R.drawable.background2) as BitmapDrawable).getBitmap()
+		var background3Bitmap = (parent.getResources().getDrawable(R.drawable.background3) as BitmapDrawable).getBitmap()
+		cardFrame = #[background1Bitmap, background2Bitmap, background1Bitmap,
+					  background2Bitmap, background1Bitmap, background2Bitmap,
+					  background1Bitmap, background2Bitmap, background3Bitmap]		
+		
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
 		textTF = #[Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")]
 		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
 		bgOrigMap = bgOrig.get(bgIdx)
 		textCS = new String("")
+		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
 	}
 	
 	def toggleTF() {
@@ -115,7 +130,7 @@ class OverlayManager {
 		textCS = new String(input.toString())
 	}
 	
-	def getBitmapForDraw() {
+	def getBitmapForDraw(boolean withGrid) {
 		var Drawable[] layers
 		
 		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
@@ -143,9 +158,17 @@ class OverlayManager {
 			}
 		}
 		if (photoMap != null) {
-			layers = #[new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
+			if (withGrid == true) {
+				layers = #[new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]				
+			} else {
+				layers = #[new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap)]
+			}
 		} else {
-			layers = #[new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
+			if (withGrid == true) {
+				layers = #[new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
+			} else {
+				layers = #[new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap)]
+			}
 		}
     	var layerDrawable = new LayerDrawable(layers)
 		var b = Bitmap.createBitmap(bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888)
@@ -156,5 +179,24 @@ class OverlayManager {
 	
 	def setPhoto(Bitmap photo) {
 		photoMap = photo
+	}
+	
+	def dumpToFile() {
+		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (640 * 3), (640 * 3), false)
+		var intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
+		b.getPixels(intArray, 0, b.getWidth(), 0, 0, (640 * 3), (640 * 3))
+		for (var i = 0; i < 3; i++) {
+        	for (var j = 0; j < 3; j++) {
+        		var output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
+				output.setPixels(intArray, (i * 640 * 640 * 3 + j * 640), (640 * 3), 0, 248, 640, 640)
+				var fn = new File(folderName + "test" + i + j + ".png")
+				if (!fn.exists()) {
+					fn.createNewFile()
+				}
+				var out = new FileOutputStream(folderName + "test" + i + j + ".png")
+    			output.compress(Bitmap.CompressFormat.PNG, 100, out)
+    			out.close()
+        	}
+        }
 	}
 }

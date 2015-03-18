@@ -41,6 +41,7 @@ import android.text.Editable
 	var Bitmap blankBitmap
 	var boolean cutFunc = false
 	var OverlayManager om
+	var String folderName
 	
 	def EditFragment newEditFrag() {
 		var frag = new EditFragment()
@@ -58,7 +59,7 @@ import android.text.Editable
 
 		inputString = new String("")
 		editFrag = newEditFrag()
-		editFrag.setBitmap(om.getBitmapForDraw())
+		editFrag.setBitmap(om.getBitmapForDraw(true))
 		getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 		
 		inputText.addTextChangedListener(new TextWatcher() {
@@ -67,19 +68,32 @@ import android.text.Editable
         	override onTextChanged(CharSequence s, int start, int before, int count) {
         		Log.i(getString(R.string.LOGTAG), "onTextChanged " + s + " " + start + " " + before + " " + count)
         		om.inputString(s)
-        		editFrag.setBitmap(om.getBitmapForDraw())
+        		editFrag.setBitmap(om.getBitmapForDraw(true))
         	}
 		})
+		
+		// Storage
+		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			Log.e(getString(R.string.LOGTAG), "External storage not mounted")
+	        return
+	    }
+		
+		var reportFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "PhotoPlus")
+		if (!reportFolder.exists()) {
+			Log.i(getString(R.string.LOGTAG), "Creating missing directory iDoStatsMonitor")
+			reportFolder.mkdirs()
+		}
+		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
     }
 	
 	override font(View v) {
 		om.toggleTF()
-		editFrag.setBitmap(om.getBitmapForDraw())
+		editFrag.setBitmap(om.getBitmapForDraw(true))
 	}
 	
 	override background(View v) {
 		om.toggleBG()
-		editFrag.setBitmap(om.getBitmapForDraw())
+		editFrag.setBitmap(om.getBitmapForDraw(true))
 	}
 	
 	override loadPhoto(View v) { 
@@ -96,7 +110,7 @@ import android.text.Editable
 			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth())
 			om.setPhoto(croppedImage)
         	editFrag = newEditFrag()
-        	editFrag.setBitmap(om.getBitmapForDraw())
+        	editFrag.setBitmap(om.getBitmapForDraw(true))
        		getFragmentManager().beginTransaction().remove(cropFrag).commit()
 			getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 			cutFunc = false
@@ -119,20 +133,20 @@ import android.text.Editable
     	}
 	}	
 
-	override share(View v) { 
-
-	}
+	override share(View v) {
+		Log.i("PhotoPlus", "dumpToFile begin")
+		om.dumpToFile()
+		Log.i("PhotoPlus", "dumpToFile end")
 		
-	def shareMultiplePictureToTimeLine() {
 		var intent = new Intent();
 		var comp = new ComponentName("com.tencent.mm","com.tencent.mm.ui.tools.ShareToTimeLineUI");
 		intent.setComponent(comp);
 		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		intent.setType("image/*");
 		var imageUris = new ArrayList<Uri>();
-		for (var j = 0; j < 3; j++) {
-			for (var i = 0; i < 3; i++) {
-				//imageUris.add(Uri.fromFile(new File(folderName + "test" + i + j + ".png")))
+		for (var i = 0; i < 3; i++) {
+			for (var j = 0; j < 3; j++) {
+				imageUris.add(Uri.fromFile(new File(folderName + "test" + i + j + ".png")))
 			}
 		}
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
