@@ -38,7 +38,6 @@ import android.text.Editable
 	var CropFragment cropFrag
 	var EditFragment editFrag
 	var String inputString
-	var Bitmap blankBitmap
 	var boolean cutFunc = false
 	var OverlayManager om
 	var String folderName
@@ -51,12 +50,6 @@ import android.text.Editable
 	@OnCreate
     def init(Bundle savedInstanceState) {
     	om = new OverlayManager(this)
-    	
-     	var backgroundBitmap = (getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()    	
-    	var blankArray = Utils.getIntArray(backgroundBitmap.getWidth() * backgroundBitmap.getHeight())
-    	backgroundBitmap.getPixels(blankArray, 0, backgroundBitmap.getWidth(), 0, 248, backgroundBitmap.getWidth(), backgroundBitmap.getWidth())
-    	blankBitmap = Bitmap.createBitmap(blankArray, 0, backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), backgroundBitmap.getWidth(), Bitmap.Config.ARGB_8888)
-
 		inputString = new String("")
 		editFrag = newEditFrag()
 		editFrag.setBitmap(om.getBitmapForDraw(true))

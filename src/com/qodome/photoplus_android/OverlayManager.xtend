@@ -17,6 +17,14 @@ import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
 
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.google.zxing.common.BitMatrix
+import java.util.Map
+import java.util.EnumMap
+
 class OverlayManager {
 	val String[] bgDesc = #["bg0_0", "bg2_e6e6e6", "bg10_0", "bg20_0", 
 							"bg30_0", "bg40_0", "bg50_ffffff", "bg60_ffffff", 
@@ -83,12 +91,12 @@ class OverlayManager {
 		}
 		
 		// Generate card frame
-		var background1Bitmap = (parent.getResources().getDrawable(R.drawable.background1) as BitmapDrawable).getBitmap()
-		var background2Bitmap = (parent.getResources().getDrawable(R.drawable.background2) as BitmapDrawable).getBitmap()
-		var background3Bitmap = (parent.getResources().getDrawable(R.drawable.background3) as BitmapDrawable).getBitmap()
-		cardFrame = #[background1Bitmap, background2Bitmap, background1Bitmap,
-					  background2Bitmap, background1Bitmap, background2Bitmap,
-					  background1Bitmap, background2Bitmap, background3Bitmap]		
+		var template_left = (parent.getResources().getDrawable(R.drawable.template_left) as BitmapDrawable).getBitmap()
+		var template_right = (parent.getResources().getDrawable(R.drawable.template_right) as BitmapDrawable).getBitmap()
+		var template_share = (parent.getResources().getDrawable(R.drawable.template_share) as BitmapDrawable).getBitmap()
+		cardFrame = #[template_left, template_share, template_left,
+					  template_share, template_left, template_share,
+					  template_left, template_share, template_right]		
 		
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
 		textTF = #[Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")]
@@ -184,11 +192,17 @@ class OverlayManager {
 	def dumpToFile() {
 		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (640 * 3), (640 * 3), false)
 		var intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
+		var barArray = Utils.getIntArray(192 * 192)
 		b.getPixels(intArray, 0, b.getWidth(), 0, 0, (640 * 3), (640 * 3))
 		for (var i = 0; i < 3; i++) {
         	for (var j = 0; j < 3; j++) {
         		var output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
 				output.setPixels(intArray, (i * 640 * 640 * 3 + j * 640), (640 * 3), 0, 248, 640, 640)
+				if (((i * 3) + j) % 2 == 1) {
+					var barcode = encodeAsBitmap("a10000000", BarcodeFormat.QR_CODE, 192, 192)
+					barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, 192, 192)
+					output.setPixels(barArray, 0, 192, 30, 914, 192, 192)					
+				}				
 				var fn = new File(folderName + "test" + i + j + ".png")
 				if (!fn.exists()) {
 					fn.createNewFile()
@@ -199,4 +213,33 @@ class OverlayManager {
         	}
         }
 	}
+	
+	/////////////////////// Bar code /////////////////////////
+    def encodeAsBitmap(String contents, BarcodeFormat format, int img_width, int img_height) {
+    	var encoding = "UTF-8"
+        var hints = new EnumMap<EncodeHintType, Object>(typeof(EncodeHintType))
+        hints.put(EncodeHintType.CHARACTER_SET, encoding)
+        hints.put(EncodeHintType.MARGIN, 0)
+    	var writer = new MultiFormatWriter()
+    	var BitMatrix result = writer.encode(contents, format, img_width, img_height, hints)
+    	var width = result.getWidth()
+    	var height = result.getHeight()
+    	var pixels = Utils.getIntArray(width * height)
+    	var int value
+    	for (var y = 0; y < height; y++) {
+        	var offset = y * width
+        	for (var x = 0; x < width; x++) {
+        		if (result.get(x, y)) {
+        			value = 0xFF000000
+        		} else {
+        			value = 0xFFFFFFFF
+        		}
+        		pixels.set((offset + x), value)
+        	}
+    	}
+
+    	var ret = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    	ret.setPixels(pixels, 0, width, 0, 0, width, height)
+    	return ret
+    }
 }

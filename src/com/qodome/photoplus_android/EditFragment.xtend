@@ -17,7 +17,7 @@ import android.util.Log
 
 @AndroidFragment(R.layout.fragment_edit) class EditFragment {
 	var Bitmap show = null
-	var boolean initDone = false
+	var Boolean initDone = false
 	
 	def setBitmap(Bitmap b) {
 		show = b
