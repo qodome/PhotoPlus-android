@@ -58,7 +58,7 @@ import android.text.Editable
 
 		inputString = new String("")
 		editFrag = newEditFrag()
-		editFrag.setBitmap(om.getBG(8))
+		editFrag.setBitmap(om.getBitmapForDraw())
 		getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 		
 		inputText.addTextChangedListener(new TextWatcher() {
@@ -71,6 +71,16 @@ import android.text.Editable
         	}
 		})
     }
+	
+	override font(View v) {
+		om.toggleTF()
+		editFrag.setBitmap(om.getBitmapForDraw())
+	}
+	
+	override background(View v) {
+		om.toggleBG()
+		editFrag.setBitmap(om.getBitmapForDraw())
+	}
 	
 	override loadPhoto(View v) { 
 		if (cutFunc == false) {
@@ -86,6 +96,7 @@ import android.text.Editable
 			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth())
 			om.setPhoto(croppedImage)
         	editFrag = newEditFrag()
+        	editFrag.setBitmap(om.getBitmapForDraw())
        		getFragmentManager().beginTransaction().remove(cropFrag).commit()
 			getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
 			cutFunc = false

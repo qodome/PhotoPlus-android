@@ -21,16 +21,19 @@ class OverlayManager {
 	val bgColor = #[0xFF000000, 0xFFe6e6e6, 0xFF000000, 0xFF000000,
 							0xFF000000, 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF,
 							0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF]
-	var Bitmap gridMap
+	var int bgIdx = 0
+	var Typeface[] textTF
+	var int tfIdx = 0
+	var Bitmap gridMap			// FIXED
 	var Bitmap photoMap
-	var Bitmap textMap
+	var Bitmap textMapDefault	// FIXED
+	var Bitmap textMap	
 	var Bitmap bgMap
 	var Bitmap bgOrigMap
-	var int bgIdx = 0
 	var List<Bitmap> bg
 	var List<Bitmap> bgOrig
 	var MainActivity parent
-	var Typeface ysTf
+	var CharSequence textCS
 	
 	new(MainActivity activity) {
 		parent = activity
@@ -69,23 +72,31 @@ class OverlayManager {
 		}
 		gridMap = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888)
 		
-		// Generate textMap
+		// Generate textMapDefault
 		for (var i = 0; i < bg.get(0).getWidth() * bg.get(0).getHeight(); i++) {
 			gridArray.set(i, 0x00000000)
 		}
-		textMap = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
-		
-		ysTf = Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")
+		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
+		textTF = #[Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")]
+		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
+		bgOrigMap = bgOrig.get(bgIdx)
+		textCS = new String("")
 	}
 	
-	def getBG(int idx) {
-		if (idx < bg.length()) {
-			bgIdx = idx
-			bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
-			bgOrigMap = bgOrig.get(bgIdx)
-			return bgMap
+	def toggleTF() {
+		tfIdx++
+		if (tfIdx >= textTF.length()) {
+			tfIdx = 0
 		}
-		return null
+	}
+	
+	def toggleBG() {
+		bgIdx++
+		if (bgIdx >= bg.length()) {
+			bgIdx = 0
+		}
+		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
+		bgOrigMap = bgOrig.get(bgIdx)
 	}
 	
 	def disableGrid(Bitmap bp, Bitmap bpOrig, int i) {
@@ -101,33 +112,36 @@ class OverlayManager {
 	}
 	
 	def inputString(CharSequence input) {
+		textCS = new String(input.toString())
+	}
+	
+	def getBitmapForDraw() {
+		var Drawable[] layers
+		
 		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
 		bgOrigMap = bgOrig.get(bgIdx)
+		textMap = textMapDefault.copy(Bitmap.Config.ARGB_8888, true)		
 		for (var i = 0; i < 9; i++) {
-			if (i < input.length() && !Character.isWhitespace(input.charAt(i))) {
+			if (i < textCS.length() && !Character.isWhitespace(textCS.charAt(i))) {
 				var canvas = new Canvas(textMap)
   				var paint = new Paint(Paint.ANTI_ALIAS_FLAG)
   				paint.setColor(bgColor.get(bgIdx))
   				paint.setTextSize(64)
   				paint.setShadowLayer(1f, 0f, 1f, Color.TRANSPARENT)
-  				paint.setTypeface(ysTf)
+  				paint.setTypeface(textTF.get(tfIdx))
  
   				var bounds = new Rect()
-  				paint.getTextBounds(input.charAt(i).toString(), 0, 1, bounds)
+  				paint.getTextBounds(textCS.charAt(i).toString(), 0, 1, bounds)
   				val row = i / 3
 				val col = i % 3
   				var x = col * (bgOrig.get(0).getWidth() + 1) + (bgOrig.get(0).getWidth() - bounds.width())/2
   				var y = row * (bgOrig.get(0).getHeight() + 1) + (bgOrig.get(0).getHeight() + bounds.height())/2
 
-  				canvas.drawText(input.charAt(i).toString(), x, y, paint)
-			} else if (i < input.length() && Character.isWhitespace(input.charAt(i))) {
+  				canvas.drawText(textCS.charAt(i).toString(), x, y, paint)
+			} else if (i < textCS.length() && Character.isWhitespace(textCS.charAt(i))) {
 		 		bgMap = disableGrid(bgMap, bgOrigMap, i)
 			}
 		}
-	}
-	
-	def getBitmapForDraw() {
-		var Drawable[] layers
 		if (photoMap != null) {
 			layers = #[new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
 		} else {
