@@ -27,6 +27,8 @@ import java.nio.ByteBuffer
 import android.graphics.drawable.BitmapDrawable
 import android.text.TextWatcher
 import android.text.Editable
+import android.os.AsyncTask
+import java.net.URL
 
 @AndroidActivity(R.layout.activity_main) class MainActivity {
 	val String sinapackage = "com.sina.weibo"
@@ -126,10 +128,14 @@ import android.text.Editable
     	}
 	}	
 
+	def getFolderName() {
+		var c = Calendar.getInstance()
+    	var sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(c.getTimeInMillis())) / 1000L
+    	return String.valueOf(((sec - 1425168000) / 864000)) 
+	}
+
 	override share(View v) {
-		Log.i("PhotoPlus", "dumpToFile begin")
-		om.dumpToFile()
-		Log.i("PhotoPlus", "dumpToFile end")
+		var uploadFn = om.dumpToFile()
 		
 		var intent = new Intent();
 		var comp = new ComponentName("com.tencent.mm","com.tencent.mm.ui.tools.ShareToTimeLineUI");
@@ -144,5 +150,17 @@ import android.text.Editable
 		}
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
 		startActivity(intent);
+		new UploadFilesTask().execute(folderName, getFolderName, uploadFn)
 	}
+	
+	static class UploadFilesTask extends AsyncTask<String, Integer, Long> {
+    	override doInBackground(String... info) {
+        	HttpHelper.upload(info.get(0), info.get(1), info.get(2))
+        	return 0L
+     	}
+     	override onProgressUpdate(Integer... progress) {
+     	}
+     	override onPostExecute(Long result) {
+     	}
+ 	}
 }

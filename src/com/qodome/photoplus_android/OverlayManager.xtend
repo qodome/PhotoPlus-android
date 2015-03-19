@@ -24,6 +24,8 @@ import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 import java.util.Map
 import java.util.EnumMap
+import java.util.Calendar
+import java.util.Random
 
 class OverlayManager {
 	val String[] bgDesc = #["bg0_0", "bg2_e6e6e6", "bg10_0", "bg20_0", 
@@ -32,6 +34,8 @@ class OverlayManager {
 	val bgColor = #[0xFF000000, 0xFFe6e6e6, 0xFF000000, 0xFF000000,
 							0xFF000000, 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF,
 							0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF]
+    val barcodeSize = 128
+    val boarcodeBoarderGap = 32
 	var int bgIdx = 0
 	var Typeface[] textTF
 	var int tfIdx = 0
@@ -39,10 +43,7 @@ class OverlayManager {
 	var Bitmap photoMap
 	var Bitmap textMapDefault	// FIXED
 	var Bitmap textMap	
-	var Bitmap bgMap
-	var Bitmap bgOrigMap
 	var List<Bitmap> bg
-	var List<Bitmap> bgOrig
 	var List<Bitmap> cardFrame
 	var MainActivity parent
 	var CharSequence textCS
@@ -52,23 +53,21 @@ class OverlayManager {
 		parent = activity
 		photoMap = null
 		bg = new ArrayList<Bitmap>()
-		bgOrig = new ArrayList<Bitmap>()
 		for (String desc : bgDesc) {
 			var id = parent.getResources().getIdentifier(desc, "drawable", parent.getPackageName())
 			var bitmapElement = (parent.getResources().getDrawable(id) as BitmapDrawable).getBitmap()
 			var elementArray = Utils.getIntArray(bitmapElement.getWidth() * bitmapElement.getHeight())
 			bitmapElement.getPixels(elementArray, 0, bitmapElement.getWidth(), 0, 0, bitmapElement.getWidth(), bitmapElement.getWidth())
-			var finalArray = Utils.getIntArray((bitmapElement.getWidth() * 3 + 2) * (bitmapElement.getHeight() * 3 + 2))		
+			var finalArray = Utils.getIntArray((bitmapElement.getWidth() * 3) * (bitmapElement.getHeight() * 3))
 			for (var row = 0; row < bitmapElement.getHeight(); row++) {
 				for (var i = 0; i < 3; i++) {
 					for (var j = 0; j < 3; j++) {
-						System.arraycopy(elementArray, (row * bitmapElement.getWidth()), finalArray, ((i * (bitmapElement.getHeight() + 1) + row) * (bitmapElement.getWidth() * 3 + 2) + j * (bitmapElement.getWidth() + 1)), bitmapElement.getWidth())
+						System.arraycopy(elementArray, (row * bitmapElement.getWidth()), finalArray, ((i * (bitmapElement.getHeight()) + row) * (bitmapElement.getWidth() * 3) + j * bitmapElement.getWidth()), bitmapElement.getWidth())
 					}
 				}				
 			}
-			var finalMap = Bitmap.createBitmap(finalArray, (bitmapElement.getWidth() * 3 + 2), (bitmapElement.getHeight() * 3 + 2), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
+			var finalMap = Bitmap.createBitmap(finalArray, (bitmapElement.getWidth() * 3), (bitmapElement.getHeight() * 3), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
 			bg.add(finalMap)
-			bgOrig.add(bitmapElement)
 		}
 		// Generate gridMap
 		var gridArray = Utils.getIntArray(bg.get(0).getWidth() * bg.get(0).getHeight())
@@ -76,12 +75,16 @@ class OverlayManager {
 			gridArray.set(i, 0x00000000)
 		}
 		for (var i = 0; i < bg.get(0).getHeight(); i++) {
-			gridArray.set(i * bg.get(0).getWidth() + bgOrig.get(0).getWidth(), 0xFFFFFFFF)
-			gridArray.set(i * bg.get(0).getWidth() + 2 * bgOrig.get(0).getWidth() + 1, 0xFFFFFFFF)
+			gridArray.set(i * bg.get(0).getWidth() + (bg.get(0).getWidth() / 3 - 1), 0xFFFFFFFF)
+			gridArray.set(i * bg.get(0).getWidth() + (bg.get(0).getWidth() / 3), 0xFFFFFFFF)
+			gridArray.set(i * bg.get(0).getWidth() + (2 * (bg.get(0).getWidth() / 3) - 1), 0xFFFFFFFF)
+			gridArray.set(i * bg.get(0).getWidth() + (2 * (bg.get(0).getWidth() / 3)), 0xFFFFFFFF)
 		}
 		for (var i = 0; i < bg.get(0).getWidth(); i++) {
-			gridArray.set(bgOrig.get(0).getHeight() * bg.get(0).getWidth() + i, 0xFFFFFFFF)
-			gridArray.set((2 * bgOrig.get(0).getHeight() + 1) * bg.get(0).getWidth() + i, 0xFFFFFFFF)
+			gridArray.set((bg.get(0).getHeight() / 3 - 1) * bg.get(0).getWidth() + i, 0xFFFFFFFF)
+			gridArray.set((bg.get(0).getHeight() / 3) * bg.get(0).getWidth() + i, 0xFFFFFFFF)
+			gridArray.set((2 * (bg.get(0).getHeight() / 3) - 1) * bg.get(0).getWidth() + i, 0xFFFFFFFF)
+			gridArray.set((2 * (bg.get(0).getHeight() / 3)) * bg.get(0).getWidth() + i, 0xFFFFFFFF)
 		}
 		gridMap = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888)
 		
@@ -91,17 +94,15 @@ class OverlayManager {
 		}
 		
 		// Generate card frame
-		var template_left = (parent.getResources().getDrawable(R.drawable.template_left) as BitmapDrawable).getBitmap()
-		var template_right = (parent.getResources().getDrawable(R.drawable.template_right) as BitmapDrawable).getBitmap()
-		var template_share = (parent.getResources().getDrawable(R.drawable.template_share) as BitmapDrawable).getBitmap()
-		cardFrame = #[template_left, template_share, template_left,
-					  template_share, template_left, template_share,
-					  template_left, template_share, template_right]		
+		var bg0 = (parent.getResources().getDrawable(R.drawable.bg0) as BitmapDrawable).getBitmap()
+		var bg1 = (parent.getResources().getDrawable(R.drawable.bg1) as BitmapDrawable).getBitmap()
+		var bg8 = (parent.getResources().getDrawable(R.drawable.bg8) as BitmapDrawable).getBitmap()
+		cardFrame = #[bg0, bg1, bg0,
+					  bg1, bg0, bg1,
+					  bg0, bg1, bg8]		
 		
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
 		textTF = #[Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")]
-		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
-		bgOrigMap = bgOrig.get(bgIdx)
 		textCS = new String("")
 		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
 	}
@@ -118,19 +119,19 @@ class OverlayManager {
 		if (bgIdx >= bg.length()) {
 			bgIdx = 0
 		}
-		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
-		bgOrigMap = bgOrig.get(bgIdx)
 	}
 	
-	def disableGrid(Bitmap bp, Bitmap bpOrig, int i) {
+	def disableGrid(Bitmap bp, int i) {
 		val row = i / 3
 		val col = i % 3
 		var tmpArray = Utils.getIntArray(bp.getWidth() * bp.getHeight())
-    	bp.getPixels(tmpArray, 0, bp.getWidth(), col * (bpOrig.getWidth() + 1), row * (bpOrig.getHeight() + 1), bpOrig.getWidth(), bpOrig.getHeight())
+    	bp.getPixels(tmpArray, 0, bp.getWidth(), col * (bp.getWidth() / 3), row * (bp.getHeight() / 3), (bp.getWidth() / 3), (bp.getHeight() / 3))
+
     	for (var intVal = 0; intVal < tmpArray.length(); intVal++) {
     		tmpArray.set(intVal, Utils.getMaskedValue(tmpArray.get(intVal), 0x00FFFFFF))
     	}
-    	bp.setPixels(tmpArray, 0, bp.getWidth(), col * (bpOrig.getWidth() + 1), row * (bpOrig.getHeight() + 1), bpOrig.getWidth(), bpOrig.getHeight())
+    	bp.setPixels(tmpArray, 0, bp.getWidth(), col * (bp.getWidth() / 3), row * (bp.getHeight() / 3), (bp.getWidth() / 3), (bp.getHeight() / 3))
+
     	return bp
 	}
 	
@@ -140,9 +141,11 @@ class OverlayManager {
 	
 	def getBitmapForDraw(boolean withGrid) {
 		var Drawable[] layers
+		var Bitmap bgMap
+        var int outputWidth = bg.get(0).getWidth()
+        var int outputHeight = bg.get(0).getHeight()
 		
 		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
-		bgOrigMap = bgOrig.get(bgIdx)
 		textMap = textMapDefault.copy(Bitmap.Config.ARGB_8888, true)		
 		for (var i = 0; i < 9; i++) {
 			if (i < textCS.length() && !Character.isWhitespace(textCS.charAt(i))) {
@@ -157,12 +160,12 @@ class OverlayManager {
   				paint.getTextBounds(textCS.charAt(i).toString(), 0, 1, bounds)
   				val row = i / 3
 				val col = i % 3
-  				var x = col * (bgOrig.get(0).getWidth() + 1) + (bgOrig.get(0).getWidth() - bounds.width())/2
-  				var y = row * (bgOrig.get(0).getHeight() + 1) + (bgOrig.get(0).getHeight() + bounds.height())/2
+  				var x = col * (bg.get(0).getWidth() / 3) + ((bg.get(0).getWidth() / 3) - bounds.width())/2
+  				var y = row * (bg.get(0).getHeight() / 3) + ((bg.get(0).getHeight() / 3) + bounds.height())/2
 
   				canvas.drawText(textCS.charAt(i).toString(), x, y, paint)
 			} else if (i < textCS.length() && Character.isWhitespace(textCS.charAt(i))) {
-		 		bgMap = disableGrid(bgMap, bgOrigMap, i)
+		 		bgMap = disableGrid(bgMap, i)
 			}
 		}
 		if (photoMap != null) {
@@ -171,6 +174,12 @@ class OverlayManager {
 			} else {
 				layers = #[new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap)]
 			}
+            if (photoMap.getWidth() > outputWidth) {
+                outputWidth = photoMap.getWidth()
+            }
+            if (photoMap.getHeight() > outputHeight) {
+                outputHeight = photoMap.getHeight()
+            }
 		} else {
 			if (withGrid == true) {
 				layers = #[new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap)]
@@ -179,8 +188,8 @@ class OverlayManager {
 			}
 		}
     	var layerDrawable = new LayerDrawable(layers)
-		var b = Bitmap.createBitmap(bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888)
-		layerDrawable.setBounds(0, 0, bg.get(0).getWidth(), bg.get(0).getHeight())
+		var b = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888)
+		layerDrawable.setBounds(0, 0, outputWidth, outputHeight)
 		layerDrawable.draw(new Canvas(b))
 		return b
 	}
@@ -189,29 +198,62 @@ class OverlayManager {
 		photoMap = photo
 	}
 	
+	def getUniqueID() {
+		var c = Calendar.getInstance()
+    	var sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(c.getTimeInMillis())) / 1000L
+    	var r = new Random()    	
+    	return "a" + String.valueOf((sec - 1425168000)) + r.nextInt(10) + r.nextInt(10) + r.nextInt(10)  
+	}
+	
 	def dumpToFile() {
-		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (640 * 3), (640 * 3), false)
+		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false)
 		var intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
-		var barArray = Utils.getIntArray(192 * 192)
-		b.getPixels(intArray, 0, b.getWidth(), 0, 0, (640 * 3), (640 * 3))
+		var barArray = Utils.getIntArray(barcodeSize * barcodeSize)
+		b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight())
+		var id = getUniqueID()
+        var Bitmap output 
+        var Bitmap barcode
+        var File fn
+        var FileOutputStream out
+		Log.i("PhotoPlus", id)
 		for (var i = 0; i < 3; i++) {
         	for (var j = 0; j < 3; j++) {
-        		var output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
-				output.setPixels(intArray, (i * 640 * 640 * 3 + j * 640), (640 * 3), 0, 248, 640, 640)
+        		output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
+				output.setPixels(intArray, (i * cardFrame.get(0).getWidth() * cardFrame.get(0).getWidth() * 3  + j * cardFrame.get(0).getWidth()), (cardFrame.get(0).getWidth() * 3), 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth())
 				if (((i * 3) + j) % 2 == 1) {
-					var barcode = encodeAsBitmap("a10000000", BarcodeFormat.QR_CODE, 192, 192)
-					barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, 192, 192)
-					output.setPixels(barArray, 0, 192, 30, 914, 192, 192)					
+					barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
+					barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
+					output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
 				}				
-				var fn = new File(folderName + "test" + i + j + ".png")
+				fn = new File(folderName + "test" + i + j + ".png")
 				if (!fn.exists()) {
 					fn.createNewFile()
 				}
-				var out = new FileOutputStream(folderName + "test" + i + j + ".png")
+				out = new FileOutputStream(folderName + "test" + i + j + ".png")
     			output.compress(Bitmap.CompressFormat.PNG, 100, out)
     			out.close()
         	}
         }
+        
+        // Dump the file will be sent to AWS
+        b = Bitmap.createScaledBitmap(getBitmapForDraw(false), cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth(), false)
+		intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
+		b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight())
+		output = cardFrame.get(1).copy(Bitmap.Config.ARGB_8888, true)
+		output.setPixels(intArray, 0, cardFrame.get(1).getWidth(), 0, (cardFrame.get(1).getHeight() - cardFrame.get(1).getWidth()) / 2, cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth())
+				
+		barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
+		barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
+		output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
+			
+		fn = new File(folderName + id + ".jpg")
+		if (!fn.exists()) {
+			fn.createNewFile()
+		}
+		out = new FileOutputStream(folderName + id + ".jpg")
+   		output.compress(Bitmap.CompressFormat.JPEG, 100, out)
+   		out.close()
+        return id + ".jpg"
 	}
 	
 	/////////////////////// Bar code /////////////////////////
