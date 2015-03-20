@@ -17,7 +17,7 @@ import android.util.Log
 
 @AndroidFragment(R.layout.fragment_edit) class EditFragment {
 	var Bitmap show = null
-	var boolean initDone = false		// 如果这个文件编译失败，试试把boolean写成Boolean或者反过来
+	var Boolean initDone = false		// 如果这个文件编译失败，试试把boolean写成Boolean或者反过来
 	
 	def setBitmap(Bitmap b) {
 		show = b

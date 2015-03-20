@@ -153,6 +153,10 @@ import java.net.URL
 		new UploadFilesTask().execute(folderName, getFolderName, uploadFn)
 	}
 	
+	override search(View v) {
+		startActivity(new Intent(this, typeof(SearchActivity)))
+	}
+	
 	static class UploadFilesTask extends AsyncTask<String, Integer, Long> {
     	override doInBackground(String... info) {
         	HttpHelper.upload(info.get(0), info.get(1), info.get(2))

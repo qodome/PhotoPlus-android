@@ -26,6 +26,7 @@ import java.util.Map
 import java.util.EnumMap
 import java.util.Calendar
 import java.util.Random
+import android.app.Activity
 
 class OverlayManager {
 	val String[] bgDesc = #["bg0_0", "bg2_e6e6e6", "bg10_0", "bg20_0", 
@@ -45,11 +46,11 @@ class OverlayManager {
 	var Bitmap textMap	
 	var List<Bitmap> bg
 	var List<Bitmap> cardFrame
-	var MainActivity parent
+	var Activity parent
 	var CharSequence textCS
 	var String folderName
 	
-	new(MainActivity activity) {
+	new(Activity activity) {
 		parent = activity
 		photoMap = null
 		bg = new ArrayList<Bitmap>()
@@ -214,6 +215,33 @@ class OverlayManager {
 		canvas.drawText(id, 217, 712, paint)
         return b
 	}
+	
+	def dumpSearchResultToFile(Bitmap sharedBitmap) {
+		var bitContent = Bitmap.createBitmap(sharedBitmap, 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth(), null, false)
+		var b = Bitmap.createScaledBitmap(bitContent, (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false)
+		var intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
+		b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight())
+        var Bitmap output 
+        var File fn
+        var FileOutputStream out
+		for (var i = 0; i < 3; i++) {
+        	for (var j = 0; j < 3; j++) {
+        		if (((i * 3) + j) % 2 == 1) {
+        			output = sharedBitmap.copy(Bitmap.Config.ARGB_8888, true)
+        		} else {
+        			output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
+        		}	
+				output.setPixels(intArray, (i * cardFrame.get(0).getWidth() * cardFrame.get(0).getWidth() * 3  + j * cardFrame.get(0).getWidth()), (cardFrame.get(0).getWidth() * 3), 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth())		
+				fn = new File(folderName + "test" + i + j + ".png")
+				if (!fn.exists()) {
+					fn.createNewFile()
+				}
+				out = new FileOutputStream(folderName + "test" + i + j + ".png")
+    			output.compress(Bitmap.CompressFormat.PNG, 100, out)
+    			out.close()
+        	}
+        }
+	}	
 	
 	def dumpToFile() {
 		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false)

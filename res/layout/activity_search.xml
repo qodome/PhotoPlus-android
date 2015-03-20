@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+	<LinearLayout 
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+
+    	<EditText 
+    	    android:id="@+id/input_text"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="match_parent"
+    	    android:text=""
+    	    android:hint="请输入要转发的图片ID"
+    	    android:gravity="center"/>
+    	
+    	<Button
+    		android:id="@+id/search"
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:text="搜索"
+        	android:gravity="right"
+        	android:onClick="search"/>
+
+    </LinearLayout>
+
+	<com.qodome.photoplus_android.SquareImageView
+		android:id="@+id/photo_query_result"
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:scaleType="centerCrop"/>   
+    
+    <LinearLayout 
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+
+    	<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_weight="1"
+        	android:gravity="left"/>        
+        
+		<Button
+    		android:id="@+id/share"
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:text="分享"
+        	android:visibility="gone"
+        	android:onClick="share"/>  
+        	
+    	<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_weight="1"
+        	android:gravity="right"/>
+    </LinearLayout>	
+    
+</LinearLayout>
