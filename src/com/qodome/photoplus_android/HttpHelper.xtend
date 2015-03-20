@@ -18,20 +18,24 @@ import java.io.FileInputStream
 import com.google.common.base.Charsets
 import java.net.URL
 import java.io.DataOutputStream
+import com.google.common.io.ByteStreams
+import java.io.InputStream
+import java.io.BufferedInputStream
 
 class HttpHelper {
+	val static BOUNDARY = "Boundary+A789798EA789798E"
 	var static StringBuffer requestBody
 	
 	def static public addEntry(String key, String value) {
-		requestBody.append("\r\n--Boundary+A789798EA789798E\r\n")
-		requestBody.append("Content-Disposition: form-data; name=\"" + key + "\"")
+		requestBody.append("\r\n--" + BOUNDARY)
+		requestBody.append("\r\nContent-Disposition: form-data; name=\"" + key + "\"")
 		requestBody.append("\r\n\r\n")
 		requestBody.append(value)
 	}
 	
 	def static public upload(String dir, String folder, String fileName) {
 		var client = new DefaultHttpClient()
-		var get = new HttpGet("http://qodome.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/free/" + folder + "/" + fileName)
+		var get = new HttpGet("http://qodome.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/test/" + folder + "/" + fileName)
 		get.setHeader("Authorization", "Token 707daebb6f44342e9b9c73569404fc8a971db7d3")
 		var response = client.execute(get)
 		
@@ -49,19 +53,12 @@ class HttpHelper {
 				addEntry(key, jsonObj.getString(key))
 			]
 
-			requestBody.append("\r\n--Boundary+A789798EA789798E\r\n")
-			requestBody.append("Content-Disposition: form-data; name=\"file\"; filename=\"" + jsonObj.getString("key") + "\"")
-			requestBody.append("\r\n")
-			requestBody.append("Content-Type: image/jpg")
+			requestBody.append("\r\n--" + BOUNDARY)
+			requestBody.append("\r\nContent-Disposition: form-data; name=\"file\"; filename=\"" + jsonObj.getString("key") + "\"")
+			requestBody.append("\r\nContent-Type: image/jpg")
 			requestBody.append("\r\n\r\n")
-			
-			var fn = new File(dir + fileName)
-			if (!fn.exists()) {
-				return		
-			}
-           	requestBody.append(CharStreams.toString(new InputStreamReader(new FileInputStream(fn), Charsets.UTF_8)))
-           	requestBody.append("\r\n--Boundary+A789798EA789798E--\r\n")
-           				
+			// 文件内容可能包含\000，以byte方式补上
+           		
         	var HttpURLConnection conn = null;
 
             // Make a connect to the server
@@ -72,11 +69,20 @@ class HttpHelper {
             conn.setDoInput(true);
             conn.setUseCaches(false);
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=Boundary+A789798EA789798E");
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
 
             // Send the body
             var dataOS = new DataOutputStream(conn.getOutputStream());
             dataOS.writeBytes(requestBody.toString())
+            
+            var fn = new File(dir + fileName)
+			if (!fn.exists()) {
+				return		
+			}
+			var bytes = ByteStreams.toByteArray(new BufferedInputStream(new FileInputStream(fn)))
+			dataOS.write(bytes, 0, bytes.length())
+           	dataOS.writeBytes("\r\n--" + BOUNDARY + "--\r\n")
+           	
             dataOS.flush()
             dataOS.close()
 
