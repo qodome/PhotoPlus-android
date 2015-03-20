@@ -29,8 +29,17 @@ import android.text.TextWatcher
 import android.text.Editable
 import android.os.AsyncTask
 import java.net.URL
+import android.preference.PreferenceManager
+import android.content.SharedPreferences
+import android.view.Window
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.MotionEvent
+import android.view.GestureDetector
+import android.widget.ImageView
+import android.view.View.OnTouchListener
 
-@AndroidActivity(R.layout.activity_main) class MainActivity {
+@AndroidActivity(R.layout.activity_main) class MainActivity implements 
+        GestureDetector.OnGestureListener {
 	val String sinapackage = "com.sina.weibo"
 	val String sinaclassname = "com.sina.weibo.EditActivity"
 	val String weixinpackage = "com.tencent.mm"
@@ -43,14 +52,47 @@ import java.net.URL
 	var boolean cutFunc = false
 	var OverlayManager om
 	var String folderName
-	
+	var GestureDetector gdt
+	var welcomeNames = #["welcome_1", "welcome_2", "welcome_3", "welcome_4", "welcome_5"]
+	var List<Bitmap> welcomes
+	var int welcomeIdx
+	val static SWIPE_MIN_DISTANCE = 120
+	val static SWIPE_THRESHOLD_VELOCITY = 200
+			
 	def EditFragment newEditFrag() {
 		var frag = new EditFragment()
 		return frag
 	}
+		
+    override onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+    	Log.i("PhotoPlus","onFling event");
+        if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            Log.i("PhotoPlus", "turn left")
+            if (welcomeIdx >= (welcomes.length() - 1)) {
+            	Log.i("PhotoPlus", "welcome end")
+            	init()
+            } else {
+            	welcomeIdx++
+            	(findViewById(R.id.welcome_image) as ImageView).setImageBitmap(welcomes.get(welcomeIdx))
+            }
+            return true;
+        } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            Log.i("PhotoPlus", "turn right")
+            if (welcomeIdx == 0) {
+            	Log.i("PhotoPlus", "welcome head")
+            } else {
+            	welcomeIdx--
+            	(findViewById(R.id.welcome_image) as ImageView).setImageBitmap(welcomes.get(welcomeIdx))
+            }
+            return true;
+        }
+        return false;
+    }
 	
-	@OnCreate
-    def init(Bundle savedInstanceState) {
+	def init() {
+		Log.i(getString(R.string.LOGTAG), "Normal run")
+		setContentView(R.layout.activity_main)
+    	
     	om = new OverlayManager(this)
 		inputString = new String("")
 		editFrag = newEditFrag()
@@ -79,7 +121,42 @@ import java.net.URL
 			reportFolder.mkdirs()
 		}
 		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
-    }
+	}
+	
+	override onCreate(Bundle savedInstanceState) {
+    	super.onCreate(savedInstanceState);
+    	
+    	PreferenceManager.setDefaultValues(this, "PhotoPlusPreference", MODE_PRIVATE, R.xml.preferences, false)
+    	var sp = getSharedPreferences("PhotoPlusPreference", MODE_PRIVATE)
+		if (sp?.getBoolean("first_time_init", false)) {
+			var ed = sp.edit()
+			ed.putBoolean("first_time_init", false)
+			ed.commit()
+			Log.i(getString(R.string.LOGTAG), "First time run, show welcome screens")
+			
+			getWindow().requestFeature(Window.FEATURE_NO_TITLE)      
+        	setContentView(R.layout.welcome)
+        	
+        	gdt = new GestureDetector(this)
+        	
+			(findViewById(R.id.welcome_image) as ImageView).setOnTouchListener(new OnTouchListener() {
+        		override onTouch(View view, MotionEvent event) {
+            		gdt.onTouchEvent(event);
+            		return true
+        		}})
+        	
+        	welcomeIdx = 0
+        	welcomes = new ArrayList<Bitmap>()
+        	for (String desc : welcomeNames) {
+				var id = getResources().getIdentifier(desc, "drawable", getPackageName())
+				welcomes.add((getResources().getDrawable(id) as BitmapDrawable).getBitmap())
+        	}
+        	
+        	return
+		}
+		
+		init()    	
+  	}
 	
 	override font(View v) {
 		om.toggleTF()
@@ -167,4 +244,11 @@ import java.net.URL
      	override onPostExecute(Long result) {
      	}
  	}
+		
+	override onDown(MotionEvent e) {return false}
+	override onLongPress(MotionEvent e) {}
+	override onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {return false}
+	override onShowPress(MotionEvent e) {}
+	override onSingleTapUp(MotionEvent e) {return false}
+		
 }

@@ -17,19 +17,19 @@ import android.util.Log
 
 @AndroidFragment(R.layout.fragment_edit) class EditFragment {
 	var Bitmap show = null
-	var Boolean initDone = false		// 如果这个文件编译失败，试试把boolean写成Boolean或者反过来
+	var boolean initDone = false		// 如果这个文件编译失败，试试把boolean写成Boolean或者反过来
 	
 	def setBitmap(Bitmap b) {
 		show = b
 		if (initDone == true) {
-			getPhotoGridView().setImageBitmap(show)
+			(findViewById(R.id.photo_grid_view) as SquareImageView).setImageBitmap(show)
 		}
 	}
 	
 	@OnCreate
     def init(Bundle savedInstanceState) {
 		if (show != null) {
-			getPhotoGridView().setImageBitmap(show)
+			(findViewById(R.id.photo_grid_view) as SquareImageView).setImageBitmap(show)
 		}
 		initDone = true
     }

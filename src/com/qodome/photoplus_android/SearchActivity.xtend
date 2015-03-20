@@ -103,7 +103,7 @@ import android.os.Environment
      	override onProgressUpdate(Integer... progress) {
      	}
      	override onPostExecute(Bitmap b) {
-     		searchUI.getPhotoQueryResult().setImageBitmap(b)     		
+     		(searchUI.findViewById(R.id.photo_query_result) as SquareImageView).setImageBitmap(b)    		
      		if (b == null) {
      			searchUI.getShare().setVisibility(View.GONE)
      			new AlertDialog.Builder(searchUI)
