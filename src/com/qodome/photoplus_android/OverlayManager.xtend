@@ -205,6 +205,16 @@ class OverlayManager {
     	return "a" + String.valueOf((sec - 1425168000)) + r.nextInt(10) + r.nextInt(10) + r.nextInt(10)  
 	}
 	
+	def addIDtoBitmap(Bitmap b, String id) {
+		var canvas = new Canvas(b)
+  		var paint = new Paint(Paint.ANTI_ALIAS_FLAG)
+  		paint.setColor(0xFF000000)
+  		paint.setTextSize(20)
+  		paint.setShadowLayer(1f, 0f, 1f, Color.TRANSPARENT)
+		canvas.drawText(id, 217, 712, paint)
+        return b
+	}
+	
 	def dumpToFile() {
 		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false)
 		var intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
@@ -224,6 +234,7 @@ class OverlayManager {
 					barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
 					barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
 					output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
+                    output = addIDtoBitmap(output, "转发ID: " + id)
 				}				
 				fn = new File(folderName + "test" + i + j + ".png")
 				if (!fn.exists()) {
@@ -245,7 +256,8 @@ class OverlayManager {
 		barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
 		barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
 		output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
-			
+		output = addIDtoBitmap(output, "转发ID: " + id)
+		
 		fn = new File(folderName + id + ".jpg")
 		if (!fn.exists()) {
 			fn.createNewFile()

@@ -35,7 +35,7 @@ class HttpHelper {
 	
 	def static public upload(String dir, String folder, String fileName) {
 		var client = new DefaultHttpClient()
-		var get = new HttpGet("http://qodome.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/test/" + folder + "/" + fileName)
+		var get = new HttpGet("http://qodome.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/free/" + folder + "/" + fileName)
 		get.setHeader("Authorization", "Token 707daebb6f44342e9b9c73569404fc8a971db7d3")
 		var response = client.execute(get)
 		
