@@ -37,6 +37,8 @@ import android.view.MotionEvent
 import android.view.GestureDetector
 import android.widget.ImageView
 import android.view.View.OnTouchListener
+import android.widget.ViewFlipper
+import android.view.animation.AnimationUtils
 
 @AndroidActivity(R.layout.activity_main) class MainActivity implements 
         GestureDetector.OnGestureListener {
@@ -66,8 +68,12 @@ import android.view.View.OnTouchListener
 		
     override onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
     	Log.i("PhotoPlus","onFling event");
-        if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+        if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn left")
+            (findViewById(R.id.view_flipper) as ViewFlipper).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in)) 
+            (findViewById(R.id.view_flipper) as ViewFlipper).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out))
+            (findViewById(R.id.view_flipper) as ViewFlipper).showNext()
+            /*
             if (welcomeIdx >= (welcomes.length() - 1)) {
             	Log.i("PhotoPlus", "welcome end")
             	init()
@@ -75,15 +81,21 @@ import android.view.View.OnTouchListener
             	welcomeIdx++
             	(findViewById(R.id.welcome_image) as ImageView).setImageBitmap(welcomes.get(welcomeIdx))
             }
+            */
             return true;
-        } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+        } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn right")
+            (findViewById(R.id.view_flipper) as ViewFlipper).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));  
+            (findViewById(R.id.view_flipper) as ViewFlipper).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));  
+            (findViewById(R.id.view_flipper) as ViewFlipper).showPrevious()
+            /*
             if (welcomeIdx == 0) {
             	Log.i("PhotoPlus", "welcome head")
             } else {
             	welcomeIdx--
             	(findViewById(R.id.welcome_image) as ImageView).setImageBitmap(welcomes.get(welcomeIdx))
             }
+            */
             return true;
         }
         return false;
@@ -133,24 +145,28 @@ import android.view.View.OnTouchListener
 			ed.putBoolean("first_time_init", false)
 			ed.commit()
 			Log.i(getString(R.string.LOGTAG), "First time run, show welcome screens")
-			
-			getWindow().requestFeature(Window.FEATURE_NO_TITLE)      
+			     
         	setContentView(R.layout.welcome)
         	
         	gdt = new GestureDetector(this)
-        	
-			(findViewById(R.id.welcome_image) as ImageView).setOnTouchListener(new OnTouchListener() {
-        		override onTouch(View view, MotionEvent event) {
-            		gdt.onTouchEvent(event);
-            		return true
-        		}})
-        	
+
         	welcomeIdx = 0
         	welcomes = new ArrayList<Bitmap>()
         	for (String desc : welcomeNames) {
 				var id = getResources().getIdentifier(desc, "drawable", getPackageName())
 				welcomes.add((getResources().getDrawable(id) as BitmapDrawable).getBitmap())
         	}
+        	
+			(findViewById(R.id.view_flipper) as ViewFlipper).setOnTouchListener(new OnTouchListener() {
+        		override onTouch(View view, MotionEvent event) {
+            		gdt.onTouchEvent(event);
+            		return true
+        		}})
+        	for (var idx = 0; idx < welcomes.length(); idx++) {
+        		var img = new ImageView(this)
+        		img.setImageBitmap(welcomes.get(idx))
+        		(findViewById(R.id.view_flipper) as ViewFlipper).addView(img)	
+        	}        	
         	
         	return
 		}
