@@ -58,22 +58,25 @@
 
 		<Button
     		android:id="@+id/open"
-        	android:layout_width="wrap_content"
+        	android:layout_width="0dp"
         	android:layout_height="wrap_content"
+        	android:layout_weight="1"
         	android:text="OPEN"
         	android:onClick="loadPhoto"/>      
 
 		<Button
     		android:id="@+id/share"
-        	android:layout_width="wrap_content"
+        	android:layout_width="0dp"
         	android:layout_height="wrap_content"
+        	android:layout_weight="1"
         	android:text="SHARE"
         	android:onClick="share"/>		
 
 		<Button
     		android:id="@+id/search"
-        	android:layout_width="wrap_content"
+        	android:layout_width="0dp"
         	android:layout_height="wrap_content"
+        	android:layout_weight="1"
         	android:text="SEARCH"
         	android:onClick="search"/>
 							

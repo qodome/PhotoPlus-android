@@ -39,6 +39,8 @@ import android.widget.ImageView
 import android.view.View.OnTouchListener
 import android.widget.ViewFlipper
 import android.view.animation.AnimationUtils
+import android.graphics.BitmapFactory
+import java.io.FileInputStream
 
 @AndroidActivity(R.layout.activity_main) class MainActivity implements 
         GestureDetector.OnGestureListener {
@@ -48,7 +50,6 @@ import android.view.animation.AnimationUtils
 	val String weixinclassname = "com.tencent.mm.ui.tools.ShareImgUI"				//分享给好友图片
 	val String pengyouquanclassname = "com.tencent.mm.ui.tools.ShareToTimeLineUI"	//分享到朋友圈的图片
 	//var String folderName
-	var CropFragment cropFrag
 	var EditFragment editFrag
 	var String inputString
 	var boolean cutFunc = false
@@ -177,39 +178,24 @@ import android.view.animation.AnimationUtils
 	}
 	
 	override loadPhoto(View v) { 
-		if (cutFunc == false) {
-			startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 42)			
-		} else {
-			var List<Bitmap> pieces = new ArrayList<Bitmap>()
-			var int[] intArray
-			var int width
-        	var int height
-		
-			cropFrag.getCropImageView().queryCoordinate()
-			var croppedImage = cropFrag.getCropImageView().getCroppedImage().copy(Bitmap.Config.ARGB_8888, false)
-			Log.i(getString(R.string.LOGTAG), "croppedImage height: " + croppedImage.getHeight() + " width: " + croppedImage.getWidth())
-			om.setPhoto(croppedImage)
-        	editFrag = newEditFrag()
-        	editFrag.setBitmap(om.getBitmapForDraw(true))
-       		getFragmentManager().beginTransaction().remove(cropFrag).commit()
-			getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit()
-			cutFunc = false
-			open.setText("OPEN")
-    		share.setVisibility(View.VISIBLE)			
-		}
+		startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 42)
 	}
 	
 	override onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (requestCode == 42 && resultCode == RESULT_OK) {   		
-    		// Show Crop now
-    		cropFrag = new CropFragment()
-    		getFragmentManager().beginTransaction().remove(editFrag).commit()
-    		getFragmentManager().beginTransaction().add(R.id.fragment_container, cropFrag).commit()
-    		// Change button view option
-    		open.setText("CUT")
-    		share.setVisibility(View.GONE)
-    		cutFunc = true
-    		cropFrag.bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData())		
+    	if (requestCode == 42 && resultCode == RESULT_OK) {
+    		Log.i("PhotoPlus", "onActivityResult 42")
+    		var intent = new Intent(this, typeof(CropActivity));
+			intent.putExtra("BitmapImage", data.getData().toString())   		
+    		startActivityForResult(intent, 422)	
+    	} else if (requestCode == 422) {
+    		Log.i("PhotoPlus", "onActivityResult 422")
+    		
+    		var fn = data.getStringExtra("filename")
+    		var is = this.openFileInput(fn);
+    		var bmp = BitmapFactory.decodeStream(is)
+    		om.setPhoto(bmp)
+        	//editFrag = newEditFrag()
+        	editFrag.setBitmap(om.getBitmapForDraw(true))
     	}
 	}	
 
