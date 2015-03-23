@@ -70,32 +70,23 @@ import android.view.animation.AnimationUtils
     	Log.i("PhotoPlus","onFling event");
         if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn left")
-            (findViewById(R.id.view_flipper) as ViewFlipper).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in)) 
-            (findViewById(R.id.view_flipper) as ViewFlipper).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out))
-            (findViewById(R.id.view_flipper) as ViewFlipper).showNext()
-            /*
-            if (welcomeIdx >= (welcomes.length() - 1)) {
-            	Log.i("PhotoPlus", "welcome end")
+            welcomeIdx++
+            if (welcomeIdx >= welcomes.length()) {
             	init()
             } else {
-            	welcomeIdx++
-            	(findViewById(R.id.welcome_image) as ImageView).setImageBitmap(welcomes.get(welcomeIdx))
-            }
-            */
+            	(findViewById(R.id.view_flipper) as ViewFlipper).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in)) 
+            	(findViewById(R.id.view_flipper) as ViewFlipper).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out))
+            	(findViewById(R.id.view_flipper) as ViewFlipper).showNext()            	
+            }            
             return true;
         } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn right")
-            (findViewById(R.id.view_flipper) as ViewFlipper).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));  
-            (findViewById(R.id.view_flipper) as ViewFlipper).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));  
-            (findViewById(R.id.view_flipper) as ViewFlipper).showPrevious()
-            /*
-            if (welcomeIdx == 0) {
-            	Log.i("PhotoPlus", "welcome head")
-            } else {
+            if (welcomeIdx > 0) {
             	welcomeIdx--
-            	(findViewById(R.id.welcome_image) as ImageView).setImageBitmap(welcomes.get(welcomeIdx))
+            	(findViewById(R.id.view_flipper) as ViewFlipper).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));  
+            	(findViewById(R.id.view_flipper) as ViewFlipper).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));  
+            	(findViewById(R.id.view_flipper) as ViewFlipper).showPrevious()            	
             }
-            */
             return true;
         }
         return false;
@@ -165,6 +156,7 @@ import android.view.animation.AnimationUtils
         	for (var idx = 0; idx < welcomes.length(); idx++) {
         		var img = new ImageView(this)
         		img.setImageBitmap(welcomes.get(idx))
+        		img.setScaleType(ImageView.ScaleType.CENTER_CROP)
         		(findViewById(R.id.view_flipper) as ViewFlipper).addView(img)	
         	}        	
         	
