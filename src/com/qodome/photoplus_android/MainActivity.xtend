@@ -201,7 +201,7 @@ import android.widget.CompoundButton
 	override onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (requestCode == 42 && resultCode == RESULT_OK) {
     		Log.i("PhotoPlus", "onActivityResult 42")
-    		var intent = new Intent(this, typeof(CropActivity));
+    		var intent = new Intent(this, typeof(CropActivity))
 			intent.putExtra("BitmapImage", data.getData().toString())   		
     		startActivityForResult(intent, 422)	
     	} else if (requestCode == 422) {
@@ -213,6 +213,10 @@ import android.widget.CompoundButton
     		om.setPhoto(bmp)
         	//editFrag = newEditFrag()
         	editFrag.setBitmap(om.getBitmapForDraw(true))
+    	} else if (requestCode == 4242 && resultCode == RESULT_OK) {
+        	var intent = new Intent(this, typeof(CropActivity));
+			intent.putExtra("BitmapImage", Uri.fromFile(new File(folderName + "capture.jpg")).toString())   		
+    		startActivityForResult(intent, 422)
     	}
 	}	
 
@@ -245,6 +249,12 @@ import android.widget.CompoundButton
 	
 	override search(View v) {
 		startActivity(new Intent(this, typeof(SearchActivity)))
+	}
+	
+	override camera(View v) {
+    	var takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		takePictureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(folderName + "capture.jpg")))
+        startActivityForResult(takePictureIntent, 4242);
 	}
 	
 	static class UploadFilesTask extends AsyncTask<String, Integer, Long> {

@@ -34,7 +34,7 @@ import android.content.Context
 		
 		var fn = "croppedImage.png";
     	var stream = this.openFileOutput(fn, Context.MODE_PRIVATE);
-    	croppedImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
+    	croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, stream)
 		//Cleanup
     	stream.close();
     	croppedImage.recycle()
