@@ -46,6 +46,7 @@ class OverlayManager {
 	var Bitmap textMap	
 	var List<Bitmap> bg
 	var List<Bitmap> cardFrame
+	var Bitmap noShareCardFrame
 	var Activity parent
 	var CharSequence textCS
 	var String folderName
@@ -101,6 +102,7 @@ class OverlayManager {
 		cardFrame = #[bg0, bg1, bg0,
 					  bg1, bg0, bg1,
 					  bg0, bg1, bg8]		
+		noShareCardFrame = (parent.getResources().getDrawable(R.drawable.bg) as BitmapDrawable).getBitmap()
 		
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
 		textTF = #[Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")]
@@ -243,7 +245,7 @@ class OverlayManager {
         }
 	}	
 	
-	def dumpToFile() {
+	def dumpToFile(boolean enableShared) {
 		var b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false)
 		var intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
 		var barArray = Utils.getIntArray(barcodeSize * barcodeSize)
@@ -256,9 +258,13 @@ class OverlayManager {
 		Log.i("PhotoPlus", id)
 		for (var i = 0; i < 3; i++) {
         	for (var j = 0; j < 3; j++) {
-        		output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
+        		if (enableShared) {
+        			output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true)
+        		} else {
+        			output = noShareCardFrame.copy(Bitmap.Config.ARGB_8888, true)
+        		}
 				output.setPixels(intArray, (i * cardFrame.get(0).getWidth() * cardFrame.get(0).getWidth() * 3  + j * cardFrame.get(0).getWidth()), (cardFrame.get(0).getWidth() * 3), 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth())
-				if (((i * 3) + j) % 2 == 1) {
+				if (((i * 3) + j) % 2 == 1 && enableShared) {
 					barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
 					barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
 					output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
@@ -275,25 +281,29 @@ class OverlayManager {
         }
         
         // Dump the file will be sent to AWS
-        b = Bitmap.createScaledBitmap(getBitmapForDraw(false), cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth(), false)
-		intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
-		b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight())
-		output = cardFrame.get(1).copy(Bitmap.Config.ARGB_8888, true)
-		output.setPixels(intArray, 0, cardFrame.get(1).getWidth(), 0, (cardFrame.get(1).getHeight() - cardFrame.get(1).getWidth()) / 2, cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth())
+        if (enableShared == true) {
+        	b = Bitmap.createScaledBitmap(getBitmapForDraw(false), cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth(), false)
+			intArray = Utils.getIntArray(b.getWidth() * b.getHeight())
+			b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight())
+			output = cardFrame.get(1).copy(Bitmap.Config.ARGB_8888, true)
+			output.setPixels(intArray, 0, cardFrame.get(1).getWidth(), 0, (cardFrame.get(1).getHeight() - cardFrame.get(1).getWidth()) / 2, cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth())
 				
-		barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
-		barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
-		output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
-		output = addIDtoBitmap(output, "转发ID: " + id)
+			barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize)
+			barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize)
+			output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize)
+			output = addIDtoBitmap(output, "转发ID: " + id)
 		
-		fn = new File(folderName + id + ".jpg")
-		if (!fn.exists()) {
-			fn.createNewFile()
-		}
-		out = new FileOutputStream(folderName + id + ".jpg")
-   		output.compress(Bitmap.CompressFormat.JPEG, 100, out)
-   		out.close()
-        return id + ".jpg"
+			fn = new File(folderName + id + ".jpg")
+			if (!fn.exists()) {
+				fn.createNewFile()
+			}
+			out = new FileOutputStream(folderName + id + ".jpg")
+   			output.compress(Bitmap.CompressFormat.JPEG, 100, out)
+   			out.close()   
+   			return id + ".jpg"     	
+        } else {
+        	return null
+        }
 	}
 	
 	/////////////////////// Bar code /////////////////////////

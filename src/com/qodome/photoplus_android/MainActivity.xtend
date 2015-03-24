@@ -41,6 +41,7 @@ import android.widget.ViewFlipper
 import android.view.animation.AnimationUtils
 import android.graphics.BitmapFactory
 import java.io.FileInputStream
+import android.widget.CompoundButton
 
 @AndroidActivity(R.layout.activity_main) class MainActivity implements 
         GestureDetector.OnGestureListener {
@@ -61,6 +62,7 @@ import java.io.FileInputStream
 	var int welcomeIdx
 	val static SWIPE_MIN_DISTANCE = 120
 	val static SWIPE_THRESHOLD_VELOCITY = 200
+	var SharedPreferences sp
 			
 	def EditFragment newEditFrag() {
 		var frag = new EditFragment()
@@ -94,7 +96,6 @@ import java.io.FileInputStream
     }
 	
 	def init() {
-		Log.i(getString(R.string.LOGTAG), "Normal run")
 		setContentView(R.layout.activity_main)
     	
     	om = new OverlayManager(this)
@@ -125,6 +126,22 @@ import java.io.FileInputStream
 			reportFolder.mkdirs()
 		}
 		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
+		
+		// 上传并分享选项
+		sp = getSharedPreferences("PhotoPlusPreference", MODE_PRIVATE)
+		if (sp.getBoolean("enable_share", false)) {
+			enableShare.setChecked(true)
+		} else {
+			enableShare.setChecked(false)
+		}
+		
+		enableShare.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			override onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				var ed = sp.edit()
+				ed.putBoolean("enable_share", isChecked)
+				ed.commit()
+			}
+		})
 	}
 	
 	override onCreate(Bundle savedInstanceState) {
@@ -206,7 +223,7 @@ import java.io.FileInputStream
 	}
 
 	override share(View v) {
-		var uploadFn = om.dumpToFile()
+		var uploadFn = om.dumpToFile(sp.getBoolean("enable_share", false))
 		
 		var intent = new Intent();
 		var comp = new ComponentName("com.tencent.mm","com.tencent.mm.ui.tools.ShareToTimeLineUI");
@@ -221,7 +238,9 @@ import java.io.FileInputStream
 		}
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
 		startActivity(intent);
-		new UploadFilesTask().execute(folderName, getFolderName, uploadFn)
+		if (sp.getBoolean("enable_share", false)) {
+			new UploadFilesTask().execute(folderName, getFolderName, uploadFn)	
+		}
 	}
 	
 	override search(View v) {
