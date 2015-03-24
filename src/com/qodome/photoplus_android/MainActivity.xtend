@@ -42,9 +42,13 @@ import android.view.animation.AnimationUtils
 import android.graphics.BitmapFactory
 import java.io.FileInputStream
 import android.widget.CompoundButton
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 
 @AndroidActivity(R.layout.activity_main) class MainActivity implements 
-        GestureDetector.OnGestureListener {
+        GestureDetector.OnGestureListener, SensorEventListener {
 	val String sinapackage = "com.sina.weibo"
 	val String sinaclassname = "com.sina.weibo.EditActivity"
 	val String weixinpackage = "com.tencent.mm"
@@ -63,6 +67,12 @@ import android.widget.CompoundButton
 	val static SWIPE_MIN_DISTANCE = 120
 	val static SWIPE_THRESHOLD_VELOCITY = 200
 	var SharedPreferences sp
+	var SensorManager mSensorManager
+    var Sensor mAccelerometer
+    var long lastUpdate = 0
+    var float last_x
+    var float last_y
+    var float last_z
 			
 	def EditFragment newEditFrag() {
 		var frag = new EditFragment()
@@ -147,6 +157,11 @@ import android.widget.CompoundButton
 	override onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	
+    	// Setup sensor monitor
+		mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME)
+    	
     	PreferenceManager.setDefaultValues(this, "PhotoPlusPreference", MODE_PRIVATE, R.xml.preferences, false)
     	var sp = getSharedPreferences("PhotoPlusPreference", MODE_PRIVATE)
 		if (sp?.getBoolean("first_time_init", false)) {
@@ -182,6 +197,11 @@ import android.widget.CompoundButton
 		}
 		
 		init()    	
+  	}
+  	
+  	override onDestroy() {
+  		mSensorManager.unregisterListener(this)
+  		super.onDestroy()
   	}
 	
 	override font(View v) {
@@ -273,5 +293,38 @@ import android.widget.CompoundButton
 	override onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {return false}
 	override onShowPress(MotionEvent e) {}
 	override onSingleTapUp(MotionEvent e) {return false}
+	
+	override onAccuracyChanged(Sensor sensor, int accuracy) {
+	
+	}
+	
+	override onSensorChanged(SensorEvent event) {
+		if (event.sensor == mAccelerometer) {
+    		var curTime = System.currentTimeMillis()
+    		// only allow one update every 100ms.
+    		if ((lastUpdate != 0) && (curTime - lastUpdate) > 100) {
+      			var diffTime = (curTime - lastUpdate);
+      			lastUpdate = curTime;
+
+      			var x = event.values.get(0)
+      			var y = event.values.get(1)
+      			var z = event.values.get(2)
+
+      			var speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+
+      			if (speed > 2600) {
+        			Log.i("PhotoPlus", "shake detected w/ speed: " + speed)
+      			}
+      			last_x = x;
+      			last_y = y;
+      			last_z = z;
+    		} else if (lastUpdate == 0) {
+    			lastUpdate = System.currentTimeMillis()
+    			last_x = event.values.get(0)
+    			last_y = event.values.get(1)
+    			last_z = event.values.get(2)
+    		}
+  		}
+	}
 		
 }
