@@ -43,13 +43,15 @@ class OverlayManager {
 	var Bitmap gridMap			// FIXED
 	var Bitmap photoMap
 	var Bitmap textMapDefault	// FIXED
-	var Bitmap textMap	
+	var Bitmap textMap
+	var Bitmap appIntroMap	
 	var List<Bitmap> bg
 	var List<Bitmap> cardFrame
 	var Bitmap noShareCardFrame
 	var Activity parent
 	var CharSequence textCS
 	var String folderName
+	var boolean resetState = true
 	
 	new(Activity activity) {
 		parent = activity
@@ -103,11 +105,13 @@ class OverlayManager {
 					  bg1, bg0, bg1,
 					  bg0, bg1, bg8]		
 		noShareCardFrame = (parent.getResources().getDrawable(R.drawable.bg) as BitmapDrawable).getBitmap()
+		appIntroMap = (parent.getResources().getDrawable(R.drawable.app_introduce) as BitmapDrawable).getBitmap()
 		
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true)
 		textTF = #[Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")]
 		textCS = new String("")
 		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/")
+		resetState = true
 	}
 	
 	def toggleTF() {
@@ -122,6 +126,10 @@ class OverlayManager {
 		if (bgIdx >= bg.length()) {
 			bgIdx = 0
 		}
+	}
+	
+	def reset() {
+		resetState = true
 	}
 	
 	def disableGrid(Bitmap bp, int i) {
@@ -139,6 +147,7 @@ class OverlayManager {
 	}
 	
 	def inputString(CharSequence input) {
+		resetState = false
 		textCS = new String(input.toString())
 	}
 	
@@ -148,6 +157,15 @@ class OverlayManager {
         var int outputWidth = bg.get(0).getWidth()
         var int outputHeight = bg.get(0).getHeight()
 		
+		if (resetState == true) {
+			layers = #[new BitmapDrawable(parent.getResources(), appIntroMap), new BitmapDrawable(parent.getResources(), gridMap)]
+	    	var layerDrawable = new LayerDrawable(layers)
+		    var b = Bitmap.createBitmap(appIntroMap.getWidth(), appIntroMap.getHeight(), Bitmap.Config.ARGB_8888)
+		    layerDrawable.setBounds(0, 0, appIntroMap.getWidth(), appIntroMap.getHeight())
+		    layerDrawable.draw(new Canvas(b))
+		    return b
+		}
+
 		bgMap = bg.get(bgIdx).copy(Bitmap.Config.ARGB_8888, true)
 		textMap = textMapDefault.copy(Bitmap.Config.ARGB_8888, true)		
 		for (var i = 0; i < 9; i++) {
@@ -198,6 +216,7 @@ class OverlayManager {
 	}
 	
 	def setPhoto(Bitmap photo) {
+		resetState = false
 		photoMap = photo
 	}
 	

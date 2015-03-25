@@ -46,6 +46,8 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
+import android.content.DialogInterface
+import android.app.AlertDialog
 
 @AndroidActivity(R.layout.activity_main) class MainActivity implements 
         GestureDetector.OnGestureListener, SensorEventListener {
@@ -73,6 +75,8 @@ import android.hardware.SensorEvent
     var float last_x
     var float last_y
     var float last_z
+    var boolean deleteNotified = false
+    var AlertDialog appAlert = null
 			
 	def EditFragment newEditFrag() {
 		var frag = new EditFragment()
@@ -190,9 +194,8 @@ import android.hardware.SensorEvent
         		var img = new ImageView(this)
         		img.setImageBitmap(welcomes.get(idx))
         		img.setScaleType(ImageView.ScaleType.CENTER_CROP)
-        		(findViewById(R.id.view_flipper) as ViewFlipper).addView(img)	
-        	}        	
-        	
+        		(findViewById(R.id.view_flipper) as ViewFlipper).addView(img)
+        	}
         	return
 		}
 		
@@ -203,6 +206,16 @@ import android.hardware.SensorEvent
   		mSensorManager.unregisterListener(this)
   		super.onDestroy()
   	}
+	
+	override onResume() {
+    	super.onResume()
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+	}
+
+    override onPause() {
+        super.onPause()
+        mSensorManager.unregisterListener(this)
+    }
 	
 	override font(View v) {
 		om.toggleTF()
@@ -310,14 +323,36 @@ import android.hardware.SensorEvent
       			var y = event.values.get(1)
       			var z = event.values.get(2)
 
-      			var speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+      			var speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000
 
-      			if (speed > 2600) {
+      			if (speed > 2400 && deleteNotified == false) {
         			Log.i("PhotoPlus", "shake detected w/ speed: " + speed)
+        			deleteNotified = true
+        			appAlert = new AlertDialog.Builder(this)
+                	    .setTitle("请确认")
+                	    .setMessage("确认删除?")
+                	    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                	    	override onClick(DialogInterface dialog, int which) { 
+                	        	Log.i("PhotoPlus", "Delete confirmed")
+                	        	inputText.setText("")
+                	        	om.reset()                	        	
+                	        	editFrag.setBitmap(om.getBitmapForDraw(true))
+                	        	deleteNotified = false
+                	        }
+                	     })
+                	    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                	    	override onClick(DialogInterface dialog, int which) { 
+                	        	Log.i("PhotoPlus", "Delete cancelled")
+                	        	deleteNotified = false
+                	        }
+                	     })
+                	    .setIcon(android.R.drawable.ic_dialog_alert)
+                	    .setCancelable(false)
+                	    .show()
       			}
-      			last_x = x;
-      			last_y = y;
-      			last_z = z;
+      			last_x = x
+      			last_y = y
+      			last_z = z
     		} else if (lastUpdate == 0) {
     			lastUpdate = System.currentTimeMillis()
     			last_x = event.values.get(0)
@@ -326,5 +361,4 @@ import android.hardware.SensorEvent
     		}
   		}
 	}
-		
 }

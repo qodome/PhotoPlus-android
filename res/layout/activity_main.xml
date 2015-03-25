@@ -19,25 +19,39 @@
 
 		<Button
     		android:id="@+id/font"
-        	android:layout_width="40dp"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:text="T"
-        	android:onClick="font"/>        
+        	android:text=""
+        	android:onClick="font"
+        	android:background="@drawable/text_51x51"
+        	android:gravity="left"/>        
 
+		<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_weight="1"/>
+				
     	<EditText 
     	    android:id="@+id/input_text"
     	    android:layout_width="wrap_content"
     	    android:layout_height="wrap_content"
     	    android:text=""
-    	    android:hint="写点什么，还可以试试空格"
+    	    android:hint="摇一摇，清楚已编辑内容"
     	    android:gravity="center"/>
-
+		
+		<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_weight="1"/>
+		
 		<Button
     		android:id="@+id/background"
-        	android:layout_width="40dp"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:text="B"
-        	android:onClick="background"/>     	
+        	android:text=""
+        	android:onClick="background"
+        	android:background="@drawable/color_51x51"
+        	android:gravity="right"/>     	
     			      	
     </LinearLayout>    
 
@@ -79,32 +93,39 @@
     	android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="1"
-    	android:orientation="horizontal">
-
+    	android:orientation="horizontal">        
+        
 		<Button
     		android:id="@+id/open"
-        	android:layout_width="0dp"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="OPEN"
+        	android:background="@drawable/ic_photo"
         	android:onClick="loadPhoto"/>      
 
+		<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_weight="1"/> 		
+		
 		<Button
     		android:id="@+id/share"
-        	android:layout_width="0dp"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="SHARE"
+        	android:background="@drawable/ic_share"
         	android:onClick="share"/>		
 
+		<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="match_parent"
+        	android:layout_weight="1"/> 		
+		
 		<Button
     		android:id="@+id/search"
-        	android:layout_width="0dp"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="SEARCH"
-        	android:onClick="search"/>
-							
+        	android:background="@drawable/ic_search"
+        	android:onClick="search"/>		
+									
     </LinearLayout>
 
     <LinearLayout 
@@ -120,10 +141,9 @@
 
 		<Button
     		android:id="@+id/camera"
-        	android:layout_width="0dp"
+        	android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="CAMERA"
+        	android:background="@drawable/ic_camera"
         	android:onClick="camera"/>		
 
 		<TextView
