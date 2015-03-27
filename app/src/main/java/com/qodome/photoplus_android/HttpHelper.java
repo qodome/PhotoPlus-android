@@ -31,6 +31,7 @@ public class HttpHelper {
         HttpHelper.requestBody.append(("\r\n--" + HttpHelper.BOUNDARY));
         HttpHelper.requestBody.append((("\r\nContent-Disposition: form-data; name=\"" + key) + "\""));
         HttpHelper.requestBody.append("\r\n\r\n");
+        HttpHelper.requestBody.append(value);
     }
 
     public static void upload(final String dir, final String folder, final String fileName) throws ClientProtocolException, IOException, JSONException {
