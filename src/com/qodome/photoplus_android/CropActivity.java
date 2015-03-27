@@ -20,9 +20,25 @@ import java.io.IOException;
 public class CropActivity extends Activity {
 
     public void init(final Bundle savedInstanceState) {
-        try {
-			this.getCropImageView().setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(getIntent().getStringExtra("BitmapImage"))));
-		} catch (FileNotFoundException e) {
+    	try {
+			Bitmap b = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(getIntent().getStringExtra("BitmapImage")));
+			int width = 0, height = 0;
+			int sizeLimit = Utils.getMaximumTextureSize();
+	    	if (b.getWidth() > sizeLimit || b.getHeight() > sizeLimit) {
+	    		if (b.getWidth() > b.getHeight()) {
+	    			width = Utils.getMaximumTextureSize();
+	            	double scaleFactor = (double)b.getWidth() / (double)Utils.getMaximumTextureSize();
+	            	height = (int)(b.getHeight() / scaleFactor);
+	    		} else {
+	    			height = Utils.getMaximumTextureSize();
+	            	double scaleFactor = (double)b.getHeight() / (double)Utils.getMaximumTextureSize();
+	            	width = (int)(b.getWidth() / scaleFactor);
+	    		}
+	            b = Bitmap.createScaledBitmap(b, width, height, false);
+	    	}
+			this.getCropImageView().setFixedAspectRatio(true);
+			this.getCropImageView().setImageBitmap(b);
+    	} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -32,7 +48,6 @@ public class CropActivity extends Activity {
     }
 
     public void crop(final View v) {
-        this.getCropImageView().queryCoordinate();
         Bitmap croppedImage = getCropImageView().getCroppedImage().copy(Bitmap.Config.ARGB_8888, false);
         String fn = "croppedImage.png";
         FileOutputStream stream;

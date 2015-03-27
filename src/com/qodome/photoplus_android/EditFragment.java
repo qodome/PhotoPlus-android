@@ -24,6 +24,7 @@ public class EditFragment extends Fragment {
         if (this.show != null) {
             ((SquareImageView)(this.findViewById(R.id.photo_grid_view))).setImageBitmap(this.show);
         }
+        this.initDone = true;
     }
 
     public View findViewById(final int resId) {

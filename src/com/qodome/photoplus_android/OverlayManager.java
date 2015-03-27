@@ -150,6 +150,7 @@ public class OverlayManager {
     public void inputString(final CharSequence input) {
         this.resetState = false;
         this.textCS = new String(input.toString());
+        Log.i("PhotoPlus", "Input string: " + this.textCS.toString());
     }
 
     public Bitmap getBitmapForDraw(final boolean withGrid) {

@@ -129,11 +129,6 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     public void init() {
         this.setContentView(R.layout.activity_main);
         
-        welcomeNames = new ArrayList<String>();
-        for (int i = 0; i < welcomeNameValues.length; ++i) {
-        	welcomeNames.add(welcomeNameValues[i]);
-        }
-        
         this.om = new OverlayManager(this);
         this.editFrag = this.newEditFrag();
         this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
@@ -146,8 +141,8 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
             }
 
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                MainActivity.this.om.inputString(s);
-                MainActivity.this.editFrag.setBitmap(MainActivity.this.om.getBitmapForDraw(true));
+                om.inputString(s);
+                editFrag.setBitmap(om.getBitmapForDraw(true));
             }
         });
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -190,7 +185,11 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
             Log.i(this.getString(R.string.LOGTAG), "First time run, show welcome screens");
             this.setContentView(R.layout.welcome);
             this.gdt = new GestureDetector(this);
-            this.welcomeIdx = 0;
+            this.welcomeIdx = 0;            
+            welcomeNames = new ArrayList<String>();
+            for (int i = 0; i < welcomeNameValues.length; ++i) {
+            	welcomeNames.add(welcomeNameValues[i]);
+            }
             this.welcomes = new ArrayList<Bitmap>();
             for (final String desc : this.welcomeNames) {
                 int id = this.getResources().getIdentifier(desc, "drawable", this.getPackageName());
