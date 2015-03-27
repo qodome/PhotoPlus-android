@@ -245,23 +245,23 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (((requestCode == 42) && (resultCode == Activity.RESULT_OK))) {
-            Log.i("PhotoPlus", "onActivityResult 42");
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", data.getData().toString());
             this.startActivityForResult(intent, 422);
-        } else if ((requestCode == 422)) {
-            Log.i("PhotoPlus", "onActivityResult 422");
-            String fn = data.getStringExtra("filename");
-            FileInputStream is;
-			try {
-				is = this.openFileInput(fn);
-	            Bitmap bmp = BitmapFactory.decodeStream(is);
-	            this.om.setPhoto(bmp);
-	            this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+        } else if ((requestCode == 422) && (resultCode == Activity.RESULT_OK)) {
+            if (data != null && data.hasExtra("filename")) {
+                String fn = data.getStringExtra("filename");
+                FileInputStream is;
+                try {
+                    is = this.openFileInput(fn);
+                    Bitmap bmp = BitmapFactory.decodeStream(is);
+                    this.om.setPhoto(bmp);
+                    this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         } else if (((requestCode == 4242) && (resultCode == Activity.RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", Uri.fromFile(new File((this.folderName + "capture.jpg"))).toString());
