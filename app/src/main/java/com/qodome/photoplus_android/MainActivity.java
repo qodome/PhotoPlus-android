@@ -86,6 +86,11 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     private List<Bitmap> welcomes;
     private int welcomeIdx;
     private final static int SWIPE_MIN_DISTANCE = 120;
+    private final static int LOAD_PHOTO = 42;
+    private final static int LOAD_CROP_VIEW = 422;
+    private final static int LOAD_CAMERA = 4242;
+    private final static int SECONDS_IN_ONE_DAY = 864000;
+    public final static int SECONDS_OFFSET = 1425168000;
     private SharedPreferences sp;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -240,15 +245,15 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public void loadPhoto(final View v) {
-        this.startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 42);
+        this.startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), LOAD_PHOTO);
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (((requestCode == 42) && (resultCode == Activity.RESULT_OK))) {
+        if (((requestCode == LOAD_PHOTO) && (resultCode == Activity.RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", data.getData().toString());
-            this.startActivityForResult(intent, 422);
-        } else if ((requestCode == 422) && (resultCode == Activity.RESULT_OK)) {
+            this.startActivityForResult(intent, LOAD_CROP_VIEW);
+        } else if ((requestCode == LOAD_CROP_VIEW) && (resultCode == Activity.RESULT_OK)) {
             if (data != null && data.hasExtra("filename")) {
                 String fn = data.getStringExtra("filename");
                 FileInputStream is;
@@ -262,17 +267,17 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
                     e.printStackTrace();
                 }
             }
-        } else if (((requestCode == 4242) && (resultCode == Activity.RESULT_OK))) {
+        } else if (((requestCode == LOAD_CAMERA) && (resultCode == Activity.RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", Uri.fromFile(new File((this.folderName + "capture.jpg"))).toString());
-            this.startActivityForResult(intent, 422);
+            this.startActivityForResult(intent, LOAD_CROP_VIEW);
         }
     }
 
     public String getFolderName() {
         Calendar c = Calendar.getInstance();
         long sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(c.getTimeInMillis())) / 1000L;
-        return String.valueOf(((sec - 1425168000) / 864000));
+        return String.valueOf(((sec - SECONDS_OFFSET) / SECONDS_IN_ONE_DAY));
     }
 
     public void share(final View v) throws IOException, WriterException {
@@ -302,7 +307,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     public void camera(final View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File((this.folderName + "capture.jpg"))));
-        this.startActivityForResult(takePictureIntent, 4242);
+        this.startActivityForResult(takePictureIntent, LOAD_CAMERA);
     }
 
     public boolean onDown(final MotionEvent e) {

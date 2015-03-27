@@ -223,7 +223,7 @@ public class OverlayManager {
         Calendar c = Calendar.getInstance();
         long sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(c.getTimeInMillis())) / 1000L;
         Random r = new Random();
-        return "a" + String.valueOf((sec - 1425168000)) + Integer.valueOf(r.nextInt(10)) + Integer.valueOf(r.nextInt(10)) + Integer.valueOf(r.nextInt(10));
+        return "a" + String.valueOf((sec - MainActivity.SECONDS_OFFSET)) + Integer.valueOf(r.nextInt(10)) + Integer.valueOf(r.nextInt(10)) + Integer.valueOf(r.nextInt(10));
     }
 
     public Bitmap addIDtoBitmap(final Bitmap b, final String id) {

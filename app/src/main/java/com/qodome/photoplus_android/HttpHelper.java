@@ -91,7 +91,7 @@ public class HttpHelper {
 	            dataOS.close();
 	            int responseCode = conn.getResponseCode();
 	            if ((responseCode != 201)) {
-	                Log.i("PhotoPlus", "http upload failed");
+	                Log.i("PhotoPlus", "http upload failed with code " + Integer.valueOf(responseCode));
 	            } else {
 	                Log.i("PhotoPlus", "http upload success");
 	            }

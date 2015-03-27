@@ -95,11 +95,11 @@ public class SearchActivity extends Activity {
     }
 
     public boolean isNumeric(final String str) {
-        try {  
-            int t = Integer.parseInt(str);  
-        } catch(NumberFormatException nfe) {  
+        try {
+            long t = Long.parseLong(str);
+        } catch(NumberFormatException nfe) {
             return false;  
-        }  
+        }
         return true;  
     }
 
