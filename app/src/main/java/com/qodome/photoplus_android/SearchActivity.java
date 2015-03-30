@@ -17,24 +17,84 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.common.base.Objects;
-import com.qodome.photoplus_android.OverlayManager;
-import com.qodome.photoplus_android.R;
-import com.qodome.photoplus_android.SquareImageView;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class SearchActivity extends Activity {
-    public static class QueryFilesTask extends AsyncTask<String, Integer, Bitmap> {
+
+    public class QueryZIPFilesTask extends AsyncTask<String, Integer, String> {
         private SearchActivity searchUI;
 
-        public QueryFilesTask(final SearchActivity activity) {
+        public QueryZIPFilesTask(final SearchActivity activity) {
+            this.searchUI = activity;
+        }
+
+        public String doInBackground(final String... info) {
+            DefaultHttpClient client = new DefaultHttpClient();
+            HttpGet get = new HttpGet(((("http://media.qodome.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".zip")));
+            HttpResponse response;
+            String ret = null;
+            try {
+                response = client.execute(get);
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    File zipFolder = new File(folderName + info[1] + "/");
+                    if (!zipFolder.exists()) {
+                        zipFolder.mkdirs();
+                    }
+                    unpackZip(folderName + info[1] + "/", response.getEntity().getContent());
+                    ret = info[1];
+                    Log.i("PhotoPlus", "QueryZIPFilesTask got zip file");
+
+                } else {
+                    Log.i("PhotoPlus", ("http response: " + Integer.valueOf(response.getStatusLine().getStatusCode())));
+                }
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return ret;
+        }
+
+        public void onProgressUpdate(final Integer... progress) {
+        }
+
+        public void onPostExecute(final String fn) {
+            File zipFolder = new File(folderName + fn + "/");
+            if (zipFolder.exists()) {
+                Intent intent = new Intent();
+                ComponentName comp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareToTimeLineUI");
+                intent.setComponent(comp);
+                intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                intent.setType("image/*");
+                ArrayList<Uri> imageUris = new ArrayList<Uri>();
+                File[] files = zipFolder.listFiles();
+                for (int i = 0; i < files.length; ++i) {
+                    imageUris.add(Uri.fromFile(files[i]));
+                }
+                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+                startActivity(intent);
+            }
+        }
+    }
+
+    public class QueryJPGFilesTask extends AsyncTask<String, Integer, Bitmap> {
+        private SearchActivity searchUI;
+
+        public QueryJPGFilesTask(final SearchActivity activity) {
             this.searchUI = activity;
         }
 
@@ -86,7 +146,7 @@ public class SearchActivity extends Activity {
 
     private Bitmap sharedBitmap;
 
-    private String folderName;
+    public String folderName;
 
     private OverlayManager om;
 
@@ -104,6 +164,7 @@ public class SearchActivity extends Activity {
     }
 
     public void search(final View v) {
+        String prefix = this.getInputText().getText().toString().substring(0,1);
         String input = this.getInputText().getText().toString().substring(1);
 		if (input.length() != 10 || isNumeric(input) == false) {
             new AlertDialog.Builder(this)
@@ -119,7 +180,47 @@ public class SearchActivity extends Activity {
         }
         input = input.substring(0, (input.length() - 3));
         String folder = String.valueOf((Integer.parseInt(input) / 864000));
-        new QueryFilesTask(this).execute(folder, this.getInputText().getText().toString());
+        if (prefix.equals("a")) {
+            new QueryJPGFilesTask(this).execute(folder, this.getInputText().getText().toString());
+        } else if (prefix.equals("z")) {
+            new QueryZIPFilesTask(this).execute(folder, this.getInputText().getText().toString());
+        }
+    }
+
+    private boolean unpackZip(String path, InputStream is)
+    {
+        ZipInputStream zis;
+        try {
+            String filename;
+            zis = new ZipInputStream(is);
+            ZipEntry ze;
+            byte[] buffer = new byte[1024];
+            int count;
+
+            while ((ze = zis.getNextEntry()) != null) {
+                filename = ze.getName();
+
+                // Need to create directories if not exists, or
+                // it will generate an Exception...
+                if (ze.isDirectory()) {
+                    File fmd = new File(path + filename);
+                    fmd.mkdirs();
+                    continue;
+                }
+                FileOutputStream fout = new FileOutputStream(path + filename);
+
+                while ((count = zis.read(buffer)) != -1) {
+                    fout.write(buffer, 0, count);
+                }
+                fout.close();
+                zis.closeEntry();
+            }
+            zis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public void share(final View v) {
