@@ -185,6 +185,8 @@ public class OverlayManager {
                 canvas.drawText(Character.valueOf(this.textCS.charAt(i)).toString(), x, y, paint);
             } else if (i < this.textCS.length() && Character.isWhitespace(this.textCS.charAt(i))) {
                 bgMap = this.disableGrid(bgMap, i);
+            } else {
+                bgMap = this.disableGrid(bgMap, i);
             }
         }
 
