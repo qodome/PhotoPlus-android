@@ -7,12 +7,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 
 import com.edmodo.cropper.CropImageView;
-import com.qodome.photoplus_android.MainActivity;
-import com.qodome.photoplus_android.R;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,15 +21,15 @@ public class CropActivity extends Activity {
     	try {
 			Bitmap b = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(getIntent().getStringExtra("BitmapImage")));
 			int width = 0, height = 0;
-			int sizeLimit = Utils.getMaximumTextureSize();
+			int sizeLimit = Utils.getMaximumTextureSize() / 2;
 	    	if (b.getWidth() > sizeLimit || b.getHeight() > sizeLimit) {
 	    		if (b.getWidth() > b.getHeight()) {
-	    			width = Utils.getMaximumTextureSize();
-	            	double scaleFactor = (double)b.getWidth() / (double)Utils.getMaximumTextureSize();
+	    			width = sizeLimit;
+	            	double scaleFactor = (double)b.getWidth() / (double)sizeLimit;
 	            	height = (int)(b.getHeight() / scaleFactor);
 	    		} else {
-	    			height = Utils.getMaximumTextureSize();
-	            	double scaleFactor = (double)b.getHeight() / (double)Utils.getMaximumTextureSize();
+	    			height = sizeLimit;
+	            	double scaleFactor = (double)b.getHeight() / (double)sizeLimit;
 	            	width = (int)(b.getWidth() / scaleFactor);
 	    		}
 	            b = Bitmap.createScaledBitmap(b, width, height, false);
