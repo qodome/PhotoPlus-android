@@ -336,7 +336,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
                 float x = event.values[0];
                 float y = event.values[1];
                 float z = event.values[2];
-                if ((((Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000) > 2400) && (this.deleteNotified == false))) {
+                if ((((Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000) > 1000) && (this.deleteNotified == false))) {
                     Log.i("PhotoPlus", ("shake detected"));
                     this.deleteNotified = true;
                     new AlertDialog.Builder(this)

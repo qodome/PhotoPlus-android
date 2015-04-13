@@ -109,7 +109,12 @@ public class OverlayManager {
         this.noShareCardFrame = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.bg))).getBitmap();
         this.appIntroMap = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.app_introduce))).getBitmap();
 		this.textMapDefault = Bitmap.createBitmap(gridArray, this.bg.get(0).getWidth(), this.bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
-        this.textTF = new Typeface[] { Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF, Typeface.createFromAsset(this.parent.getAssets(), "fonts/ys.otf")};
+        this.textTF = new Typeface[] { Typeface.DEFAULT, Typeface.DEFAULT_BOLD, Typeface.MONOSPACE, Typeface.SANS_SERIF, Typeface.SERIF
+                                ,Typeface.createFromAsset(this.parent.getAssets(), "fonts/ys.otf")
+                                ,Typeface.createFromAsset(this.parent.getAssets(), "fonts/fzjt.TTF")
+                                ,Typeface.createFromAsset(this.parent.getAssets(), "fonts/hkwwt.TTF")
+                                ,Typeface.createFromAsset(this.parent.getAssets(), "fonts/whxw.ttf")
+                                ,Typeface.createFromAsset(this.parent.getAssets(), "fonts/xjl.ttf")};
         this.textCS = new String("");
 		this.folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
         this.resetState = true;

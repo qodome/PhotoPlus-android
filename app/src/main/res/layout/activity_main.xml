@@ -36,7 +36,7 @@
     	    android:layout_width="wrap_content"
     	    android:layout_height="wrap_content"
     	    android:text=""
-    	    android:hint="摇一摇，清楚已编辑内容"
+    	    android:hint="摇一摇，清除已编辑内容"
     	    android:gravity="center"/>
 		
 		<TextView
