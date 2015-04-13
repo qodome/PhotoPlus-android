@@ -3,6 +3,7 @@ package com.qodome.photoplus_android;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +13,19 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchMultipleFragment extends Fragment {
     private String folder = null;
     private boolean initDone = false;
     public Context mContext = null;
+    public ImageAdapter adapter = null;
 
     private class ImageAdapter extends BaseAdapter {
         private String imgFolder = null;
         private int count = 0;
+        public List<ImageView> viewList = new ArrayList<ImageView>();
 
         public void setImageFolder(String folder) {
             imgFolder = folder;
@@ -54,6 +59,12 @@ public class SearchMultipleFragment extends Fragment {
                 //imageView.setPadding(8, 8, 8, 8);
             } else {
                 imageView = (ImageView) convertView;
+                ((BitmapDrawable)imageView.getDrawable()).getBitmap().recycle();
+            }
+            if (position >= viewList.size()) {
+                viewList.add(imageView);
+            } else {
+                viewList.set(position, imageView);
             }
 
             File zipFolder = new File(imgFolder);
@@ -64,13 +75,20 @@ public class SearchMultipleFragment extends Fragment {
     }
 
     public void recycleBitmap() {
-
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                ((BitmapDrawable)adapter.viewList.get(i).getDrawable()).getBitmap().recycle();
+            }
+            adapter = new ImageAdapter();
+            GridView gridview = (GridView) findViewById(R.id.search_multiple_view);
+            gridview.setAdapter(adapter);
+        }
     }
 
     public void setBitmap(String folderName) {
         this.folder = folderName;
-        if ((this.initDone == true)) {
-            ImageAdapter adapter = new ImageAdapter();
+        if (this.initDone == true) {
+            adapter = new ImageAdapter();
             adapter.setImageFolder(folder);
             GridView gridview = (GridView)findViewById(R.id.search_multiple_view);
             gridview.setAdapter(adapter);
@@ -79,7 +97,7 @@ public class SearchMultipleFragment extends Fragment {
 
     public void init(final Bundle savedInstanceState) {
         if (this.folder != null) {
-            ImageAdapter adapter = new ImageAdapter();
+            adapter = new ImageAdapter();
             adapter.setImageFolder(folder);
             GridView gridview = (GridView)findViewById(R.id.search_multiple_view);
             gridview.setAdapter(adapter);

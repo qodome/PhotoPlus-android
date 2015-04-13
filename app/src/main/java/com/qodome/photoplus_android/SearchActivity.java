@@ -88,8 +88,14 @@ public class SearchActivity extends Activity {
             if (fn != null) {
                 File zipFolder = new File(folderName + fn + "/");
                 if (zipFolder.exists()) {
-                    singleFragment.recycleBitmap();
-                    multipleFragment.recycleBitmap();
+                    if (singleFragment != null) {
+                        singleFragment.recycleBitmap();
+                        singleFragment = null;
+                    }
+                    if (multipleFragment != null) {
+                        multipleFragment.recycleBitmap();
+                        multipleFragment = null;
+                    }
 
                     if (prevFragment != null) {
                         getFragmentManager().beginTransaction().remove(prevFragment).commit();
@@ -114,6 +120,29 @@ public class SearchActivity extends Activity {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 }
+            } else {
+                if (singleFragment != null) {
+                    singleFragment.recycleBitmap();
+                    singleFragment = null;
+                }
+                if (multipleFragment != null) {
+                    multipleFragment.recycleBitmap();
+                    multipleFragment = null;
+                }
+                if (prevFragment != null) {
+                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                    prevFragment = null;
+                }
+                this.searchUI.getShare().setVisibility(View.GONE);
+                new AlertDialog.Builder(this.searchUI)
+                        .setTitle("错误")
+                        .setMessage("图片未找到")
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog, final int which) {
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         }
     }
@@ -153,6 +182,18 @@ public class SearchActivity extends Activity {
 
         public void onPostExecute(final Bitmap b) {
             if (Objects.equal(b, null)) {
+                if (singleFragment != null) {
+                    singleFragment.recycleBitmap();
+                    singleFragment = null;
+                }
+                if (multipleFragment != null) {
+                    multipleFragment.recycleBitmap();
+                    multipleFragment = null;
+                }
+                if (prevFragment != null) {
+                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                    prevFragment = null;
+                }
                 this.searchUI.getShare().setVisibility(View.GONE);
                 new AlertDialog.Builder(this.searchUI)
                 .setTitle("错误")
@@ -164,8 +205,14 @@ public class SearchActivity extends Activity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
             } else {
-                singleFragment.recycleBitmap();
-                multipleFragment.recycleBitmap();
+                if (singleFragment != null) {
+                    singleFragment.recycleBitmap();
+                    singleFragment = null;
+                }
+                if (multipleFragment != null) {
+                    multipleFragment.recycleBitmap();
+                    multipleFragment = null;
+                }
 
                 if (prevFragment != null) {
                     getFragmentManager().beginTransaction().remove(prevFragment).commit();
@@ -216,6 +263,20 @@ public class SearchActivity extends Activity {
         }
         if (prevSearchString == null || !prevSearchString.equals(this.getInputText().getText().toString())) {
             Log.i("PhotoPlus", "new search task");
+
+            if (singleFragment != null) {
+                singleFragment.recycleBitmap();
+                singleFragment = null;
+            }
+            if (multipleFragment != null) {
+                multipleFragment.recycleBitmap();
+                multipleFragment = null;
+            }
+            if (prevFragment != null) {
+                getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                prevFragment = null;
+            }
+
             prevSearchString = new String(this.getInputText().getText().toString());
             input = input.substring(0, (input.length() - 3));
             String folder = String.valueOf((Integer.parseInt(input) / 864000));
