@@ -34,12 +34,9 @@ import android.widget.ImageView;
 import android.widget.ViewFlipper;
 
 import com.google.zxing.WriterException;
-import com.qodome.photoplus_android.CropActivity;
-import com.qodome.photoplus_android.EditFragment;
-import com.qodome.photoplus_android.HttpHelper;
-import com.qodome.photoplus_android.OverlayManager;
-import com.qodome.photoplus_android.R;
-import com.qodome.photoplus_android.SearchActivity;
+
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,9 +45,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
 
 public class MainActivity extends Activity implements GestureDetector.OnGestureListener, SensorEventListener {
     public static class UploadFilesTask extends AsyncTask<String, Integer, Long> {
@@ -258,6 +252,8 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
                 String fn = data.getStringExtra("filename");
                 FileInputStream is;
                 try {
+                    this.editFrag.recycleBitmap();
+                    this.om.recyclePhoto();
                     is = this.openFileInput(fn);
                     Bitmap bmp = BitmapFactory.decodeStream(is);
                     this.om.setPhoto(bmp);

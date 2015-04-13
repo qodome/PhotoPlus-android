@@ -19,8 +19,6 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.qodome.photoplus_android.R;
-import com.qodome.photoplus_android.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -132,6 +130,10 @@ public class OverlayManager {
     }
 
     public void reset() {
+        if (this.photoMap != null) {
+            this.photoMap.recycle();
+            this.photoMap = null;
+        }
         this.resetState = true;
     }
 
@@ -214,6 +216,13 @@ public class OverlayManager {
         layerDrawable.setBounds(0, 0, outputWidth, outputHeight);
         layerDrawable.draw(new Canvas(b));
         return b;
+    }
+
+    public void recyclePhoto() {
+        if (this.photoMap != null) {
+            this.photoMap.recycle();
+            this.photoMap = null;
+        }
     }
 
     public void setPhoto(final Bitmap photo) {

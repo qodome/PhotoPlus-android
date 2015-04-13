@@ -2,7 +2,9 @@ package com.qodome.photoplus_android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,6 +34,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class SearchActivity extends Activity {
+    public Context self;
+    private Bitmap sharedBitmap;
+    public String folderName;
+    private String subFolderName;
+    private OverlayManager om;
+    private int flagShareFolder = 0;
+    private Fragment prevFragment = null;
+    private SearchSingleFragment singleFragment = null;
+    private SearchMultipleFragment multipleFragment = null;
 
     public class QueryZIPFilesTask extends AsyncTask<String, Integer, String> {
         private SearchActivity searchUI;
@@ -75,18 +86,31 @@ public class SearchActivity extends Activity {
         public void onPostExecute(final String fn) {
             File zipFolder = new File(folderName + fn + "/");
             if (zipFolder.exists()) {
-                Intent intent = new Intent();
-                ComponentName comp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareToTimeLineUI");
-                intent.setComponent(comp);
-                intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                intent.setType("image/*");
-                ArrayList<Uri> imageUris = new ArrayList<Uri>();
-                File[] files = zipFolder.listFiles();
-                for (int i = 0; i < files.length; ++i) {
-                    imageUris.add(Uri.fromFile(files[i]));
+                singleFragment.recycleBitmap();
+                multipleFragment.recycleBitmap();
+
+                if (prevFragment != null) {
+                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
                 }
-                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
-                startActivity(intent);
+                multipleFragment = new SearchMultipleFragment();
+                multipleFragment.mContext = self;
+                multipleFragment.setBitmap(folderName + fn + "/");
+                getFragmentManager().beginTransaction().add(R.id.fragment_container, multipleFragment).commit();
+                prevFragment = multipleFragment;
+                this.searchUI.getShare().setVisibility(View.VISIBLE);
+                flagShareFolder = 1;
+                subFolderName = fn;
+            } else {
+                this.searchUI.getShare().setVisibility(View.GONE);
+                new AlertDialog.Builder(this.searchUI)
+                        .setTitle("错误")
+                        .setMessage("图片未找到")
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog, final int which) {
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         }
     }
@@ -125,7 +149,6 @@ public class SearchActivity extends Activity {
         }
 
         public void onPostExecute(final Bitmap b) {
-            ((SquareImageView)(this.searchUI.findViewById(R.id.photo_query_result))).setImageBitmap(b);
             if (Objects.equal(b, null)) {
                 this.searchUI.getShare().setVisibility(View.GONE);
                 new AlertDialog.Builder(this.searchUI)
@@ -138,19 +161,28 @@ public class SearchActivity extends Activity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
             } else {
+                singleFragment.recycleBitmap();
+                multipleFragment.recycleBitmap();
+
+                if (prevFragment != null) {
+                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                }
+                singleFragment.setBitmap(b);
+                getFragmentManager().beginTransaction().add(R.id.fragment_container, singleFragment).commit();
+                prevFragment = singleFragment;
                 this.searchUI.sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
                 this.searchUI.getShare().setVisibility(View.VISIBLE);
+                flagShareFolder = 0;
             }
         }
     }
 
-    private Bitmap sharedBitmap;
-
-    public String folderName;
-
-    private OverlayManager om;
-
     public String init(final Bundle savedInstanceState) {
+        singleFragment = new SearchSingleFragment();
+        multipleFragment = new SearchMultipleFragment();
+        multipleFragment.mContext = this;
+        self = this;
+        prevFragment = null;
         return this.folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
     }
 
@@ -224,17 +256,29 @@ public class SearchActivity extends Activity {
     }
 
     public void share(final View v) {
-        this.om = new OverlayManager(this);
-        this.om.dumpSearchResultToFile(this.sharedBitmap);
+        if (flagShareFolder == 0) {
+            this.om = new OverlayManager(this);
+            this.om.dumpSearchResultToFile(this.sharedBitmap);
+        }
         Intent intent = new Intent();
         ComponentName comp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareToTimeLineUI");
         intent.setComponent(comp);
         intent.setAction(Intent.ACTION_SEND_MULTIPLE);
         intent.setType("image/*");
         ArrayList<Uri> imageUris = new ArrayList<Uri>();
-        for (int i = 0; (i < 3); i++) {
-            for (int j = 0; (j < 3); j++) {
-                imageUris.add(Uri.fromFile(new File(((((this.folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
+        if (flagShareFolder == 0) {
+            for (int i = 0; (i < 3); i++) {
+                for (int j = 0; (j < 3); j++) {
+                    imageUris.add(Uri.fromFile(new File(((((this.folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
+                }
+            }
+        } else {
+            File zipFolder = new File(folderName + subFolderName + "/");
+            if (zipFolder.exists()) {
+                File[] files = zipFolder.listFiles();
+                for (int i = 0; i < files.length; ++i) {
+                    imageUris.add(Uri.fromFile(files[i]));
+                }
             }
         }
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);

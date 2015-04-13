@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 
 import com.edmodo.cropper.CropImageView;
@@ -17,10 +18,20 @@ import java.io.IOException;
 
 public class CropActivity extends Activity {
 
+    private static Bitmap previousBitmap = null;
+
     public void init(final Bundle savedInstanceState) {
     	try {
+            if (previousBitmap != null) {
+                Log.i("PhotoPlus", "recycle previous bitmap");
+                previousBitmap.recycle();
+                previousBitmap = null;
+            } else {
+                Log.i("PhotoPlus", "previous null");
+            }
 			Bitmap b = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(getIntent().getStringExtra("BitmapImage")));
-			int width = 0, height = 0;
+			Bitmap scaledBitmap = null;
+            int width = 0, height = 0;
 			int sizeLimit = Utils.getMaximumTextureSize() / 2;
 	    	if (b.getWidth() > sizeLimit || b.getHeight() > sizeLimit) {
 	    		if (b.getWidth() > b.getHeight()) {
@@ -32,10 +43,15 @@ public class CropActivity extends Activity {
 	            	double scaleFactor = (double)b.getHeight() / (double)sizeLimit;
 	            	width = (int)(b.getWidth() / scaleFactor);
 	    		}
-	            b = Bitmap.createScaledBitmap(b, width, height, false);
-	    	}
+                Log.i("PhotoPlus", "width: " + Integer.valueOf(width) + " height: " + Integer.valueOf(height));
+                scaledBitmap = Bitmap.createScaledBitmap(b, width, height, false);
+                b.recycle();
+	    	} else {
+                scaledBitmap = b;
+            }
 			this.getCropImageView().setFixedAspectRatio(true);
-			this.getCropImageView().setImageBitmap(b);
+			this.getCropImageView().setImageBitmap(scaledBitmap);
+            previousBitmap = scaledBitmap;
     	} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

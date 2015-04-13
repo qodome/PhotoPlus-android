@@ -28,12 +28,14 @@
 
     </LinearLayout>
 
-	<com.qodome.photoplus_android.SquareImageView
-		android:id="@+id/photo_query_result"
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:scaleType="centerCrop"/>   
-    
+    <LinearLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="6"
+        android:orientation="horizontal">
+    </LinearLayout>
+
     <LinearLayout 
     	android:layout_width="match_parent"
     	android:layout_height="wrap_content"

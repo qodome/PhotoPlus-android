@@ -3,18 +3,18 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 18
     buildToolsVersion "21.1.2"
-
     defaultConfig {
         applicationId "com.qodome.photoplus_android"
-        minSdkVersion 8
+        minSdkVersion 11
         targetSdkVersion 18
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+    }
+    productFlavors {
     }
 }
 
@@ -28,5 +28,5 @@ dependencies {
     compile 'com.android.support:support-v4:18.0.0'
     compile files('libs/com.google.guava_15.0.0.v201403281430.jar')
     compile files('libs/core-3.2.0.jar')
-    compile(name:'cropper-release', ext:'aar')
+    compile(name: 'cropper-release', ext: 'aar')
 }
