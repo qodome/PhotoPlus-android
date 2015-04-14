@@ -32,7 +32,7 @@ public class SearchMultipleFragment extends Fragment {
             File zipFolder = new File(folder);
             if (zipFolder.exists()) {
                 File[] files = zipFolder.listFiles();
-                count = files.length - 1;
+                count = files.length;
             }
         }
 
