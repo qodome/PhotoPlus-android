@@ -1,4 +1,4 @@
-package com.qodome.photoplus_android;
+package com.qodome.photoplus;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class EditFragment extends Fragment {
+public class SearchSingleFragment extends Fragment {
     private Bitmap show = null;
     private boolean initDone = false;
 
@@ -21,13 +21,13 @@ public class EditFragment extends Fragment {
     public void setBitmap(final Bitmap b) {
         this.show = b;
         if ((this.initDone == true)) {
-            ((SquareImageView)(this.findViewById(R.id.photo_grid_view))).setImageBitmap(this.show);
+            ((SquareImageView)(this.findViewById(R.id.search_single_result))).setImageBitmap(this.show);
         }
     }
 
     public void init(final Bundle savedInstanceState) {
         if (this.show != null) {
-            ((SquareImageView)(this.findViewById(R.id.photo_grid_view))).setImageBitmap(this.show);
+            ((SquareImageView)(this.findViewById(R.id.search_single_result))).setImageBitmap(this.show);
         }
         this.initDone = true;
     }
@@ -42,7 +42,7 @@ public class EditFragment extends Fragment {
     }
 
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_edit, container, false);
+        View view = inflater.inflate(R.layout.fragment_search_single, container, false);
         return view;
     }
 }

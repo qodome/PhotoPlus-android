@@ -1,4 +1,4 @@
-package com.qodome.photoplus_android;
+package com.qodome.photoplus;
 
 import android.util.Log;
 

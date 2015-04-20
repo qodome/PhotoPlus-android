@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
     defaultConfig {
-        applicationId "com.qodome.photoplus_android"
-        minSdkVersion 11
-        targetSdkVersion 18
+        applicationId "com.qodome.photoplus"
+        minSdkVersion 15
+        targetSdkVersion 22
     }
     buildTypes {
         release {
@@ -25,8 +25,10 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
-    compile files('libs/com.google.guava_15.0.0.v201403281430.jar')
+    compile 'com.android.support:support-v13:22.0.0'
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'com.jakewharton:butterknife:5.1.1'
+    compile 'joda-time:joda-time:2.3'
     compile files('libs/core-3.2.0.jar')
     compile(name: 'cropper-release', ext: 'aar')
 }

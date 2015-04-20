@@ -1,4 +1,4 @@
-package com.qodome.photoplus_android;
+package com.qodome.photoplus;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -239,7 +239,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public void loadPhoto(final View v) {
-        this.startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), LOAD_PHOTO);
+        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), LOAD_PHOTO);
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {

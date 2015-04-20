@@ -1,4 +1,4 @@
-package com.qodome.photoplus_android;
+package com.qodome.photoplus;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
