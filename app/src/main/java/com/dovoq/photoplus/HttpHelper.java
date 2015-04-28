@@ -4,6 +4,13 @@ import android.util.Log;
 
 import com.google.common.io.ByteStreams;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -15,13 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class HttpHelper {
     private final static String BOUNDARY = "Boundary+A789798EA789798E";
@@ -36,8 +36,8 @@ public class HttpHelper {
 
     public static void upload(final String dir, final String folder, final String fileName) throws ClientProtocolException, IOException, JSONException {
         DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet get = new HttpGet(((("http://dovoq.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/free/" + folder) + "/") + fileName));
-        get.setHeader("Authorization", "Token 707daebb6f44342e9b9c73569404fc8a971db7d3");
+        HttpGet get = new HttpGet(((("http://dovoq.com/upload_params/s3/?filename=photoplus/free/" + folder) + "/") + fileName));
+        get.setHeader("Authorization", "Token e91c2126c2a9ba77000a932fc11a85bbb29e8f54");
         HttpResponse response = client.execute(get);
 		if (response.getStatusLine().getStatusCode() == 200) {
 			BufferedReader r = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));

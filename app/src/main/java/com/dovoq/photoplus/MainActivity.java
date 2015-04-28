@@ -104,22 +104,22 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         Log.i("PhotoPlus", "onFling event");
         if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn left");
-            this.welcomeIdx++;
+            welcomeIdx++;
             if (welcomeIdx >= welcomes.size()) {
-                this.init();
+                init();
             } else {
-                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this, R.anim.push_left_in));
-                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.push_left_out));
-                ((ViewFlipper) this.findViewById(R.id.view_flipper)).showNext();
+                ((ViewFlipper) findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this, R.anim.push_left_in));
+                ((ViewFlipper) findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.push_left_out));
+                ((ViewFlipper) findViewById(R.id.view_flipper)).showNext();
             }
             return true;
         } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn right");
-            if ((this.welcomeIdx > 0)) {
-                this.welcomeIdx--;
-                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this, R.anim.push_right_in));
-                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.push_right_out));
-                ((ViewFlipper) this.findViewById(R.id.view_flipper)).showPrevious();
+            if ((welcomeIdx > 0)) {
+                welcomeIdx--;
+                ((ViewFlipper) findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this, R.anim.push_right_in));
+                ((ViewFlipper) findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.push_right_out));
+                ((ViewFlipper) findViewById(R.id.view_flipper)).showPrevious();
             }
             return true;
         }
@@ -127,13 +127,13 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public void init() {
-        this.setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-        this.om = new OverlayManager(this);
-        this.editFrag = this.newEditFrag();
-        this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
-        this.getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit();
-        this.getInputText().addTextChangedListener(new TextWatcher() {
+        om = new OverlayManager(this);
+        editFrag = newEditFrag();
+        editFrag.setBitmap(om.getBitmapForDraw(true));
+        getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit();
+        getInputText().addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(final Editable s) {
             }
 
@@ -146,24 +146,24 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
             }
         });
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            Log.e(this.getString(R.string.LOGTAG), "External storage not mounted");
+            Log.e(getString(R.string.LOGTAG), "External storage not mounted");
             return;
         }
         File reportFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "PhotoPlus");
         if (!reportFolder.exists()) {
-            Log.i(this.getString(R.string.LOGTAG), "Creating missing directory iDoStatsMonitor");
+            Log.i(getString(R.string.LOGTAG), "Creating missing directory iDoStatsMonitor");
             reportFolder.mkdirs();
         }
-        this.folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
-        this.sp = this.getSharedPreferences("PhotoPlusPreference", Context.MODE_PRIVATE);
+        folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
+        sp = getSharedPreferences("PhotoPlusPreference", Context.MODE_PRIVATE);
         if (sp.getBoolean("enable_share", false)) {
-            this.getEnableShare().setChecked(true);
+            getEnableShare().setChecked(true);
         } else {
-            this.getEnableShare().setChecked(false);
+            getEnableShare().setChecked(false);
         }
-        this.getEnableShare().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        getEnableShare().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                SharedPreferences.Editor ed = MainActivity.this.sp.edit();
+                SharedPreferences.Editor ed = sp.edit();
                 ed.putBoolean("enable_share", isChecked);
                 ed.commit();
             }
@@ -173,70 +173,70 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     @SuppressWarnings("deprecation")
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mSensorManager = (SensorManager) (this.getSystemService(Context.SENSOR_SERVICE));
-        this.mAccelerometer = this.mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager = (SensorManager) (getSystemService(Context.SENSOR_SERVICE));
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         PreferenceManager.setDefaultValues(this, "PhotoPlusPreference", Context.MODE_PRIVATE, R.xml.preferences, false);
-        SharedPreferences sp = this.getSharedPreferences("PhotoPlusPreference", Context.MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("PhotoPlusPreference", Context.MODE_PRIVATE);
         if (sp.getBoolean("first_time_init", false)) {
             SharedPreferences.Editor ed = sp.edit();
             ed.putBoolean("first_time_init", false);
             ed.commit();
-            Log.i(this.getString(R.string.LOGTAG), "First time run, show welcome screens");
-            this.setContentView(R.layout.welcome);
-            this.gdt = new GestureDetector(this);
-            this.welcomeIdx = 0;
+            Log.i(getString(R.string.LOGTAG), "First time run, show welcome screens");
+            setContentView(R.layout.welcome);
+            gdt = new GestureDetector(this);
+            welcomeIdx = 0;
             welcomeNames = new ArrayList<String>();
             for (int i = 0; i < welcomeNameValues.length; ++i) {
                 welcomeNames.add(welcomeNameValues[i]);
             }
-            this.welcomes = new ArrayList<Bitmap>();
-            for (final String desc : this.welcomeNames) {
-                int id = this.getResources().getIdentifier(desc, "drawable", this.getPackageName());
-                this.welcomes.add(((BitmapDrawable) this.getResources().getDrawable(id)).getBitmap());
+            welcomes = new ArrayList<Bitmap>();
+            for (final String desc : welcomeNames) {
+                int id = getResources().getIdentifier(desc, "drawable", getPackageName());
+                welcomes.add(((BitmapDrawable) getResources().getDrawable(id)).getBitmap());
             }
-            ((ViewFlipper) this.findViewById(R.id.view_flipper)).setOnTouchListener(new View.OnTouchListener() {
+            ((ViewFlipper) findViewById(R.id.view_flipper)).setOnTouchListener(new View.OnTouchListener() {
                 public boolean onTouch(final View view, final MotionEvent event) {
-                    MainActivity.this.gdt.onTouchEvent(event);
+                    gdt.onTouchEvent(event);
                     return true;
                 }
             });
-            for (int idx = 0; idx < this.welcomes.size(); idx++) {
+            for (int idx = 0; idx < welcomes.size(); idx++) {
                 {
                     ImageView img = new ImageView(this);
-                    img.setImageBitmap(this.welcomes.get(idx));
+                    img.setImageBitmap(welcomes.get(idx));
                     img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    ((ViewFlipper) this.findViewById(R.id.view_flipper)).addView(img);
+                    ((ViewFlipper) findViewById(R.id.view_flipper)).addView(img);
                 }
             }
             return;
         }
-        this.init();
+        init();
     }
 
     public void onDestroy() {
-        this.mSensorManager.unregisterListener(this);
+        mSensorManager.unregisterListener(this);
         super.onDestroy();
     }
 
     public void onResume() {
         super.onResume();
-        this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public void onPause() {
         super.onPause();
-        this.mSensorManager.unregisterListener(this);
+        mSensorManager.unregisterListener(this);
     }
 
     public void font(final View v) {
-        this.om.toggleTF();
-        this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
+        om.toggleTF();
+        editFrag.setBitmap(om.getBitmapForDraw(true));
     }
 
     public void background(final View v) {
-        this.om.toggleBG();
-        this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
+        om.toggleBG();
+        editFrag.setBitmap(om.getBitmapForDraw(true));
     }
 
     public void loadPhoto(final View v) {
@@ -249,18 +249,18 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         if (((requestCode == LOAD_PHOTO) && (resultCode == Activity.RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", data.getData().toString());
-            this.startActivityForResult(intent, LOAD_CROP_VIEW);
+            startActivityForResult(intent, LOAD_CROP_VIEW);
         } else if ((requestCode == LOAD_CROP_VIEW) && (resultCode == Activity.RESULT_OK)) {
             if (data != null && data.hasExtra("filename")) {
                 String fn = data.getStringExtra("filename");
                 FileInputStream is;
                 try {
-                    this.editFrag.recycleBitmap();
-                    this.om.recyclePhoto();
-                    is = this.openFileInput(fn);
+                    editFrag.recycleBitmap();
+                    om.recyclePhoto();
+                    is = openFileInput(fn);
                     Bitmap bmp = BitmapFactory.decodeStream(is);
-                    this.om.setPhoto(bmp);
-                    this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
+                    om.setPhoto(bmp);
+                    editFrag.setBitmap(om.getBitmapForDraw(true));
                 } catch (FileNotFoundException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -268,8 +268,8 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
             }
         } else if (((requestCode == LOAD_CAMERA) && (resultCode == Activity.RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
-            intent.putExtra("BitmapImage", Uri.fromFile(new File((this.folderName + "capture.jpg"))).toString());
-            this.startActivityForResult(intent, LOAD_CROP_VIEW);
+            intent.putExtra("BitmapImage", Uri.fromFile(new File((folderName + "capture.jpg"))).toString());
+            startActivityForResult(intent, LOAD_CROP_VIEW);
         }
     }
 
@@ -289,24 +289,24 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         ArrayList<Uri> imageUris = new ArrayList<>();
         for (int i = 0; (i < 3); i++) {
             for (int j = 0; (j < 3); j++) {
-                imageUris.add(Uri.fromFile(new File(((((this.folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
+                imageUris.add(Uri.fromFile(new File(((((folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
             }
         }
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
         startActivity(intent);
         if (sp.getBoolean("enable_share", false)) {
-            new MainActivity.UploadFilesTask().execute(this.folderName, this.getFolderName(), uploadFn);
+            new MainActivity.UploadFilesTask().execute(folderName, getFolderName(), uploadFn);
         }
     }
 
     public void search(final View v) {
-        this.startActivity(new Intent(this, SearchActivity.class));
+        startActivity(new Intent(this, SearchActivity.class));
     }
 
     public void camera(final View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File((this.folderName + "capture.jpg"))));
-        this.startActivityForResult(takePictureIntent, LOAD_CAMERA);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File((folderName + "capture.jpg"))));
+        startActivityForResult(takePictureIntent, LOAD_CAMERA);
     }
 
     public boolean onDown(final MotionEvent e) {
@@ -331,48 +331,48 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public void onSensorChanged(final SensorEvent event) {
-        if (event.sensor == this.mAccelerometer) {
+        if (event.sensor == mAccelerometer) {
             long curTime = System.currentTimeMillis();
-            if (((this.lastUpdate != 0) && ((curTime - this.lastUpdate) > 100))) {
-                long diffTime = (curTime - this.lastUpdate);
-                this.lastUpdate = curTime;
+            if (((lastUpdate != 0) && ((curTime - lastUpdate) > 100))) {
+                long diffTime = (curTime - lastUpdate);
+                lastUpdate = curTime;
                 float x = event.values[0];
                 float y = event.values[1];
                 float z = event.values[2];
-                if ((((Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000) > 1000) && (this.deleteNotified == false))) {
+                if ((((Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000) > 1000) && (deleteNotified == false))) {
                     Log.i("PhotoPlus", ("shake detected"));
-                    this.deleteNotified = true;
+                    deleteNotified = true;
                     new AlertDialog.Builder(this)
                             .setTitle("请确认")
                             .setMessage("确认删除?")
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 public void onClick(final DialogInterface dialog, final int which) {
                                     Log.i("PhotoPlus", "Delete confirmed");
-                                    MainActivity.this.getInputText().setText("");
-                                    MainActivity.this.om.reset();
-                                    MainActivity.this.editFrag.setBitmap(MainActivity.this.om.getBitmapForDraw(true));
-                                    MainActivity.this.deleteNotified = false;
+                                    getInputText().setText("");
+                                    om.reset();
+                                    editFrag.setBitmap(om.getBitmapForDraw(true));
+                                    deleteNotified = false;
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                                 public void onClick(final DialogInterface dialog, final int which) {
                                     Log.i("PhotoPlus", "Delete cancelled");
-                                    MainActivity.this.deleteNotified = false;
+                                    deleteNotified = false;
                                 }
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setCancelable(false)
                             .show();
                 }
-                this.last_x = x;
-                this.last_y = y;
-                this.last_z = z;
+                last_x = x;
+                last_y = y;
+                last_z = z;
             } else {
-                if ((this.lastUpdate == 0)) {
-                    this.lastUpdate = System.currentTimeMillis();
-                    this.last_x = event.values[0];
-                    this.last_y = event.values[1];
-                    this.last_z = event.values[2];
+                if ((lastUpdate == 0)) {
+                    lastUpdate = System.currentTimeMillis();
+                    last_x = event.values[0];
+                    last_y = event.values[1];
+                    last_z = event.values[2];
                 }
             }
         }

@@ -86,8 +86,8 @@ public class SearchMultipleFragment extends Fragment {
     }
 
     public void setBitmap(String folderName) {
-        this.folder = folderName;
-        if (this.initDone == true) {
+        folder = folderName;
+        if (initDone == true) {
             adapter = new ImageAdapter();
             adapter.setImageFolder(folder);
             GridView gridview = (GridView)findViewById(R.id.search_multiple_view);
@@ -96,13 +96,13 @@ public class SearchMultipleFragment extends Fragment {
     }
 
     public void init(final Bundle savedInstanceState) {
-        if (this.folder != null) {
+        if (folder != null) {
             adapter = new ImageAdapter();
             adapter.setImageFolder(folder);
             GridView gridview = (GridView)findViewById(R.id.search_multiple_view);
             gridview.setAdapter(adapter);
         }
-        this.initDone = true;
+        initDone = true;
     }
 
     public View findViewById(final int resId) {

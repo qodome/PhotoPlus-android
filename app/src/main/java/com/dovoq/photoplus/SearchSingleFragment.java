@@ -3,6 +3,7 @@ package com.dovoq.photoplus;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,37 +13,34 @@ public class SearchSingleFragment extends Fragment {
     private boolean initDone = false;
 
     public void recycleBitmap() {
-        if (this.show != null) {
-            this.show.recycle();
-            this.show = null;
+        if (show != null) {
+            show.recycle();
+            show = null;
         }
     }
 
     public void setBitmap(final Bitmap b) {
-        this.show = b;
-        if ((this.initDone == true)) {
-            ((SquareImageView)(this.findViewById(R.id.search_single_result))).setImageBitmap(this.show);
+        show = b;
+        if (initDone == true) {
+            ((SquareImageView) (findViewById(R.id.search_single_result))).setImageBitmap(show);
         }
-    }
-
-    public void init(final Bundle savedInstanceState) {
-        if (this.show != null) {
-            ((SquareImageView)(this.findViewById(R.id.search_single_result))).setImageBitmap(this.show);
-        }
-        this.initDone = true;
     }
 
     public View findViewById(final int resId) {
         return getView().findViewById(resId);
     }
 
-    public void onViewCreated(final View view, final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        init(savedInstanceState);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        if (show != null) {
+            ((SquareImageView) (findViewById(R.id.search_single_result))).setImageBitmap(show);
+        }
+        initDone = true;
     }
 
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_search_single, container, false);
-        return view;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_search_single, container, false);
     }
 }

@@ -29,7 +29,7 @@ public class CropActivity extends Activity {
             } else {
                 Log.i("PhotoPlus", "previous null");
             }
-			Bitmap b = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(getIntent().getStringExtra("BitmapImage")));
+			Bitmap b = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(getIntent().getStringExtra("BitmapImage")));
 			Bitmap scaledBitmap = null;
             int width = 0, height = 0;
 			int sizeLimit = Utils.getMaximumTextureSize() / 2;
@@ -49,8 +49,8 @@ public class CropActivity extends Activity {
 	    	} else {
                 scaledBitmap = b;
             }
-			this.getCropImageView().setFixedAspectRatio(true);
-			this.getCropImageView().setImageBitmap(scaledBitmap);
+			getCropImageView().setFixedAspectRatio(true);
+			getCropImageView().setImageBitmap(scaledBitmap);
             previousBitmap = scaledBitmap;
     	} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -66,7 +66,7 @@ public class CropActivity extends Activity {
         String fn = "croppedImage.png";
         FileOutputStream stream;
 		try {
-			stream = this.openFileOutput(fn, Context.MODE_PRIVATE);
+			stream = openFileOutput(fn, Context.MODE_PRIVATE);
 	        croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 			stream.close();
 		} catch (FileNotFoundException e) {
@@ -80,8 +80,8 @@ public class CropActivity extends Activity {
         croppedImage.recycle();
         Intent result = new Intent(this, MainActivity.class);
         result.putExtra("filename", fn);
-        this.setResult(Activity.RESULT_OK, result);
-        this.finish();
+        setResult(Activity.RESULT_OK, result);
+        finish();
     }
 
     public void onCreate(final Bundle savedInstanceState) {

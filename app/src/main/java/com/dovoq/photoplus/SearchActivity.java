@@ -49,7 +49,7 @@ public class SearchActivity extends Activity {
         private SearchActivity searchUI;
 
         public QueryZIPFilesTask(final SearchActivity activity) {
-            this.searchUI = activity;
+            searchUI = activity;
         }
 
         public String doInBackground(final String... info) {
@@ -105,12 +105,12 @@ public class SearchActivity extends Activity {
                     multipleFragment.setBitmap(folderName + fn + "/");
                     getFragmentManager().beginTransaction().add(R.id.fragment_container, multipleFragment).commit();
                     prevFragment = multipleFragment;
-                    this.searchUI.getShare().setVisibility(View.VISIBLE);
+                    searchUI.getShare().setVisibility(View.VISIBLE);
                     flagShareFolder = 1;
                     subFolderName = fn;
                 } else {
-                    this.searchUI.getShare().setVisibility(View.GONE);
-                    new AlertDialog.Builder(this.searchUI)
+                    searchUI.getShare().setVisibility(View.GONE);
+                    new AlertDialog.Builder(searchUI)
                             .setTitle("错误")
                             .setMessage("图片未找到")
                             .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -133,8 +133,8 @@ public class SearchActivity extends Activity {
                     getFragmentManager().beginTransaction().remove(prevFragment).commit();
                     prevFragment = null;
                 }
-                this.searchUI.getShare().setVisibility(View.GONE);
-                new AlertDialog.Builder(this.searchUI)
+                searchUI.getShare().setVisibility(View.GONE);
+                new AlertDialog.Builder(searchUI)
                         .setTitle("错误")
                         .setMessage("图片未找到")
                         .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -151,7 +151,7 @@ public class SearchActivity extends Activity {
         private SearchActivity searchUI;
 
         public QueryJPGFilesTask(final SearchActivity activity) {
-            this.searchUI = activity;
+            searchUI = activity;
         }
 
         public Bitmap doInBackground(final String... info) {
@@ -194,8 +194,8 @@ public class SearchActivity extends Activity {
                     getFragmentManager().beginTransaction().remove(prevFragment).commit();
                     prevFragment = null;
                 }
-                this.searchUI.getShare().setVisibility(View.GONE);
-                new AlertDialog.Builder(this.searchUI)
+                searchUI.getShare().setVisibility(View.GONE);
+                new AlertDialog.Builder(searchUI)
                 .setTitle("错误")
                 .setMessage("图片未找到")
                 .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -221,8 +221,8 @@ public class SearchActivity extends Activity {
                 singleFragment.setBitmap(b);
                 getFragmentManager().beginTransaction().add(R.id.fragment_container, singleFragment).commit();
                 prevFragment = singleFragment;
-                this.searchUI.sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
-                this.searchUI.getShare().setVisibility(View.VISIBLE);
+                searchUI.sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
+                searchUI.getShare().setVisibility(View.VISIBLE);
                 flagShareFolder = 0;
             }
         }
@@ -234,7 +234,7 @@ public class SearchActivity extends Activity {
         multipleFragment.mContext = this;
         self = this;
         prevFragment = null;
-        return this.folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
+        return folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
     }
 
     public boolean isNumeric(final String str) {
@@ -247,8 +247,8 @@ public class SearchActivity extends Activity {
     }
 
     public void search(final View v) {
-        String prefix = this.getInputText().getText().toString().substring(0,1);
-        String input = this.getInputText().getText().toString().substring(1);
+        String prefix = getInputText().getText().toString().substring(0,1);
+        String input = getInputText().getText().toString().substring(1);
 		if (input.length() != 10 || isNumeric(input) == false) {
             new AlertDialog.Builder(this)
             .setTitle("错误")
@@ -261,7 +261,7 @@ public class SearchActivity extends Activity {
             .show();
             return;
         }
-        if (prevSearchString == null || !prevSearchString.equals(this.getInputText().getText().toString())) {
+        if (prevSearchString == null || !prevSearchString.equals(getInputText().getText().toString())) {
             Log.i("PhotoPlus", "new search task");
 
             if (singleFragment != null) {
@@ -277,13 +277,13 @@ public class SearchActivity extends Activity {
                 prevFragment = null;
             }
 
-            prevSearchString = new String(this.getInputText().getText().toString());
+            prevSearchString = new String(getInputText().getText().toString());
             input = input.substring(0, (input.length() - 3));
             String folder = String.valueOf((Integer.parseInt(input) / 864000));
             if (prefix.equals("a")) {
-                new QueryJPGFilesTask(this).execute(folder, this.getInputText().getText().toString());
+                new QueryJPGFilesTask(this).execute(folder, getInputText().getText().toString());
             } else if (prefix.equals("z")) {
-                new QueryZIPFilesTask(this).execute(folder, this.getInputText().getText().toString());
+                new QueryZIPFilesTask(this).execute(folder, getInputText().getText().toString());
             }
         }
     }
@@ -326,8 +326,8 @@ public class SearchActivity extends Activity {
 
     public void share(final View v) {
         if (flagShareFolder == 0) {
-            this.om = new OverlayManager(this);
-            this.om.dumpSearchResultToFile(this.sharedBitmap);
+            om = new OverlayManager(this);
+            om.dumpSearchResultToFile(sharedBitmap);
         }
         Intent intent = new Intent();
         ComponentName comp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareToTimeLineUI");
@@ -338,7 +338,7 @@ public class SearchActivity extends Activity {
         if (flagShareFolder == 0) {
             for (int i = 0; (i < 3); i++) {
                 for (int j = 0; (j < 3); j++) {
-                    imageUris.add(Uri.fromFile(new File(((((this.folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
+                    imageUris.add(Uri.fromFile(new File(((((folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
                 }
             }
         } else {
@@ -351,7 +351,7 @@ public class SearchActivity extends Activity {
             }
         }
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
-        this.startActivity(intent);
+        startActivity(intent);
     }
 
     public void onCreate(final Bundle savedInstanceState) {

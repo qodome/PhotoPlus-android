@@ -12,24 +12,24 @@ public class EditFragment extends Fragment {
     private boolean initDone = false;
 
     public void recycleBitmap() {
-        if (this.show != null) {
-            this.show.recycle();
-            this.show = null;
+        if (show != null) {
+            show.recycle();
+            show = null;
         }
     }
 
     public void setBitmap(final Bitmap b) {
-        this.show = b;
-        if ((this.initDone == true)) {
-            ((SquareImageView)(this.findViewById(R.id.photo_grid_view))).setImageBitmap(this.show);
+        show = b;
+        if (initDone == true) {
+            ((SquareImageView) (findViewById(R.id.photo_grid_view))).setImageBitmap(show);
         }
     }
 
     public void init(final Bundle savedInstanceState) {
-        if (this.show != null) {
-            ((SquareImageView)(this.findViewById(R.id.photo_grid_view))).setImageBitmap(this.show);
+        if (show != null) {
+            ((SquareImageView) (findViewById(R.id.photo_grid_view))).setImageBitmap(show);
         }
-        this.initDone = true;
+        initDone = true;
     }
 
     public View findViewById(final int resId) {
