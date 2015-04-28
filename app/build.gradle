@@ -25,10 +25,11 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v13:22.0.0'
-    compile 'com.google.guava:guava:16.0.1'
+    compile 'com.android.support:support-v13:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.google.guava:guava:18.0'
     compile 'com.jakewharton:butterknife:5.1.1'
-    compile 'joda-time:joda-time:2.3'
+    compile 'joda-time:joda-time:2.7'
     compile files('libs/core-3.2.0.jar')
     compile(name: 'cropper-release', ext: 'aar')
 }

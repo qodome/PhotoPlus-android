@@ -1,8 +1,6 @@
 package com.dovoq.photoplus;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +11,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends FragmentActivity {
     public Context self;
     private Bitmap sharedBitmap;
     public String folderName;
@@ -98,12 +98,12 @@ public class SearchActivity extends Activity {
                     }
 
                     if (prevFragment != null) {
-                        getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                        getSupportFragmentManager().beginTransaction().remove(prevFragment).commit();
                     }
                     multipleFragment = new SearchMultipleFragment();
                     multipleFragment.mContext = self;
                     multipleFragment.setBitmap(folderName + fn + "/");
-                    getFragmentManager().beginTransaction().add(R.id.fragment_container, multipleFragment).commit();
+                    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, multipleFragment).commit();
                     prevFragment = multipleFragment;
                     searchUI.getShare().setVisibility(View.VISIBLE);
                     flagShareFolder = 1;
@@ -130,7 +130,7 @@ public class SearchActivity extends Activity {
                     multipleFragment = null;
                 }
                 if (prevFragment != null) {
-                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                    getSupportFragmentManager().beginTransaction().remove(prevFragment).commit();
                     prevFragment = null;
                 }
                 searchUI.getShare().setVisibility(View.GONE);
@@ -191,7 +191,7 @@ public class SearchActivity extends Activity {
                     multipleFragment = null;
                 }
                 if (prevFragment != null) {
-                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                    getSupportFragmentManager().beginTransaction().remove(prevFragment).commit();
                     prevFragment = null;
                 }
                 searchUI.getShare().setVisibility(View.GONE);
@@ -215,11 +215,11 @@ public class SearchActivity extends Activity {
                 }
 
                 if (prevFragment != null) {
-                    getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                    getSupportFragmentManager().beginTransaction().remove(prevFragment).commit();
                 }
                 singleFragment = new SearchSingleFragment();
                 singleFragment.setBitmap(b);
-                getFragmentManager().beginTransaction().add(R.id.fragment_container, singleFragment).commit();
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, singleFragment).commit();
                 prevFragment = singleFragment;
                 searchUI.sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
                 searchUI.getShare().setVisibility(View.VISIBLE);
@@ -273,7 +273,7 @@ public class SearchActivity extends Activity {
                 multipleFragment = null;
             }
             if (prevFragment != null) {
-                getFragmentManager().beginTransaction().remove(prevFragment).commit();
+                getSupportFragmentManager().beginTransaction().remove(prevFragment).commit();
                 prevFragment = null;
             }
 

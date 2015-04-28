@@ -1,6 +1,5 @@
 package com.dovoq.photoplus;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,6 +20,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends Activity implements GestureDetector.OnGestureListener, SensorEventListener {
+public class MainActivity extends FragmentActivity implements GestureDetector.OnGestureListener, SensorEventListener {
     public static class UploadFilesTask extends AsyncTask<String, Integer, Long> {
         public Long doInBackground(final String... info) {
             try {
@@ -132,7 +132,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         om = new OverlayManager(this);
         editFrag = newEditFrag();
         editFrag.setBitmap(om.getBitmapForDraw(true));
-        getFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, editFrag).commit();
         getInputText().addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(final Editable s) {
             }
@@ -170,8 +170,8 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         });
     }
 
-    @SuppressWarnings("deprecation")
-    public void onCreate(final Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSensorManager = (SensorManager) (getSystemService(Context.SENSOR_SERVICE));
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -246,11 +246,11 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (((requestCode == LOAD_PHOTO) && (resultCode == Activity.RESULT_OK))) {
+        if (((requestCode == LOAD_PHOTO) && (resultCode == RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", data.getData().toString());
             startActivityForResult(intent, LOAD_CROP_VIEW);
-        } else if ((requestCode == LOAD_CROP_VIEW) && (resultCode == Activity.RESULT_OK)) {
+        } else if ((requestCode == LOAD_CROP_VIEW) && (resultCode == RESULT_OK)) {
             if (data != null && data.hasExtra("filename")) {
                 String fn = data.getStringExtra("filename");
                 FileInputStream is;
@@ -266,7 +266,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
                     e.printStackTrace();
                 }
             }
-        } else if (((requestCode == LOAD_CAMERA) && (resultCode == Activity.RESULT_OK))) {
+        } else if (((requestCode == LOAD_CAMERA) && (resultCode == RESULT_OK))) {
             Intent intent = new Intent(this, CropActivity.class);
             intent.putExtra("BitmapImage", Uri.fromFile(new File((folderName + "capture.jpg"))).toString());
             startActivityForResult(intent, LOAD_CROP_VIEW);
