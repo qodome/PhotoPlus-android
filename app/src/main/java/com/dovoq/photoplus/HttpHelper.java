@@ -1,4 +1,4 @@
-package com.qodome.photoplus;
+package com.dovoq.photoplus;
 
 import android.util.Log;
 
@@ -36,7 +36,7 @@ public class HttpHelper {
 
     public static void upload(final String dir, final String folder, final String fileName) throws ClientProtocolException, IOException, JSONException {
         DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet get = new HttpGet(((("http://qodome.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/free/" + folder) + "/") + fileName));
+        HttpGet get = new HttpGet(((("http://dovoq.com/api/v1/get_upload_params/?app=photoplus&filename=photoplus/free/" + folder) + "/") + fileName));
         get.setHeader("Authorization", "Token 707daebb6f44342e9b9c73569404fc8a971db7d3");
         HttpResponse response = client.execute(get);
 		if (response.getStatusLine().getStatusCode() == 200) {
@@ -70,7 +70,7 @@ public class HttpHelper {
             URL url;
             DataOutputStream dataOS;
 			try {
-				url = new URL("http://media.qodome.com/");
+				url = new URL("http://media.dovoq.com/");
 	            conn = (HttpURLConnection)url.openConnection();
 	            conn.setDoOutput(true);
 	            conn.setDoInput(true);

@@ -1,4 +1,4 @@
-package com.qodome.photoplus;
+package com.dovoq.photoplus;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

@@ -1,4 +1,4 @@
-package com.qodome.photoplus;
+package com.dovoq.photoplus;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -54,7 +54,7 @@ public class SearchActivity extends Activity {
 
         public String doInBackground(final String... info) {
             DefaultHttpClient client = new DefaultHttpClient();
-            HttpGet get = new HttpGet(((("http://media.qodome.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".zip")));
+            HttpGet get = new HttpGet(((("http://media.dovoq.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".zip")));
             HttpResponse response;
             String ret = null;
             try {
@@ -156,7 +156,7 @@ public class SearchActivity extends Activity {
 
         public Bitmap doInBackground(final String... info) {
             DefaultHttpClient client = new DefaultHttpClient();
-            HttpGet get = new HttpGet(((("http://media.qodome.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".jpg")));
+            HttpGet get = new HttpGet(((("http://media.dovoq.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".jpg")));
             HttpResponse response;
             Bitmap b = null;
 			try {

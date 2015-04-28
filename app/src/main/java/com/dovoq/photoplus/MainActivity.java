@@ -1,4 +1,4 @@
-package com.qodome.photoplus;
+package com.dovoq.photoplus;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,6 +16,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -50,17 +51,17 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     public static class UploadFilesTask extends AsyncTask<String, Integer, Long> {
         public Long doInBackground(final String... info) {
             try {
-				HttpHelper.upload(info[0], info[1], info[2]);
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                HttpHelper.upload(info[0], info[1], info[2]);
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             return 0L;
         }
 
@@ -75,8 +76,8 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     private OverlayManager om;
     private String folderName;
     private GestureDetector gdt;
-    private List<String> welcomeNames; 
-    private String[] welcomeNameValues = new String[] { "welcome_1", "welcome_2", "welcome_3", "welcome_4", "welcome_5" };
+    private List<String> welcomeNames;
+    private String[] welcomeNameValues = new String[]{"welcome_1", "welcome_2", "welcome_3", "welcome_4", "welcome_5"};
     private List<Bitmap> welcomes;
     private int welcomeIdx;
     private final static int SWIPE_MIN_DISTANCE = 120;
@@ -107,18 +108,18 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
             if (welcomeIdx >= welcomes.size()) {
                 this.init();
             } else {
-                ((ViewFlipper)this.findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
-                ((ViewFlipper)this.findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
-                ((ViewFlipper)this.findViewById(R.id.view_flipper)).showNext();
+                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this, R.anim.push_left_in));
+                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.push_left_out));
+                ((ViewFlipper) this.findViewById(R.id.view_flipper)).showNext();
             }
             return true;
         } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
             Log.i("PhotoPlus", "turn right");
             if ((this.welcomeIdx > 0)) {
                 this.welcomeIdx--;
-                ((ViewFlipper)this.findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
-                ((ViewFlipper)this.findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
-                ((ViewFlipper)this.findViewById(R.id.view_flipper)).showPrevious();
+                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setInAnimation(AnimationUtils.loadAnimation(this, R.anim.push_right_in));
+                ((ViewFlipper) this.findViewById(R.id.view_flipper)).setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.push_right_out));
+                ((ViewFlipper) this.findViewById(R.id.view_flipper)).showPrevious();
             }
             return true;
         }
@@ -127,7 +128,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
 
     public void init() {
         this.setContentView(R.layout.activity_main);
-        
+
         this.om = new OverlayManager(this);
         this.editFrag = this.newEditFrag();
         this.editFrag.setBitmap(this.om.getBitmapForDraw(true));
@@ -170,9 +171,9 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     @SuppressWarnings("deprecation")
-	public void onCreate(final Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mSensorManager = (SensorManager)(this.getSystemService(Context.SENSOR_SERVICE));
+        this.mSensorManager = (SensorManager) (this.getSystemService(Context.SENSOR_SERVICE));
         this.mAccelerometer = this.mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         PreferenceManager.setDefaultValues(this, "PhotoPlusPreference", Context.MODE_PRIVATE, R.xml.preferences, false);
@@ -184,17 +185,17 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
             Log.i(this.getString(R.string.LOGTAG), "First time run, show welcome screens");
             this.setContentView(R.layout.welcome);
             this.gdt = new GestureDetector(this);
-            this.welcomeIdx = 0;            
+            this.welcomeIdx = 0;
             welcomeNames = new ArrayList<String>();
             for (int i = 0; i < welcomeNameValues.length; ++i) {
-            	welcomeNames.add(welcomeNameValues[i]);
+                welcomeNames.add(welcomeNameValues[i]);
             }
             this.welcomes = new ArrayList<Bitmap>();
             for (final String desc : this.welcomeNames) {
                 int id = this.getResources().getIdentifier(desc, "drawable", this.getPackageName());
-                this.welcomes.add(((BitmapDrawable)this.getResources().getDrawable(id)).getBitmap());
+                this.welcomes.add(((BitmapDrawable) this.getResources().getDrawable(id)).getBitmap());
             }
-            ((ViewFlipper)this.findViewById(R.id.view_flipper)).setOnTouchListener(new View.OnTouchListener() {
+            ((ViewFlipper) this.findViewById(R.id.view_flipper)).setOnTouchListener(new View.OnTouchListener() {
                 public boolean onTouch(final View view, final MotionEvent event) {
                     MainActivity.this.gdt.onTouchEvent(event);
                     return true;
@@ -205,7 +206,7 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
                     ImageView img = new ImageView(this);
                     img.setImageBitmap(this.welcomes.get(idx));
                     img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    ((ViewFlipper)this.findViewById(R.id.view_flipper)).addView(img);
+                    ((ViewFlipper) this.findViewById(R.id.view_flipper)).addView(img);
                 }
             }
             return;
@@ -239,7 +240,9 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public void loadPhoto(final View v) {
-        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), LOAD_PHOTO);
+        Intent intent = new Intent(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, LOAD_PHOTO);
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -283,16 +286,16 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         intent.setComponent(comp);
         intent.setAction(Intent.ACTION_SEND_MULTIPLE);
         intent.setType("image/*");
-        ArrayList<Uri> imageUris = new ArrayList<Uri>();
+        ArrayList<Uri> imageUris = new ArrayList<>();
         for (int i = 0; (i < 3); i++) {
             for (int j = 0; (j < 3); j++) {
                 imageUris.add(Uri.fromFile(new File(((((this.folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
             }
         }
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
-        this.startActivity(intent);
-        if (this.sp.getBoolean("enable_share", false)) {
-			new MainActivity.UploadFilesTask().execute(this.folderName, this.getFolderName(), uploadFn);	
+        startActivity(intent);
+        if (sp.getBoolean("enable_share", false)) {
+            new MainActivity.UploadFilesTask().execute(this.folderName, this.getFolderName(), uploadFn);
         }
     }
 
@@ -340,26 +343,26 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
                     Log.i("PhotoPlus", ("shake detected"));
                     this.deleteNotified = true;
                     new AlertDialog.Builder(this)
-                    .setTitle("请确认")
-                    .setMessage("确认删除?")
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, final int which) {
-                            Log.i("PhotoPlus", "Delete confirmed");
-                            MainActivity.this.getInputText().setText("");
-                            MainActivity.this.om.reset();
-                            MainActivity.this.editFrag.setBitmap(MainActivity.this.om.getBitmapForDraw(true));
-                            MainActivity.this.deleteNotified = false;
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, final int which) {
-                            Log.i("PhotoPlus", "Delete cancelled");
-                            MainActivity.this.deleteNotified = false;
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setCancelable(false)
-                    .show();
+                            .setTitle("请确认")
+                            .setMessage("确认删除?")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(final DialogInterface dialog, final int which) {
+                                    Log.i("PhotoPlus", "Delete confirmed");
+                                    MainActivity.this.getInputText().setText("");
+                                    MainActivity.this.om.reset();
+                                    MainActivity.this.editFrag.setBitmap(MainActivity.this.om.getBitmapForDraw(true));
+                                    MainActivity.this.deleteNotified = false;
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(final DialogInterface dialog, final int which) {
+                                    Log.i("PhotoPlus", "Delete cancelled");
+                                    MainActivity.this.deleteNotified = false;
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setCancelable(false)
+                            .show();
                 }
                 this.last_x = x;
                 this.last_y = y;
@@ -376,10 +379,10 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
     }
 
     public EditText getInputText() {
-        return (EditText)(findViewById(R.id.input_text));
+        return (EditText) (findViewById(R.id.input_text));
     }
 
     public CheckBox getEnableShare() {
-        return (CheckBox)(findViewById(R.id.enable_share));
+        return (CheckBox) (findViewById(R.id.enable_share));
     }
 }

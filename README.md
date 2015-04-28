@@ -1,1 +1,1 @@
-# PhotoPlus-android
+# PhotoPlus

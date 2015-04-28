@@ -1,4 +1,4 @@
-package com.qodome.photoplus;
+package com.dovoq.photoplus;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
