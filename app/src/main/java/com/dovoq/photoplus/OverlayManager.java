@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Environment;
 import android.util.Log;
 
 import com.google.common.base.Objects;
@@ -31,7 +30,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Random;
 
-public class OverlayManager {
+public class OverlayManager implements Constants {
     private final String[] bgDesc = { "bg0_0", "bg2_e6e6e6", 
     								"bg10_0", "bg20_0", 
     								"bg30_0", "bg40_0", 
@@ -44,31 +43,30 @@ public class OverlayManager {
     									Integer.valueOf(0xFFFFFFFF), Integer.valueOf(0xFFFFFFFF), 
     									Integer.valueOf(0xFFFFFFFF), Integer.valueOf(0xFFFFFFFF), 
     									Integer.valueOf(0xFFFFFFFF)};
-    private final int barcodeSize = 128;
+    private final int qrCodeSize = 128;
     private final int boarcodeBoarderGap = 32;
     private int bgIdx = 0;
     private Typeface[] textTF;
     private int tfIdx = 0;
     private Bitmap gridMap;
-    private Bitmap photoMap;
+    private Bitmap mPhotoMap;
     private Bitmap textMapDefault;
     private Bitmap textMap;
     private Bitmap appIntroMap;
     private List<Bitmap> bg;
-    private List<Bitmap> cardFrame;
-    private Bitmap noShareCardFrame;
-    private Activity parent;
+    private List<Bitmap> mBgs;
+    private Bitmap mBg;
+    private Activity mActivity;
     private CharSequence textCS;
-    private String folderName;
     private boolean resetState = true;
 
-    public OverlayManager(final Activity activity) {
-        parent = activity;
-        photoMap = null;
+    public OverlayManager(Activity activity) {
+        mActivity = activity;
+        mPhotoMap = null;
         bg = new ArrayList<Bitmap>();
         for (final String desc : bgDesc) {
-            int id = parent.getResources().getIdentifier(desc, "drawable", parent.getPackageName());
-			Bitmap bitmapElement = ((BitmapDrawable)(parent.getResources().getDrawable(id))).getBitmap();
+            int id = mActivity.getResources().getIdentifier(desc, "drawable", mActivity.getPackageName());
+			Bitmap bitmapElement = ((BitmapDrawable)(mActivity.getResources().getDrawable(id))).getBitmap();
             int[] elementArray = Utils.getIntArray(bitmapElement.getWidth() * bitmapElement.getHeight());
             bitmapElement.getPixels(elementArray, 0, bitmapElement.getWidth(), 0, 0, bitmapElement.getWidth(), bitmapElement.getWidth());
             int[] finalArray = Utils.getIntArray((bitmapElement.getWidth() * 3) * (bitmapElement.getHeight() * 3));
@@ -102,21 +100,20 @@ public class OverlayManager {
         for (int i = 0; (i < (bg.get(0).getWidth() * bg.get(0).getHeight())); i++) {
             gridArray[i] = 0x00000000;
         }
-        Bitmap bg0 = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.bg0))).getBitmap();
-        Bitmap bg1 = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.bg1))).getBitmap();
-        Bitmap bg8 = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.bg8))).getBitmap();
-        cardFrame = new ArrayList<Bitmap>(Arrays.asList(bg0, bg1, bg0, bg1, bg0, bg1, bg0, bg1, bg8));
-        noShareCardFrame = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.bg))).getBitmap();
-        appIntroMap = ((BitmapDrawable)(parent.getResources().getDrawable(R.drawable.app_introduce))).getBitmap();
+        Bitmap bg0 = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg0))).getBitmap();
+        Bitmap bg1 = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg1))).getBitmap();
+        Bitmap bg8 = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg8))).getBitmap();
+        mBgs = new ArrayList<Bitmap>(Arrays.asList(bg0, bg1, bg0, bg1, bg0, bg1, bg0, bg1, bg8));
+        mBg = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg))).getBitmap();
+        appIntroMap = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.app_introduce))).getBitmap();
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
         textTF = new Typeface[] { Typeface.DEFAULT
-                                ,Typeface.createFromAsset(parent.getAssets(), "fonts/hkwwt.TTF")
-                                ,Typeface.createFromAsset(parent.getAssets(), "fonts/xjl.ttf")
-                                ,Typeface.createFromAsset(parent.getAssets(), "fonts/whxw.ttf")
-                                ,Typeface.createFromAsset(parent.getAssets(), "fonts/fzjt.TTF")
-                                ,Typeface.createFromAsset(parent.getAssets(), "fonts/ys.otf")};
+                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/hkwwt.TTF")
+                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/xjl.ttf")
+                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/whxw.ttf")
+                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/fzjt.TTF")
+                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/ys.otf")};
         textCS = new String("");
-		folderName = new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/");
         resetState = true;
     }
 
@@ -135,9 +132,9 @@ public class OverlayManager {
     }
 
     public void reset() {
-        if (photoMap != null) {
-            photoMap.recycle();
-            photoMap = null;
+        if (mPhotoMap != null) {
+            mPhotoMap.recycle();
+            mPhotoMap = null;
         }
         resetState = true;
     }
@@ -166,7 +163,7 @@ public class OverlayManager {
         int outputWidth = bg.get(0).getWidth();
         int outputHeight = bg.get(0).getHeight();
         if ((resetState == true)) {
-            layers = new Drawable[] {new BitmapDrawable(parent.getResources(), appIntroMap), new BitmapDrawable(parent.getResources(), gridMap)};
+            layers = new Drawable[] {new BitmapDrawable(mActivity.getResources(), appIntroMap), new BitmapDrawable(mActivity.getResources(), gridMap)};
             LayerDrawable layerDrawable = new LayerDrawable(layers);
             Bitmap b = Bitmap.createBitmap(appIntroMap.getWidth(), appIntroMap.getHeight(), Bitmap.Config.ARGB_8888);
             layerDrawable.setBounds(0, 0, appIntroMap.getWidth(), appIntroMap.getHeight());
@@ -197,23 +194,23 @@ public class OverlayManager {
             }
         }
 
-        if (!Objects.equal(photoMap, null)) {
+        if (!Objects.equal(mPhotoMap, null)) {
             if ((withGrid == true)) {
-                layers = new Drawable[] { new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap) };
+                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), mPhotoMap), new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap), new BitmapDrawable(mActivity.getResources(), gridMap) };
             } else {
-                layers = new Drawable[] { new BitmapDrawable(parent.getResources(), photoMap), new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap) };
+                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), mPhotoMap), new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap) };
             }
-            if (photoMap.getWidth() > outputWidth) {
-                outputWidth = photoMap.getWidth();
+            if (mPhotoMap.getWidth() > outputWidth) {
+                outputWidth = mPhotoMap.getWidth();
             }
-            if (photoMap.getHeight() > outputHeight) {
-                outputHeight = photoMap.getHeight();
+            if (mPhotoMap.getHeight() > outputHeight) {
+                outputHeight = mPhotoMap.getHeight();
             }
         } else {
             if ((withGrid == true)) {
-                layers = new Drawable[] { new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap), new BitmapDrawable(parent.getResources(), gridMap) };
+                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap), new BitmapDrawable(mActivity.getResources(), gridMap) };
             } else {
-                layers = new Drawable[] { new BitmapDrawable(parent.getResources(), bgMap), new BitmapDrawable(parent.getResources(), textMap) };
+                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap) };
             }
         }
         LayerDrawable layerDrawable = new LayerDrawable(layers);
@@ -224,15 +221,15 @@ public class OverlayManager {
     }
 
     public void recyclePhoto() {
-        if (photoMap != null) {
-            photoMap.recycle();
-            photoMap = null;
+        if (mPhotoMap != null) {
+            mPhotoMap.recycle();
+            mPhotoMap = null;
         }
     }
 
     public void setPhoto(final Bitmap photo) {
         resetState = false;
-        photoMap = photo;
+        mPhotoMap = photo;
     }
 
     public String getUniqueID() {
@@ -253,8 +250,8 @@ public class OverlayManager {
     }
 
     public void dumpSearchResultToFile(final Bitmap sharedBitmap) {
-        Bitmap bitContent = Bitmap.createBitmap(sharedBitmap, 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth(), null, false);
-        Bitmap b = Bitmap.createScaledBitmap(bitContent, (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false);
+        Bitmap bitContent = Bitmap.createBitmap(sharedBitmap, 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth(), null, false);
+        Bitmap b = Bitmap.createScaledBitmap(bitContent, (mBgs.get(0).getWidth() * 3), (mBgs.get(0).getWidth() * 3), false);
         int[] intArray = Utils.getIntArray(b.getWidth() * b.getHeight());
         b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight());
         Bitmap output = null;
@@ -265,10 +262,10 @@ public class OverlayManager {
                 if (((((i * 3) + j) % 2) == 1)) {
                     output = sharedBitmap.copy(Bitmap.Config.ARGB_8888, true);
                 } else {
-                    output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
+                    output = mBgs.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
                 }
-				output.setPixels(intArray, (i * cardFrame.get(0).getWidth() * cardFrame.get(0).getWidth() * 3  + j * cardFrame.get(0).getWidth()), (cardFrame.get(0).getWidth() * 3), 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth());
-                fn = new File(folderName + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+				output.setPixels(intArray, (i * mBgs.get(0).getWidth() * mBgs.get(0).getWidth() * 3  + j * mBgs.get(0).getWidth()), (mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
+                fn = new File(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
                 if (!fn.exists()) {
                     try {
 						fn.createNewFile();
@@ -278,7 +275,7 @@ public class OverlayManager {
 					}
                 }
                 try {
-					out = new FileOutputStream(folderName + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+					out = new FileOutputStream(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
 	                output.compress(Bitmap.CompressFormat.PNG, 100, out);
 	                out.close();
 				} catch (FileNotFoundException e) {
@@ -293,55 +290,57 @@ public class OverlayManager {
     }
 
     public String dumpToFile(final boolean enableShared) throws IOException, WriterException {
-        Bitmap b = Bitmap.createScaledBitmap(getBitmapForDraw(false), (cardFrame.get(0).getWidth() * 3), (cardFrame.get(0).getWidth() * 3), false);
-        int[] intArray = Utils.getIntArray(b.getWidth() * b.getHeight());
-        int[] barArray = Utils.getIntArray((barcodeSize * barcodeSize));
-        b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight());
+        // 创建九倍大小的图片
+        Bitmap src = getBitmapForDraw(false);
+        Bitmap bitmap = Bitmap.createScaledBitmap(src, (mBgs.get(0).getWidth() * 3), (mBgs.get(0).getWidth() * 3), false);
+        int[] intArray = Utils.getIntArray(bitmap.getWidth() * bitmap.getHeight());
+        int[] barArray = Utils.getIntArray((qrCodeSize * qrCodeSize));
+        bitmap.getPixels(intArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
         String id = getUniqueID();
         Bitmap output = null;
-        Bitmap barcode = null;
-        File fn = null;
+        Bitmap qrCode = null;
+        File file = null;
         FileOutputStream out = null;
         Log.i("PhotoPlus", id);
         for (int i = 0; (i < 3); i++) {
             for (int j = 0; (j < 3); j++) {
                 if (enableShared) {
-                    output = cardFrame.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
+                    output = mBgs.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
                 } else {
-                    output = noShareCardFrame.copy(Bitmap.Config.ARGB_8888, true);
+                    output = mBg.copy(Bitmap.Config.ARGB_8888, true);
                 }
-                output.setPixels(intArray, (i * cardFrame.get(0).getWidth() * cardFrame.get(0).getWidth() * 3  + j * cardFrame.get(0).getWidth()), (cardFrame.get(0).getWidth() * 3), 0, (cardFrame.get(0).getHeight() - cardFrame.get(0).getWidth()) / 2, cardFrame.get(0).getWidth(), cardFrame.get(0).getWidth());
-                if (((i * 3) + j) % 2 == 1 && enableShared) {
-					barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize);
-                    barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize);
-					output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize);
+                output.setPixels(intArray, (i * mBgs.get(0).getWidth() * mBgs.get(0).getWidth() * 3  + j * mBgs.get(0).getWidth()), (mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
+                if ((i * 3 + j) % 2 == 1 && enableShared) {
+					qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize);
+                    qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0, qrCodeSize, qrCodeSize);
+					output.setPixels(barArray, 0, qrCodeSize, boarcodeBoarderGap, (mBgs.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize), qrCodeSize, qrCodeSize);
                     output = addIDtoBitmap(output, ("转发ID: " + id));
                 }
-                fn = new File(((((folderName + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png"));
-                if (!fn.exists()) {
-                    fn.createNewFile();
-                }
-                out = new FileOutputStream(folderName + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+                file = new File(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+//                if (!file.exists()) {
+                    file.createNewFile();
+//                }
+                out = new FileOutputStream(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
                 output.compress(Bitmap.CompressFormat.PNG, 100, out);
                 out.close();
             }
         }
-        if ((enableShared == true)) {
-            b = Bitmap.createScaledBitmap(getBitmapForDraw(false), cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth(), false);
-            intArray = Utils.getIntArray(b.getWidth() * b.getHeight());
-            b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight());
-			output = cardFrame.get(1).copy(Bitmap.Config.ARGB_8888, true);
-			output.setPixels(intArray, 0, cardFrame.get(1).getWidth(), 0, (cardFrame.get(1).getHeight() - cardFrame.get(1).getWidth()) / 2, cardFrame.get(1).getWidth(), cardFrame.get(1).getWidth());
+        if (enableShared == true) { // 上传图片
+            bitmap = Bitmap.createScaledBitmap(src, mBgs.get(1).getWidth(), mBgs.get(1).getWidth(), false);
+            intArray = Utils.getIntArray(bitmap.getWidth() * bitmap.getHeight());
+            bitmap.getPixels(intArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+			output = mBgs.get(1).copy(Bitmap.Config.ARGB_8888, true);
+			output.setPixels(intArray, 0, mBgs.get(1).getWidth(), 0, (mBgs.get(1).getHeight() - mBgs.get(1).getWidth()) / 2, mBgs.get(1).getWidth(), mBgs.get(1).getWidth());
 
-			barcode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, barcodeSize, barcodeSize);
-			barcode.getPixels(barArray, 0, barcode.getWidth(), 0, 0, barcodeSize, barcodeSize);
-			output.setPixels(barArray, 0, barcodeSize, boarcodeBoarderGap, (cardFrame.get(0).getHeight() - boarcodeBoarderGap - barcodeSize), barcodeSize, barcodeSize);
+			qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize);
+			qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0, qrCodeSize, qrCodeSize);
+			output.setPixels(barArray, 0, qrCodeSize, boarcodeBoarderGap, (mBgs.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize), qrCodeSize, qrCodeSize);
 			output = addIDtoBitmap(output, "转发ID: " + id);
-            fn = new File(((folderName + id) + ".jpg"));
-            if (!fn.exists()) {
-                fn.createNewFile();
-            }
-            out = new FileOutputStream(((folderName + id) + ".jpg"));
+            file = new File(DIRECTORY_TMP + id + ".jpg");
+//            if (!file.exists()) {
+                file.createNewFile();
+//            }
+            out = new FileOutputStream(DIRECTORY_TMP + id + ".jpg");
             output.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
             return (id + ".jpg");

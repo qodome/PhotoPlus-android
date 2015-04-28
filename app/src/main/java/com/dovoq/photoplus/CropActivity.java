@@ -1,6 +1,5 @@
 package com.dovoq.photoplus;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -69,7 +68,7 @@ public class CropActivity extends FragmentActivity {
         String fn = "croppedImage.png";
         FileOutputStream stream;
         try {
-            stream = openFileOutput(fn, Context.MODE_PRIVATE);
+            stream = openFileOutput(fn, MODE_PRIVATE);
             croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             stream.close();
         } catch (FileNotFoundException e) {
