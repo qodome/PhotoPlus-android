@@ -11,6 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
+import android.view.View;
 
 import com.google.common.base.Objects;
 import com.google.zxing.BarcodeFormat;
@@ -31,18 +32,18 @@ import java.util.List;
 import java.util.Random;
 
 public class OverlayManager implements Constants {
-    private final String[] bgDesc = { "bg0_0", "bg2_e6e6e6", 
-    								"bg10_0", "bg20_0", 
-    								"bg30_0", "bg40_0", 
-    								"bg50_ffffff", "bg60_ffffff", 
-    								"bg70_ffffff", "bg80_ffffff", 
-    								"bg90_ffffff" };
-    private final Integer[] bgColor = { Integer.valueOf(0xFF000000), Integer.valueOf(0xFFe6e6e6), 
-    									Integer.valueOf(0xFF000000), Integer.valueOf(0xFF000000), 
-    									Integer.valueOf(0xFF000000), Integer.valueOf(0xFF000000), 
-    									Integer.valueOf(0xFFFFFFFF), Integer.valueOf(0xFFFFFFFF), 
-    									Integer.valueOf(0xFFFFFFFF), Integer.valueOf(0xFFFFFFFF), 
-    									Integer.valueOf(0xFFFFFFFF)};
+    private final String[] bgDesc = {"bg0_0", "bg2_e6e6e6",
+            "bg10_0", "bg20_0",
+            "bg30_0", "bg40_0",
+            "bg50_ffffff", "bg60_ffffff",
+            "bg70_ffffff", "bg80_ffffff",
+            "bg90_ffffff"};
+    private final Integer[] bgColor = {Integer.valueOf(0xFF000000), Integer.valueOf(0xFFe6e6e6),
+            Integer.valueOf(0xFF000000), Integer.valueOf(0xFF000000),
+            Integer.valueOf(0xFF000000), Integer.valueOf(0xFF000000),
+            Integer.valueOf(0xFFFFFFFF), Integer.valueOf(0xFFFFFFFF),
+            Integer.valueOf(0xFFFFFFFF), Integer.valueOf(0xFFFFFFFF),
+            Integer.valueOf(0xFFFFFFFF)};
     private final int qrCodeSize = 128;
     private final int boarcodeBoarderGap = 32;
     private int bgIdx = 0;
@@ -66,7 +67,7 @@ public class OverlayManager implements Constants {
         bg = new ArrayList<Bitmap>();
         for (final String desc : bgDesc) {
             int id = mActivity.getResources().getIdentifier(desc, "drawable", mActivity.getPackageName());
-			Bitmap bitmapElement = ((BitmapDrawable)(mActivity.getResources().getDrawable(id))).getBitmap();
+            Bitmap bitmapElement = ((BitmapDrawable) (mActivity.getResources().getDrawable(id))).getBitmap();
             int[] elementArray = Utils.getIntArray(bitmapElement.getWidth() * bitmapElement.getHeight());
             bitmapElement.getPixels(elementArray, 0, bitmapElement.getWidth(), 0, 0, bitmapElement.getWidth(), bitmapElement.getWidth());
             int[] finalArray = Utils.getIntArray((bitmapElement.getWidth() * 3) * (bitmapElement.getHeight() * 3));
@@ -100,19 +101,19 @@ public class OverlayManager implements Constants {
         for (int i = 0; (i < (bg.get(0).getWidth() * bg.get(0).getHeight())); i++) {
             gridArray[i] = 0x00000000;
         }
-        Bitmap bg0 = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg0))).getBitmap();
-        Bitmap bg1 = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg1))).getBitmap();
-        Bitmap bg8 = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg8))).getBitmap();
+        Bitmap bg0 = ((BitmapDrawable) (mActivity.getResources().getDrawable(R.drawable.bg0))).getBitmap();
+        Bitmap bg1 = ((BitmapDrawable) (mActivity.getResources().getDrawable(R.drawable.bg1))).getBitmap();
+        Bitmap bg8 = ((BitmapDrawable) (mActivity.getResources().getDrawable(R.drawable.bg8))).getBitmap();
         mBgs = new ArrayList<Bitmap>(Arrays.asList(bg0, bg1, bg0, bg1, bg0, bg1, bg0, bg1, bg8));
-        mBg = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.bg))).getBitmap();
-        appIntroMap = ((BitmapDrawable)(mActivity.getResources().getDrawable(R.drawable.app_introduce))).getBitmap();
-		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
-        textTF = new Typeface[] { Typeface.DEFAULT
-                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/hkwwt.TTF")
-                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/xjl.ttf")
-                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/whxw.ttf")
-                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/fzjt.TTF")
-                                ,Typeface.createFromAsset(mActivity.getAssets(), "fonts/ys.otf")};
+        mBg = ((BitmapDrawable) (mActivity.getResources().getDrawable(R.drawable.bg))).getBitmap();
+        appIntroMap = ((BitmapDrawable) (mActivity.getResources().getDrawable(R.drawable.app_introduce))).getBitmap();
+        textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(), bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
+        textTF = new Typeface[]{Typeface.DEFAULT
+                , Typeface.createFromAsset(mActivity.getAssets(), "fonts/hkwwt.TTF")
+                , Typeface.createFromAsset(mActivity.getAssets(), "fonts/xjl.ttf")
+                , Typeface.createFromAsset(mActivity.getAssets(), "fonts/whxw.ttf")
+                , Typeface.createFromAsset(mActivity.getAssets(), "fonts/fzjt.TTF")
+                , Typeface.createFromAsset(mActivity.getAssets(), "fonts/ys.otf")};
         textCS = new String("");
         resetState = true;
     }
@@ -140,14 +141,14 @@ public class OverlayManager implements Constants {
     }
 
     public Bitmap disableGrid(final Bitmap bp, final int i) {
-		int row = i / 3;
-		int col = i % 3;
+        int row = i / 3;
+        int col = i % 3;
         int[] tmpArray = Utils.getIntArray(bp.getWidth() * bp.getHeight());
         bp.getPixels(tmpArray, 0, bp.getWidth(), col * (bp.getWidth() / 3), row * (bp.getHeight() / 3), (bp.getWidth() / 3), (bp.getHeight() / 3));
         for (int intVal = 0; (intVal < tmpArray.length); intVal++) {
-    		tmpArray[intVal] = Utils.getMaskedValue(tmpArray[intVal], 0x00FFFFFF);
+            tmpArray[intVal] = Utils.getMaskedValue(tmpArray[intVal], 0x00FFFFFF);
         }
-    	bp.setPixels(tmpArray, 0, bp.getWidth(), col * (bp.getWidth() / 3), row * (bp.getHeight() / 3), (bp.getWidth() / 3), (bp.getHeight() / 3));
+        bp.setPixels(tmpArray, 0, bp.getWidth(), col * (bp.getWidth() / 3), row * (bp.getHeight() / 3), (bp.getWidth() / 3), (bp.getHeight() / 3));
         return bp;
     }
 
@@ -163,7 +164,7 @@ public class OverlayManager implements Constants {
         int outputWidth = bg.get(0).getWidth();
         int outputHeight = bg.get(0).getHeight();
         if ((resetState == true)) {
-            layers = new Drawable[] {new BitmapDrawable(mActivity.getResources(), appIntroMap), new BitmapDrawable(mActivity.getResources(), gridMap)};
+            layers = new Drawable[]{new BitmapDrawable(mActivity.getResources(), appIntroMap), new BitmapDrawable(mActivity.getResources(), gridMap)};
             LayerDrawable layerDrawable = new LayerDrawable(layers);
             Bitmap b = Bitmap.createBitmap(appIntroMap.getWidth(), appIntroMap.getHeight(), Bitmap.Config.ARGB_8888);
             layerDrawable.setBounds(0, 0, appIntroMap.getWidth(), appIntroMap.getHeight());
@@ -184,8 +185,8 @@ public class OverlayManager implements Constants {
                 paint.getTextBounds(Character.valueOf(textCS.charAt(i)).toString(), 0, 1, bounds);
                 final int row = (i / 3);
                 final int col = (i % 3);
-                int x = col * (bg.get(0).getWidth() / 3) + ((bg.get(0).getWidth() / 3) - bounds.width())/2;
-                int y = row * (bg.get(0).getHeight() / 3) + ((bg.get(0).getHeight() / 3) + bounds.height())/2;
+                int x = col * (bg.get(0).getWidth() / 3) + ((bg.get(0).getWidth() / 3) - bounds.width()) / 2;
+                int y = row * (bg.get(0).getHeight() / 3) + ((bg.get(0).getHeight() / 3) + bounds.height()) / 2;
                 canvas.drawText(Character.valueOf(textCS.charAt(i)).toString(), x, y, paint);
             } else if (i < textCS.length() && Character.isWhitespace(textCS.charAt(i))) {
                 bgMap = disableGrid(bgMap, i);
@@ -196,9 +197,9 @@ public class OverlayManager implements Constants {
 
         if (!Objects.equal(mPhotoMap, null)) {
             if ((withGrid == true)) {
-                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), mPhotoMap), new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap), new BitmapDrawable(mActivity.getResources(), gridMap) };
+                layers = new Drawable[]{new BitmapDrawable(mActivity.getResources(), mPhotoMap), new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap), new BitmapDrawable(mActivity.getResources(), gridMap)};
             } else {
-                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), mPhotoMap), new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap) };
+                layers = new Drawable[]{new BitmapDrawable(mActivity.getResources(), mPhotoMap), new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap)};
             }
             if (mPhotoMap.getWidth() > outputWidth) {
                 outputWidth = mPhotoMap.getWidth();
@@ -208,9 +209,9 @@ public class OverlayManager implements Constants {
             }
         } else {
             if ((withGrid == true)) {
-                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap), new BitmapDrawable(mActivity.getResources(), gridMap) };
+                layers = new Drawable[]{new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap), new BitmapDrawable(mActivity.getResources(), gridMap)};
             } else {
-                layers = new Drawable[] { new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap) };
+                layers = new Drawable[]{new BitmapDrawable(mActivity.getResources(), bgMap), new BitmapDrawable(mActivity.getResources(), textMap)};
             }
         }
         LayerDrawable layerDrawable = new LayerDrawable(layers);
@@ -264,27 +265,27 @@ public class OverlayManager implements Constants {
                 } else {
                     output = mBgs.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
                 }
-				output.setPixels(intArray, (i * mBgs.get(0).getWidth() * mBgs.get(0).getWidth() * 3  + j * mBgs.get(0).getWidth()), (mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
+                output.setPixels(intArray, (i * mBgs.get(0).getWidth() * mBgs.get(0).getWidth() * 3 + j * mBgs.get(0).getWidth()), (mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
                 fn = new File(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
                 if (!fn.exists()) {
                     try {
-						fn.createNewFile();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+                        fn.createNewFile();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
                 try {
-					out = new FileOutputStream(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
-	                output.compress(Bitmap.CompressFormat.PNG, 100, out);
-	                out.close();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                    out = new FileOutputStream(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+                    output.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    out.close();
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -292,56 +293,61 @@ public class OverlayManager implements Constants {
     public String dumpToFile(final boolean enableShared) throws IOException, WriterException {
         // 创建九倍大小的图片
         Bitmap src = getBitmapForDraw(false);
-        Bitmap bitmap = Bitmap.createScaledBitmap(src, (mBgs.get(0).getWidth() * 3), (mBgs.get(0).getWidth() * 3), false);
-        int[] intArray = Utils.getIntArray(bitmap.getWidth() * bitmap.getHeight());
+        Bitmap srcNine = Bitmap.createScaledBitmap(src, (mBgs.get(0).getWidth() * 3), (mBgs.get(0).getWidth() * 3), false);
+        int[] intArray = Utils.getIntArray(srcNine.getWidth() * srcNine.getHeight());
         int[] barArray = Utils.getIntArray((qrCodeSize * qrCodeSize));
-        bitmap.getPixels(intArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+        srcNine.getPixels(intArray, 0, srcNine.getWidth(), 0, 0, srcNine.getWidth(), srcNine.getHeight());
         String id = getUniqueID();
-        Bitmap output = null;
-        Bitmap qrCode = null;
-        File file = null;
+        Bitmap bitmap;
+        Bitmap qrCode;
+        File file;
         FileOutputStream out = null;
         Log.i("PhotoPlus", id);
-        for (int i = 0; (i < 3); i++) {
-            for (int j = 0; (j < 3); j++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
                 if (enableShared) {
-                    output = mBgs.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
+                    bitmap = mBgs.get((i * 3) + j).copy(Bitmap.Config.ARGB_8888, true);
                 } else {
-                    output = mBg.copy(Bitmap.Config.ARGB_8888, true);
+                    bitmap = mBg.copy(Bitmap.Config.ARGB_8888, true);
                 }
-                output.setPixels(intArray, (i * mBgs.get(0).getWidth() * mBgs.get(0).getWidth() * 3  + j * mBgs.get(0).getWidth()), (mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
+                bitmap.setPixels(intArray, (i * mBgs.get(0).getWidth() * mBgs.get(0).getWidth() * 3 + j * mBgs.get(0).getWidth()), (mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0).getHeight() - mBgs.get(0).getWidth()) / 2, mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
                 if ((i * 3 + j) % 2 == 1 && enableShared) {
-					qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize);
+                    qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize);
                     qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0, qrCodeSize, qrCodeSize);
-					output.setPixels(barArray, 0, qrCodeSize, boarcodeBoarderGap, (mBgs.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize), qrCodeSize, qrCodeSize);
-                    output = addIDtoBitmap(output, ("转发ID: " + id));
+                    bitmap.setPixels(barArray, 0, qrCodeSize, boarcodeBoarderGap, (mBgs.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize), qrCodeSize, qrCodeSize);
+                    bitmap = addIDtoBitmap(bitmap, ("转发ID: " + id));
                 }
-                file = new File(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
-//                if (!file.exists()) {
-                    file.createNewFile();
-//                }
+
+                View view = mActivity.getWindow().getDecorView();
+                view.setDrawingCacheEnabled(true);
+                bitmap = view.getDrawingCache();
+                Rect frame = new Rect();
+                mActivity.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
+                bitmap = Bitmap.createBitmap(bitmap, 0, frame.top, 300, 300);
+                Log.i("PhotoPlus", "a " + frame.top);
+
                 out = new FileOutputStream(DIRECTORY_TMP + "test" + Integer.valueOf(i) + Integer.valueOf(j) + ".png");
-                output.compress(Bitmap.CompressFormat.PNG, 100, out);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                 out.close();
             }
         }
         if (enableShared == true) { // 上传图片
-            bitmap = Bitmap.createScaledBitmap(src, mBgs.get(1).getWidth(), mBgs.get(1).getWidth(), false);
-            intArray = Utils.getIntArray(bitmap.getWidth() * bitmap.getHeight());
-            bitmap.getPixels(intArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-			output = mBgs.get(1).copy(Bitmap.Config.ARGB_8888, true);
-			output.setPixels(intArray, 0, mBgs.get(1).getWidth(), 0, (mBgs.get(1).getHeight() - mBgs.get(1).getWidth()) / 2, mBgs.get(1).getWidth(), mBgs.get(1).getWidth());
+            srcNine = Bitmap.createScaledBitmap(src, mBgs.get(1).getWidth(), mBgs.get(1).getWidth(), false);
+            intArray = Utils.getIntArray(srcNine.getWidth() * srcNine.getHeight());
+            srcNine.getPixels(intArray, 0, srcNine.getWidth(), 0, 0, srcNine.getWidth(), srcNine.getHeight());
+            bitmap = mBgs.get(1).copy(Bitmap.Config.ARGB_8888, true);
+            bitmap.setPixels(intArray, 0, mBgs.get(1).getWidth(), 0, (mBgs.get(1).getHeight() - mBgs.get(1).getWidth()) / 2, mBgs.get(1).getWidth(), mBgs.get(1).getWidth());
 
-			qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize);
-			qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0, qrCodeSize, qrCodeSize);
-			output.setPixels(barArray, 0, qrCodeSize, boarcodeBoarderGap, (mBgs.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize), qrCodeSize, qrCodeSize);
-			output = addIDtoBitmap(output, "转发ID: " + id);
+            qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize);
+            qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0, qrCodeSize, qrCodeSize);
+            bitmap.setPixels(barArray, 0, qrCodeSize, boarcodeBoarderGap, (mBgs.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize), qrCodeSize, qrCodeSize);
+            bitmap = addIDtoBitmap(bitmap, "转发ID: " + id);
             file = new File(DIRECTORY_TMP + id + ".jpg");
 //            if (!file.exists()) {
-                file.createNewFile();
+            file.createNewFile();
 //            }
             out = new FileOutputStream(DIRECTORY_TMP + id + ".jpg");
-            output.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
             return (id + ".jpg");
         } else {
@@ -356,9 +362,9 @@ public class OverlayManager implements Constants {
         hints.put(EncodeHintType.MARGIN, Integer.valueOf(0));
         MultiFormatWriter writer = new MultiFormatWriter();
         BitMatrix result;
-		result = writer.encode(contents, format, img_width, img_height, hints);
-	    int width = result.getWidth();
-	    int height = result.getHeight();
+        result = writer.encode(contents, format, img_width, img_height, hints);
+        int width = result.getWidth();
+        int height = result.getHeight();
         int[] pixels = Utils.getIntArray((width * height));
         int value = 0;
         for (int y = 0; (y < height); y++) {

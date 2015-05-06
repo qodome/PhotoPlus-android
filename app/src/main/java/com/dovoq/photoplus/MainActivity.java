@@ -285,18 +285,18 @@ public class MainActivity extends FragmentActivity implements GestureDetector.On
 
     public void share(final View v) throws IOException, WriterException {
         String uploadFn = OM.dumpToFile(mSp.getBoolean("enable_share", false));
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        intent.setType("image/*");
         ComponentName comp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareToTimeLineUI");
         intent.setComponent(comp);
-        intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-        intent.setType("image/*");
-        ArrayList<Uri> imageUris = new ArrayList<>();
-        for (int i = 0; (i < 3); i++) {
-            for (int j = 0; (j < 3); j++) {
-                imageUris.add(Uri.fromFile(new File((((DIRECTORY_TMP + "test") + Integer.valueOf(i)) + Integer.valueOf(j)) + ".png")));
+        ArrayList<Uri> uris = new ArrayList<>();
+        File directory = new File(DIRECTORY_TMP);
+        for (File file : directory.listFiles()) {
+            if (!file.isHidden() && file.getName().endsWith(".png")) {
+                uris.add(Uri.fromFile(file));
             }
         }
-        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
         startActivity(intent);
         if (mSp.getBoolean("enable_share", false)) {
             new MainActivity.UploadFilesTask().execute(DIRECTORY_TMP, getFolderName(), uploadFn);

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,15 @@ public class EditFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         if (show != null) {
-            ((SquareImageView) (findViewById(R.id.photo_grid_view))).setImageBitmap(show);
+            SquareImageView imageView = (SquareImageView) findViewById(R.id.photo_grid_view);
+            imageView.setImageBitmap(show);
+            int[] location = new int[2];
+            imageView.getLocationInWindow(location);
+            Log.i("PhotoPlus", "a " + location[0]);
+            Log.i("PhotoPlus", "a " + location[1]);
+            imageView.getLocationOnScreen(location);
+            Log.i("PhotoPlus", "a " + location[0]);
+            Log.i("PhotoPlus", "a " + location[1]);
         }
         initDone = true;
     }

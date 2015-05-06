@@ -1,11 +1,27 @@
 package com.dovoq.photoplus;
 
+import android.graphics.Rect;
+import android.view.View;
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 
 public class Utils {
+
+	public Rect locateView(View view) {
+		Rect rect = new Rect();
+		int[] location = new int[2];
+		if (view != null) {
+			view.getLocationOnScreen(location);
+			rect.left = location[0];
+			rect.top = location[1];
+			rect.right = rect.left + view.getWidth();
+			rect.bottom = rect.top + view.getHeight();
+		}
+		return rect;
+	}
 
 	public static int[] getIntArray(int size) {
 		return new int[size];
