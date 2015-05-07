@@ -58,6 +58,8 @@ public class OverlayManager implements Constants {
 	private CharSequence textCS;
 	private boolean resetState = true;
 
+	public Rect mRect;
+
 	public OverlayManager(Activity activity) {
 		mActivity = activity;
 		mPhotoMap = null;
@@ -378,11 +380,21 @@ public class OverlayManager implements Constants {
 		String id = getUniqueID();
 		Bitmap bitmap;
 		Bitmap qrCode;
-		File file;
-		FileOutputStream out = null;
+
 		Log.i("PhotoPlus", id);
+
+		View view = mActivity.getWindow().getDecorView();
+		view.setDrawingCacheEnabled(true);
+		bitmap = view.getDrawingCache();
+		Rect frame = new Rect();
+		mActivity.getWindow().getDecorView()
+				.getWindowVisibleDisplayFrame(frame);
+
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
+				bitmap = Bitmap.createBitmap(bitmap, mRect.left * i, mRect.top
+						* j, mRect.width() / 3, mRect.height() / 3);
+
 				if (enableShared) {
 					bitmap = mBgs.get((i * 3) + j).copy(
 							Bitmap.Config.ARGB_8888, true);
@@ -407,17 +419,9 @@ public class OverlayManager implements Constants {
 					bitmap = addIDtoBitmap(bitmap, ("转发ID: " + id));
 				}
 
-				View view = mActivity.getWindow().getDecorView();
-				view.setDrawingCacheEnabled(true);
-				bitmap = view.getDrawingCache();
-				Rect frame = new Rect();
-				mActivity.getWindow().getDecorView()
-						.getWindowVisibleDisplayFrame(frame);
-				bitmap = Bitmap.createBitmap(bitmap, 0, frame.top, 300, 300);
-				Log.i("PhotoPlus", "a " + frame.top);
-
-				out = new FileOutputStream(DIRECTORY_TMP + "test"
-						+ Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+				FileOutputStream out = new FileOutputStream(DIRECTORY_TMP
+						+ "test" + Integer.valueOf(i) + Integer.valueOf(j)
+						+ ".png");
 				bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 				out.close();
 			}
@@ -442,11 +446,8 @@ public class OverlayManager implements Constants {
 					.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize),
 					qrCodeSize, qrCodeSize);
 			bitmap = addIDtoBitmap(bitmap, "转发ID: " + id);
-			file = new File(DIRECTORY_TMP + id + ".jpg");
-			// if (!file.exists()) {
-			file.createNewFile();
-			// }
-			out = new FileOutputStream(DIRECTORY_TMP + id + ".jpg");
+			FileOutputStream out = new FileOutputStream(DIRECTORY_TMP + id
+					+ ".jpg");
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 			out.close();
 			return (id + ".jpg");

@@ -2,7 +2,6 @@ package com.dovoq.photoplus;
 
 import static com.nyssance.android.util.LogUtils.logd;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,14 +20,12 @@ public class EditFragment extends Fragment {
 		}
 	}
 
-	public void setBitmap(final Bitmap b) {
-		show = b;
+	public void setBitmap(OverlayManager om) {
+		show = om.getBitmapForDraw(true);
 		if (initDone) {
 			SquareImageView imageView = (SquareImageView) findViewById(R.id.photo_grid_view);
 			imageView.setImageBitmap(show);
-			Rect rect = Utils.locateView(imageView);
-			logd("a " + rect.width());
-			logd("a " + rect.height());
+			om.mRect = Utils.locateView(imageView);
 		}
 	}
 

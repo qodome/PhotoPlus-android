@@ -100,7 +100,7 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		OM = new OverlayManager(this);
 		mEditFragment = new EditFragment();
-		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+		mEditFragment.setBitmap(OM);
 		getSupportFragmentManager().beginTransaction()
 				.add(R.id.fragment_container, mEditFragment).commit();
 		mEditText = (EditText) findViewById(R.id.input_text);
@@ -115,7 +115,7 @@ public class MainActivity extends FragmentActivity implements
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
 				OM.inputString(s);
-				mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+				mEditFragment.setBitmap(OM);
 			}
 
 			@Override
@@ -237,7 +237,7 @@ public class MainActivity extends FragmentActivity implements
 						is = openFileInput(fn);
 						Bitmap bmp = BitmapFactory.decodeStream(is);
 						OM.setPhoto(bmp);
-						mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+						mEditFragment.setBitmap(OM);
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -256,12 +256,12 @@ public class MainActivity extends FragmentActivity implements
 
 	public void font(final View v) {
 		OM.toggleTF();
-		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+		mEditFragment.setBitmap(OM);
 	}
 
 	public void background(final View v) {
 		OM.toggleBG();
-		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+		mEditFragment.setBitmap(OM);
 	}
 
 	public void loadPhoto(final View v) {
@@ -403,8 +403,7 @@ public class MainActivity extends FragmentActivity implements
 													"Delete confirmed");
 											mEditText.setText("");
 											OM.reset();
-											mEditFragment.setBitmap(OM
-													.getBitmapForDraw(true));
+											mEditFragment.setBitmap(OM);
 											deleteNotified = false;
 										}
 									})
