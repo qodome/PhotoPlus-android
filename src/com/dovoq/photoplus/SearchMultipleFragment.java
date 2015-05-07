@@ -90,7 +90,7 @@ public class SearchMultipleFragment extends Fragment {
 
 	public void setBitmap(String folderName) {
 		folder = folderName;
-		if (initDone == true) {
+		if (initDone) {
 			adapter = new ImageAdapter();
 			adapter.setImageFolder(folder);
 			GridView gridview = (GridView) findViewById(R.id.search_multiple_view);

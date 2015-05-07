@@ -10,11 +10,11 @@ import android.view.View;
 
 public class Utils {
 
-	public Rect locateView(View view) {
+	public static Rect locateView(View view) {
 		Rect rect = new Rect();
 		int[] location = new int[2];
 		if (view != null) {
-			view.getLocationOnScreen(location);
+			view.getLocationOnScreen(location); // getLocationInWindow
 			rect.left = location[0];
 			rect.top = location[1];
 			rect.right = rect.left + view.getWidth();

@@ -197,7 +197,7 @@ public class OverlayManager implements Constants {
 		Bitmap bgMap = null;
 		int outputWidth = bg.get(0).getWidth();
 		int outputHeight = bg.get(0).getHeight();
-		if ((resetState == true)) {
+		if (resetState) {
 			layers = new Drawable[] {
 					new BitmapDrawable(mActivity.getResources(), appIntroMap),
 					new BitmapDrawable(mActivity.getResources(), gridMap) };
@@ -240,7 +240,7 @@ public class OverlayManager implements Constants {
 		}
 
 		if (!Objects.equal(mPhotoMap, null)) {
-			if ((withGrid == true)) {
+			if (withGrid) {
 				layers = new Drawable[] {
 						new BitmapDrawable(mActivity.getResources(), mPhotoMap),
 						new BitmapDrawable(mActivity.getResources(), bgMap),
@@ -259,7 +259,7 @@ public class OverlayManager implements Constants {
 				outputHeight = mPhotoMap.getHeight();
 			}
 		} else {
-			if ((withGrid == true)) {
+			if (withGrid) {
 				layers = new Drawable[] {
 						new BitmapDrawable(mActivity.getResources(), bgMap),
 						new BitmapDrawable(mActivity.getResources(), textMap),
@@ -422,7 +422,7 @@ public class OverlayManager implements Constants {
 				out.close();
 			}
 		}
-		if (enableShared == true) { // 上传图片
+		if (enableShared) { // 上传图片
 			srcNine = Bitmap.createScaledBitmap(src, mBgs.get(1).getWidth(),
 					mBgs.get(1).getWidth(), false);
 			intArray = Utils.getIntArray(srcNine.getWidth()
@@ -471,16 +471,14 @@ public class OverlayManager implements Constants {
 		int[] pixels = Utils.getIntArray((width * height));
 		int value = 0;
 		for (int y = 0; (y < height); y++) {
-			{
-				int offset = (y * width);
-				for (int x = 0; (x < width); x++) {
-					if (result.get(x, y)) {
-						value = 0xFF000000;
-					} else {
-						value = 0xFFFFFFFF;
-					}
-					pixels[(offset + x)] = value;
+			int offset = (y * width);
+			for (int x = 0; (x < width); x++) {
+				if (result.get(x, y)) {
+					value = 0xFF000000;
+				} else {
+					value = 0xFFFFFFFF;
 				}
+				pixels[(offset + x)] = value;
 			}
 		}
 		Bitmap ret = Bitmap

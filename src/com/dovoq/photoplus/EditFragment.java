@@ -1,10 +1,11 @@
 package com.dovoq.photoplus;
 
+import static com.nyssance.android.util.LogUtils.logd;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +23,13 @@ public class EditFragment extends Fragment {
 
 	public void setBitmap(final Bitmap b) {
 		show = b;
-		if (initDone == true) {
-			((SquareImageView) (findViewById(R.id.photo_grid_view)))
-					.setImageBitmap(show);
+		if (initDone) {
+			SquareImageView imageView = (SquareImageView) findViewById(R.id.photo_grid_view);
+			imageView.setImageBitmap(show);
+			Rect rect = Utils.locateView(imageView);
+			logd("a " + rect.width());
+			logd("a " + rect.height());
 		}
-	}
-
-	public void init(final Bundle savedInstanceState) {
-
 	}
 
 	public View findViewById(final int resId) {
@@ -48,13 +48,6 @@ public class EditFragment extends Fragment {
 		if (show != null) {
 			SquareImageView imageView = (SquareImageView) findViewById(R.id.photo_grid_view);
 			imageView.setImageBitmap(show);
-			int[] location = new int[2];
-			imageView.getLocationInWindow(location);
-			Log.i("PhotoPlus", "a " + location[0]);
-			Log.i("PhotoPlus", "a " + location[1]);
-			imageView.getLocationOnScreen(location);
-			Log.i("PhotoPlus", "a " + location[0]);
-			Log.i("PhotoPlus", "a " + location[1]);
 		}
 		initDone = true;
 	}

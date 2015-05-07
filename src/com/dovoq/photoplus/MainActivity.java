@@ -54,14 +54,8 @@ public class MainActivity extends FragmentActivity implements
 			try {
 				HttpHelper.upload(info[0], info[1], info[2]);
 			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			return 0L;
 		}
@@ -80,8 +74,12 @@ public class MainActivity extends FragmentActivity implements
 	private final static int SECONDS_IN_ONE_DAY = 864000;
 	public final static int SECONDS_OFFSET = 1425168000;
 
-	private EditFragment mEditFragment;
 	private OverlayManager OM;
+	private EditFragment mEditFragment;
+	private EditText mEditText;
+	private CheckBox mCheckBox;
+
+	private SharedPreferences mPreferences;
 
 	private GestureDetector gdt;
 	private List<String> welcomeNames;
@@ -90,7 +88,6 @@ public class MainActivity extends FragmentActivity implements
 	private List<Bitmap> welcomes;
 	private int welcomeIdx;
 
-	private SharedPreferences mSp;
 	private SensorManager mSensorManager;
 	private Sensor mSensor;
 	private long mLastUpdate = 0;
@@ -98,44 +95,6 @@ public class MainActivity extends FragmentActivity implements
 	private float mLastY;
 	private float mLastZ;
 	private boolean deleteNotified = false;
-
-	private EditText mEditText;
-	private CheckBox mCheckBox;
-
-	public boolean onFling(final MotionEvent e1, final MotionEvent e2,
-			final float velocityX, final float velocityY) {
-		Log.i("PhotoPlus", "onFling event");
-		if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
-			Log.i("PhotoPlus", "turn left");
-			welcomeIdx++;
-			if (welcomeIdx >= welcomes.size()) {
-				init();
-			} else {
-				((ViewFlipper) findViewById(R.id.view_flipper))
-						.setInAnimation(AnimationUtils.loadAnimation(this,
-								R.anim.push_left_in));
-				((ViewFlipper) findViewById(R.id.view_flipper))
-						.setOutAnimation(AnimationUtils.loadAnimation(this,
-								R.anim.push_left_out));
-				((ViewFlipper) findViewById(R.id.view_flipper)).showNext();
-			}
-			return true;
-		} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
-			Log.i("PhotoPlus", "turn right");
-			if ((welcomeIdx > 0)) {
-				welcomeIdx--;
-				((ViewFlipper) findViewById(R.id.view_flipper))
-						.setInAnimation(AnimationUtils.loadAnimation(this,
-								R.anim.push_right_in));
-				((ViewFlipper) findViewById(R.id.view_flipper))
-						.setOutAnimation(AnimationUtils.loadAnimation(this,
-								R.anim.push_right_out));
-				((ViewFlipper) findViewById(R.id.view_flipper)).showPrevious();
-			}
-			return true;
-		}
-		return false;
-	}
 
 	public void init() {
 		setContentView(R.layout.activity_main);
@@ -163,18 +122,18 @@ public class MainActivity extends FragmentActivity implements
 			public void afterTextChanged(Editable s) {
 			}
 		});
-		mSp = getSharedPreferences("PhotoPlusPreference", MODE_PRIVATE);
+		mPreferences = getSharedPreferences("PhotoPlusPreference", MODE_PRIVATE);
 		mCheckBox
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
-						SharedPreferences.Editor ed = mSp.edit();
+						SharedPreferences.Editor ed = mPreferences.edit();
 						ed.putBoolean("enable_share", isChecked);
 						ed.commit();
 					}
 				});
-		mCheckBox.setChecked(mSp.getBoolean("enable_share", false));
+		mCheckBox.setChecked(mPreferences.getBoolean("enable_share", false));
 		if (!Environment.MEDIA_MOUNTED.equals(Environment
 				.getExternalStorageState())) {
 			Log.e(getString(R.string.LOGTAG), "External storage not mounted");
@@ -239,38 +198,23 @@ public class MainActivity extends FragmentActivity implements
 		init();
 	}
 
-	public void onDestroy() {
-		mSensorManager.unregisterListener(this);
-		super.onDestroy();
-	}
-
-	public void onResume() {
+	@Override
+	protected void onResume() {
 		super.onResume();
 		mSensorManager.registerListener(this, mSensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
-	public void onPause() {
+	@Override
+	protected void onPause() {
 		super.onPause();
 		mSensorManager.unregisterListener(this);
 	}
 
-	public void font(final View v) {
-		OM.toggleTF();
-		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
-	}
-
-	public void background(final View v) {
-		OM.toggleBG();
-		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
-	}
-
-	public void loadPhoto(final View v) {
-		Intent intent = new Intent(
-				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Intent.ACTION_OPEN_DOCUMENT
-						: Intent.ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		startActivityForResult(intent, LOAD_PHOTO);
+	@Override
+	protected void onDestroy() {
+		mSensorManager.unregisterListener(this);
+		super.onDestroy();
 	}
 
 	@Override
@@ -302,7 +246,7 @@ public class MainActivity extends FragmentActivity implements
 				break;
 			case LOAD_CAMERA:
 				intent.putExtra("BitmapImage",
-						Uri.fromFile(new File((DIRECTORY_TMP + "capture.jpg")))
+						Uri.fromFile(new File(DIRECTORY_TMP + "capture.jpg"))
 								.toString());
 				startActivityForResult(intent, LOAD_CROP_VIEW);
 				break;
@@ -310,15 +254,34 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	public String getFolderName() {
+	public void font(final View v) {
+		OM.toggleTF();
+		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+	}
+
+	public void background(final View v) {
+		OM.toggleBG();
+		mEditFragment.setBitmap(OM.getBitmapForDraw(true));
+	}
+
+	public void loadPhoto(final View v) {
+		Intent intent = new Intent(
+				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Intent.ACTION_OPEN_DOCUMENT
+						: Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		startActivityForResult(intent, LOAD_PHOTO);
+	}
+
+	private String getFolderName() {
 		Calendar c = Calendar.getInstance();
 		long sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(
 				c.getTimeInMillis())) / 1000L;
-		return String.valueOf(((sec - SECONDS_OFFSET) / SECONDS_IN_ONE_DAY));
+		return String.valueOf((sec - SECONDS_OFFSET) / SECONDS_IN_ONE_DAY);
 	}
 
 	public void share(final View v) throws IOException, WriterException {
-		String uploadFn = OM.dumpToFile(mSp.getBoolean("enable_share", false));
+		String uploadFn = OM.dumpToFile(mPreferences.getBoolean("enable_share",
+				false));
 		Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 		intent.setType("image/*");
 		ComponentName comp = new ComponentName("com.tencent.mm",
@@ -333,7 +296,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 		startActivity(intent);
-		if (mSp.getBoolean("enable_share", false)) {
+		if (mPreferences.getBoolean("enable_share", false)) {
 			new MainActivity.UploadFilesTask().execute(DIRECTORY_TMP,
 					getFolderName(), uploadFn);
 		}
@@ -350,32 +313,75 @@ public class MainActivity extends FragmentActivity implements
 		startActivityForResult(takePictureIntent, LOAD_CAMERA);
 	}
 
-	public boolean onDown(final MotionEvent e) {
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		Log.i("PhotoPlus", "onFling event");
+		if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
+			Log.i("PhotoPlus", "turn left");
+			welcomeIdx++;
+			if (welcomeIdx >= welcomes.size()) {
+				init();
+			} else {
+				((ViewFlipper) findViewById(R.id.view_flipper))
+						.setInAnimation(AnimationUtils.loadAnimation(this,
+								R.anim.push_left_in));
+				((ViewFlipper) findViewById(R.id.view_flipper))
+						.setOutAnimation(AnimationUtils.loadAnimation(this,
+								R.anim.push_left_out));
+				((ViewFlipper) findViewById(R.id.view_flipper)).showNext();
+			}
+			return true;
+		} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
+			Log.i("PhotoPlus", "turn right");
+			if ((welcomeIdx > 0)) {
+				welcomeIdx--;
+				((ViewFlipper) findViewById(R.id.view_flipper))
+						.setInAnimation(AnimationUtils.loadAnimation(this,
+								R.anim.push_right_in));
+				((ViewFlipper) findViewById(R.id.view_flipper))
+						.setOutAnimation(AnimationUtils.loadAnimation(this,
+								R.anim.push_right_out));
+				((ViewFlipper) findViewById(R.id.view_flipper)).showPrevious();
+			}
+			return true;
+		}
 		return false;
 	}
 
-	public void onLongPress(final MotionEvent e) {
-	}
-
-	public boolean onScroll(final MotionEvent e1, final MotionEvent e2,
-			final float distanceX, final float distanceY) {
+	@Override
+	public boolean onDown(MotionEvent e) {
 		return false;
 	}
 
-	public void onShowPress(final MotionEvent e) {
+	@Override
+	public void onShowPress(MotionEvent e) {
 	}
 
-	public boolean onSingleTapUp(final MotionEvent e) {
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
 		return false;
 	}
 
-	public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
+	@Override
+	public void onLongPress(MotionEvent e) {
 	}
 
-	public void onSensorChanged(final SensorEvent event) {
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
 		if (event.sensor == mSensor) {
 			long curTime = System.currentTimeMillis();
-			if (((mLastUpdate != 0) && ((curTime - mLastUpdate) > 100))) {
+			if (mLastUpdate != 0 && (curTime - mLastUpdate) > 100) {
 				long diffTime = (curTime - mLastUpdate);
 				mLastUpdate = curTime;
 				float x = event.values[0];

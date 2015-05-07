@@ -21,8 +21,8 @@ public class SearchSingleFragment extends Fragment {
 
 	public void setBitmap(final Bitmap b) {
 		show = b;
-		if (initDone == true) {
-			((SquareImageView) (findViewById(R.id.search_single_result)))
+		if (initDone) {
+			((SquareImageView) findViewById(R.id.search_single_result))
 					.setImageBitmap(show);
 		}
 	}
@@ -34,7 +34,7 @@ public class SearchSingleFragment extends Fragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		if (show != null) {
-			((SquareImageView) (findViewById(R.id.search_single_result)))
+			((SquareImageView) findViewById(R.id.search_single_result))
 					.setImageBitmap(show);
 		}
 		initDone = true;
