@@ -1,4 +1,4 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;

@@ -1,4 +1,4 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +21,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.view.View;
 
 import com.google.common.base.Objects;
@@ -191,7 +190,6 @@ public class OverlayManager implements Constants {
 	public void inputString(final CharSequence input) {
 		resetState = false;
 		textCS = new String(input.toString());
-		Log.i("PhotoPlus", "Input string: " + textCS.toString());
 	}
 
 	public Bitmap getBitmapForDraw(final boolean withGrid) {
@@ -292,7 +290,7 @@ public class OverlayManager implements Constants {
 		mPhotoMap = photo;
 	}
 
-	public String getUniqueID() {
+	public String generateId() {
 		Calendar c = Calendar.getInstance();
 		long sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(
 				c.getTimeInMillis())) / 1000L;
@@ -377,12 +375,9 @@ public class OverlayManager implements Constants {
 		int[] barArray = Utils.getIntArray((qrCodeSize * qrCodeSize));
 		srcNine.getPixels(intArray, 0, srcNine.getWidth(), 0, 0,
 				srcNine.getWidth(), srcNine.getHeight());
-		String id = getUniqueID();
+		String id = generateId();
 		Bitmap bitmap;
 		Bitmap qrCode;
-
-		Log.i("PhotoPlus", id);
-
 		View view = mActivity.getWindow().getDecorView();
 		view.setDrawingCacheEnabled(true);
 		bitmap = view.getDrawingCache();

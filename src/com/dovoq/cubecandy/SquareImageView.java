@@ -1,4 +1,4 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
 
 import android.content.Context;
 import android.util.AttributeSet;

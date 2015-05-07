@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dovoq.photoplus"
+    package="com.dovoq.cubecandy"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -26,7 +26,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar" >
         <activity
-            android:name="com.dovoq.photoplus.MainActivity"
+            android:name="com.dovoq.cubecandy.MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan" >
             <intent-filter>
@@ -36,11 +36,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.dovoq.photoplus.SearchActivity"
+            android:name="com.dovoq.cubecandy.SearchActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.dovoq.photoplus.CropActivity"
+            android:name="com.dovoq.cubecandy.CropActivity"
             android:screenOrientation="portrait" />
     </application>
 

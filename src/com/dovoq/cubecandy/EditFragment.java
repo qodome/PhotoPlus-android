@@ -1,6 +1,5 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
 
-import static com.nyssance.android.util.LogUtils.logd;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;

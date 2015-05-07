@@ -1,4 +1,6 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
+
+import static com.nyssance.android.util.LogUtils.loge;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -136,22 +138,16 @@ public class MainActivity extends FragmentActivity implements
 		mCheckBox.setChecked(mPreferences.getBoolean("enable_share", false));
 		if (!Environment.MEDIA_MOUNTED.equals(Environment
 				.getExternalStorageState())) {
-			Log.e(getString(R.string.LOGTAG), "External storage not mounted");
+			loge("External storage not mounted");
 			return;
 		}
-		File reportFolder = new File(Environment.getExternalStorageDirectory()
-				.getAbsolutePath() + "/" + "PhotoPlus");
-		if (!reportFolder.exists()) {
-			Log.i(getString(R.string.LOGTAG),
-					"Creating missing directory iDoStatsMonitor");
-			reportFolder.mkdirs();
-		}
+		TEMPORARY_DIRECTORY.mkdirs();
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		TEMPORARY_DIRECTORY.mkdirs();
+
 		mSensorManager = (SensorManager) (getSystemService(SENSOR_SERVICE));
 		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(this, mSensor,
@@ -164,8 +160,7 @@ public class MainActivity extends FragmentActivity implements
 			SharedPreferences.Editor ed = sp.edit();
 			ed.putBoolean("first_time_init", false);
 			ed.commit();
-			Log.i(getString(R.string.LOGTAG),
-					"First time run, show welcome screens");
+			loge("First time run, show welcome screens");
 			setContentView(R.layout.welcome);
 			gdt = new GestureDetector(this);
 			welcomeIdx = 0;
@@ -246,8 +241,8 @@ public class MainActivity extends FragmentActivity implements
 				}
 				break;
 			case LOAD_CAMERA:
-				intent.putExtra("BitmapImage",
-						Uri.fromFile(new File(TEMPORARY_DIRECTORY, "capture.jpg")));
+				intent.putExtra("BitmapImage", Uri.fromFile(new File(
+						TEMPORARY_DIRECTORY, "capture.jpg")));
 				startActivityForResult(intent, LOAD_CROP_VIEW);
 				break;
 			}
@@ -297,7 +292,8 @@ public class MainActivity extends FragmentActivity implements
 		startActivity(intent);
 		if (mPreferences.getBoolean("enable_share", false)) {
 			new MainActivity.UploadFilesTask().execute(
-					TEMPORARY_DIRECTORY.getAbsolutePath(), getFolderName(), uploadFn);
+					TEMPORARY_DIRECTORY.getAbsolutePath(), getFolderName(),
+					uploadFn);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.dovoq.photoplus;
+package com.dovoq.cubecandy;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
