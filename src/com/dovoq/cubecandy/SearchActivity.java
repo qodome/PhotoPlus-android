@@ -1,5 +1,7 @@
 package com.dovoq.cubecandy;
 
+import static com.nyssance.android.util.LogUtils.logi;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -23,14 +26,13 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.dovoq.cubecandy.util.CropUtils;
 import com.google.common.base.Objects;
 
 public class SearchActivity extends FragmentActivity implements Constants {
@@ -45,34 +47,29 @@ public class SearchActivity extends FragmentActivity implements Constants {
 	private SearchMultipleFragment multipleFragment = null;
 	private String prevSearchString = null;
 
+	private EditText mEditText;
+	private Button mShareButton;
+
 	public class QueryZIPFilesTask extends AsyncTask<String, Integer, String> {
-		private SearchActivity searchUI;
-
-		public QueryZIPFilesTask(final SearchActivity activity) {
-			searchUI = activity;
-		}
-
-		public String doInBackground(final String... info) {
+		public String doInBackground(String... info) {
+			String url = MEDIA_URL + "/" + info[0];
 			DefaultHttpClient client = new DefaultHttpClient();
-			HttpGet get = new HttpGet(
-					((("http://media.dovoq.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".zip")));
+			HttpGet get = new HttpGet(url);
 			HttpResponse response;
 			String ret = null;
 			try {
 				response = client.execute(get);
 				if (response.getStatusLine().getStatusCode() == 200) {
-					File zipFolder = new File(folderName + info[1] + "/");
-					if (!zipFolder.exists()) {
-						zipFolder.mkdirs();
-					}
-					unpackZip(folderName + info[1] + "/", response.getEntity()
+					File zipFolder = new File(folderName,
+							FilenameUtils.getBaseName(url));
+					zipFolder.mkdirs();
+					unpackZip(zipFolder.getAbsolutePath(), response.getEntity()
 							.getContent());
-					ret = info[1];
-					Log.i("PhotoPlus", "QueryZIPFilesTask got zip file");
-
+					logi("QueryZIPFilesTask got zip file");
 				} else {
-					Log.i("PhotoPlus", ("http response: " + Integer
-							.valueOf(response.getStatusLine().getStatusCode())));
+					logi("http response: "
+							+ Integer.valueOf(response.getStatusLine()
+									.getStatusCode()));
 				}
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
@@ -111,12 +108,12 @@ public class SearchActivity extends FragmentActivity implements Constants {
 							.add(R.id.fragment_container, multipleFragment)
 							.commit();
 					prevFragment = multipleFragment;
-					searchUI.getShare().setVisibility(View.VISIBLE);
+					mShareButton.setEnabled(true);
 					flagShareFolder = 1;
 					subFolderName = fn;
 				} else {
-					searchUI.getShare().setVisibility(View.GONE);
-					new AlertDialog.Builder(searchUI)
+					mShareButton.setEnabled(false);
+					new AlertDialog.Builder(self)
 							.setTitle("错误")
 							.setMessage("图片未找到")
 							.setNeutralButton(android.R.string.ok,
@@ -142,8 +139,8 @@ public class SearchActivity extends FragmentActivity implements Constants {
 							.remove(prevFragment).commit();
 					prevFragment = null;
 				}
-				searchUI.getShare().setVisibility(View.GONE);
-				new AlertDialog.Builder(searchUI)
+				mShareButton.setEnabled(false);
+				new AlertDialog.Builder(self)
 						.setTitle("错误")
 						.setMessage("图片未找到")
 						.setNeutralButton(android.R.string.ok,
@@ -159,16 +156,11 @@ public class SearchActivity extends FragmentActivity implements Constants {
 	}
 
 	public class QueryJPGFilesTask extends AsyncTask<String, Integer, Bitmap> {
-		private SearchActivity searchUI;
-
-		public QueryJPGFilesTask(final SearchActivity activity) {
-			searchUI = activity;
-		}
 
 		public Bitmap doInBackground(final String... info) {
+			String url = MEDIA_URL + "/" + info[0];
 			DefaultHttpClient client = new DefaultHttpClient();
-			HttpGet get = new HttpGet(
-					((("http://media.dovoq.com/photoplus/free/" + info[0]) + "/") + (info[1] + ".jpg")));
+			HttpGet get = new HttpGet(url);
 			HttpResponse response;
 			Bitmap b = null;
 			try {
@@ -178,8 +170,9 @@ public class SearchActivity extends FragmentActivity implements Constants {
 					b = BitmapFactory.decodeStream(response.getEntity()
 							.getContent());
 				} else {
-					Log.i("PhotoPlus", ("http response: " + Integer
-							.valueOf(response.getStatusLine().getStatusCode())));
+					logi("http response: "
+							+ Integer.valueOf(response.getStatusLine()
+									.getStatusCode()));
 				}
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
@@ -209,8 +202,8 @@ public class SearchActivity extends FragmentActivity implements Constants {
 							.remove(prevFragment).commit();
 					prevFragment = null;
 				}
-				searchUI.getShare().setVisibility(View.GONE);
-				new AlertDialog.Builder(searchUI)
+				mShareButton.setEnabled(false);
+				new AlertDialog.Builder(self)
 						.setTitle("错误")
 						.setMessage("图片未找到")
 						.setNeutralButton(android.R.string.ok,
@@ -240,22 +233,11 @@ public class SearchActivity extends FragmentActivity implements Constants {
 				getSupportFragmentManager().beginTransaction()
 						.add(R.id.fragment_container, singleFragment).commit();
 				prevFragment = singleFragment;
-				searchUI.sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
-				searchUI.getShare().setVisibility(View.VISIBLE);
+				sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
+				mShareButton.setEnabled(true);
 				flagShareFolder = 0;
 			}
 		}
-	}
-
-	public String init(final Bundle savedInstanceState) {
-		singleFragment = new SearchSingleFragment();
-		multipleFragment = new SearchMultipleFragment();
-		multipleFragment.mContext = this;
-		self = this;
-		prevFragment = null;
-		return folderName = new String(Environment
-				.getExternalStorageDirectory().getAbsolutePath()
-				+ "/PhotoPlus/");
 	}
 
 	public boolean isNumeric(final String str) {
@@ -268,8 +250,8 @@ public class SearchActivity extends FragmentActivity implements Constants {
 	}
 
 	public void search(final View v) {
-		String prefix = getInputText().getText().toString().substring(0, 1);
-		String input = getInputText().getText().toString().substring(1);
+		String prefix = mEditText.getText().toString().substring(0, 1);
+		String input = mEditText.getText().toString().substring(1);
 		if (input.length() != 10 || isNumeric(input) == false) {
 			new AlertDialog.Builder(this)
 					.setTitle("错误")
@@ -285,10 +267,7 @@ public class SearchActivity extends FragmentActivity implements Constants {
 			return;
 		}
 		if (prevSearchString == null
-				|| !prevSearchString
-						.equals(getInputText().getText().toString())) {
-			Log.i("PhotoPlus", "new search task");
-
+				|| !prevSearchString.equals(mEditText.getText().toString())) {
 			if (singleFragment != null) {
 				singleFragment.recycleBitmap();
 				singleFragment = null;
@@ -302,16 +281,16 @@ public class SearchActivity extends FragmentActivity implements Constants {
 						.remove(prevFragment).commit();
 				prevFragment = null;
 			}
-
-			prevSearchString = new String(getInputText().getText().toString());
+			prevSearchString = new String(mEditText.getText().toString());
 			input = input.substring(0, (input.length() - 3));
 			String folder = String.valueOf((Integer.parseInt(input) / 864000));
+			String id = mEditText.getText().toString();
 			if (prefix.equals("a")) {
-				new QueryJPGFilesTask(this).execute(folder, getInputText()
-						.getText().toString());
+				new QueryJPGFilesTask().execute(CropUtils.generatePath(id)
+						+ ".jpg");
 			} else if (prefix.equals("z")) {
-				new QueryZIPFilesTask(this).execute(folder, getInputText()
-						.getText().toString());
+				new QueryZIPFilesTask().execute(CropUtils.generatePath(id)
+						+ ".zip");
 			}
 		}
 	}
@@ -380,17 +359,17 @@ public class SearchActivity extends FragmentActivity implements Constants {
 		startActivity(intent);
 	}
 
-	public void onCreate(final Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
-		init(savedInstanceState);
-	}
-
-	public EditText getInputText() {
-		return (EditText) findViewById(R.id.input_text);
-	}
-
-	public Button getShare() {
-		return (Button) findViewById(R.id.share);
+		singleFragment = new SearchSingleFragment();
+		multipleFragment = new SearchMultipleFragment();
+		multipleFragment.mContext = this;
+		self = this;
+		prevFragment = null;
+		mEditText = (EditText) findViewById(R.id.input_text);
+		mShareButton = (Button) findViewById(R.id.share);
+		mShareButton.setVisibility(View.VISIBLE);
 	}
 }

@@ -1,4 +1,4 @@
-package com.dovoq.cubecandy;
+package com.dovoq.cubecandy.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;

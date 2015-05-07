@@ -6,10 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Random;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -23,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.view.View;
 
+import com.dovoq.cubecandy.util.CropUtils;
 import com.google.common.base.Objects;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -290,17 +289,6 @@ public class OverlayManager implements Constants {
 		mPhotoMap = photo;
 	}
 
-	public String generateId() {
-		Calendar c = Calendar.getInstance();
-		long sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(
-				c.getTimeInMillis())) / 1000L;
-		Random r = new Random();
-		return "a" + String.valueOf((sec - MainActivity.SECONDS_OFFSET))
-				+ Integer.valueOf(r.nextInt(10))
-				+ Integer.valueOf(r.nextInt(10))
-				+ Integer.valueOf(r.nextInt(10));
-	}
-
 	public Bitmap addIDtoBitmap(final Bitmap b, final String id) {
 		Canvas canvas = new Canvas(b);
 		Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -337,8 +325,8 @@ public class OverlayManager implements Constants {
 						(mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0)
 								.getHeight() - mBgs.get(0).getWidth()) / 2,
 						mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
-				fn = new File(TEMPORARY_DIRECTORY, String.valueOf(i) + String.valueOf(j)
-						+ ".png");
+				fn = new File(TEMPORARY_DIRECTORY, String.valueOf(i)
+						+ String.valueOf(j) + ".png");
 				if (!fn.exists()) {
 					try {
 						fn.createNewFile();
@@ -363,7 +351,7 @@ public class OverlayManager implements Constants {
 		}
 	}
 
-	public String dumpToFile(final boolean enableShared) throws IOException,
+	public String dumpToFile(boolean canShare) throws IOException,
 			WriterException {
 		// 创建九倍大小的图片
 		Bitmap src = getBitmapForDraw(false);
@@ -375,7 +363,7 @@ public class OverlayManager implements Constants {
 		int[] barArray = Utils.getIntArray((qrCodeSize * qrCodeSize));
 		srcNine.getPixels(intArray, 0, srcNine.getWidth(), 0, 0,
 				srcNine.getWidth(), srcNine.getHeight());
-		String id = generateId();
+		String id = CropUtils.generateId("a");
 		Bitmap bitmap;
 		Bitmap qrCode;
 		View view = mActivity.getWindow().getDecorView();
@@ -390,7 +378,7 @@ public class OverlayManager implements Constants {
 				bitmap = Bitmap.createBitmap(bitmap, mRect.left * i, mRect.top
 						* j, mRect.width() / 3, mRect.height() / 3);
 
-				if (enableShared) {
+				if (canShare) {
 					bitmap = mBgs.get((i * 3) + j).copy(
 							Bitmap.Config.ARGB_8888, true);
 				} else {
@@ -402,7 +390,7 @@ public class OverlayManager implements Constants {
 						(mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0)
 								.getHeight() - mBgs.get(0).getWidth()) / 2,
 						mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
-				if ((i * 3 + j) % 2 == 1 && enableShared) {
+				if ((i * 3 + j) % 2 == 1 && canShare) {
 					qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE,
 							qrCodeSize, qrCodeSize);
 					qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0,
@@ -413,13 +401,14 @@ public class OverlayManager implements Constants {
 							qrCodeSize, qrCodeSize);
 					bitmap = addIDtoBitmap(bitmap, ("转发ID: " + id));
 				}
-				FileOutputStream out = new FileOutputStream(new File(TEMPORARY_DIRECTORY,
-						String.valueOf(i) + String.valueOf(j) + ".png"));
+				FileOutputStream out = new FileOutputStream(new File(
+						TEMPORARY_DIRECTORY, String.valueOf(i)
+								+ String.valueOf(j) + ".png"));
 				bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 				out.close();
 			}
 		}
-		if (enableShared) { // 上传图片
+		if (canShare) { // 上传图片
 			srcNine = Bitmap.createScaledBitmap(src, mBgs.get(1).getWidth(),
 					mBgs.get(1).getWidth(), false);
 			intArray = Utils.getIntArray(srcNine.getWidth()
@@ -439,11 +428,11 @@ public class OverlayManager implements Constants {
 					.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize),
 					qrCodeSize, qrCodeSize);
 			bitmap = addIDtoBitmap(bitmap, "转发ID: " + id);
-			FileOutputStream out = new FileOutputStream(new File(TEMPORARY_DIRECTORY, id
-					+ ".jpg"));
+			FileOutputStream out = new FileOutputStream(new File(
+					TEMPORARY_DIRECTORY, id + ".jpg"));
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 			out.close();
-			return (id + ".jpg");
+			return CropUtils.generatePath(id + ".jpg");
 		} else {
 			return null;
 		}

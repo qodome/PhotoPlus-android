@@ -7,10 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
 import android.app.AlertDialog;
@@ -35,7 +33,6 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -54,8 +51,7 @@ public class MainActivity extends FragmentActivity implements
 			AsyncTask<String, Integer, Long> {
 		public Long doInBackground(final String... info) {
 			try {
-				HttpHelper.upload(info[0], info[1], info[2]);
-			} catch (ClientProtocolException e) {
+				HttpHelper.upload(info[0], info[1]);
 			} catch (IOException e) {
 			} catch (JSONException e) {
 			}
@@ -73,8 +69,6 @@ public class MainActivity extends FragmentActivity implements
 	private final static int LOAD_PHOTO = 42;
 	private final static int LOAD_CROP_VIEW = 422;
 	private final static int LOAD_CAMERA = 4242;
-	private final static int SECONDS_IN_ONE_DAY = 864000;
-	public final static int SECONDS_OFFSET = 1425168000;
 
 	private OverlayManager OM;
 	private EditFragment mEditFragment;
@@ -267,13 +261,6 @@ public class MainActivity extends FragmentActivity implements
 		startActivityForResult(intent, LOAD_PHOTO);
 	}
 
-	private String getFolderName() {
-		Calendar c = Calendar.getInstance();
-		long sec = (c.getTimeInMillis() + c.getTimeZone().getOffset(
-				c.getTimeInMillis())) / 1000L;
-		return String.valueOf((sec - SECONDS_OFFSET) / SECONDS_IN_ONE_DAY);
-	}
-
 	public void share(final View v) throws IOException, WriterException {
 		String uploadFn = OM.dumpToFile(mPreferences.getBoolean("enable_share",
 				false));
@@ -292,8 +279,7 @@ public class MainActivity extends FragmentActivity implements
 		startActivity(intent);
 		if (mPreferences.getBoolean("enable_share", false)) {
 			new MainActivity.UploadFilesTask().execute(
-					TEMPORARY_DIRECTORY.getAbsolutePath(), getFolderName(),
-					uploadFn);
+					TEMPORARY_DIRECTORY.getAbsolutePath(), uploadFn);
 		}
 	}
 
@@ -311,9 +297,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
-		Log.i("PhotoPlus", "onFling event");
 		if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
-			Log.i("PhotoPlus", "turn left");
 			welcomeIdx++;
 			if (welcomeIdx >= welcomes.size()) {
 				init();
@@ -328,7 +312,6 @@ public class MainActivity extends FragmentActivity implements
 			}
 			return true;
 		} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
-			Log.i("PhotoPlus", "turn right");
 			if ((welcomeIdx > 0)) {
 				welcomeIdx--;
 				((ViewFlipper) findViewById(R.id.view_flipper))
@@ -384,7 +367,6 @@ public class MainActivity extends FragmentActivity implements
 				float z = event.values[2];
 				if ((((Math.abs(x + y + z - mLastX - mLastY - mLastZ)
 						/ diffTime * 10000) > 1000) && (deleteNotified == false))) {
-					Log.i("PhotoPlus", ("shake detected"));
 					deleteNotified = true;
 					new AlertDialog.Builder(this)
 							.setTitle("请确认")
@@ -394,8 +376,6 @@ public class MainActivity extends FragmentActivity implements
 										public void onClick(
 												final DialogInterface dialog,
 												final int which) {
-											Log.i("PhotoPlus",
-													"Delete confirmed");
 											mEditText.setText("");
 											OM.reset();
 											mEditFragment.setBitmap(OM);
@@ -407,8 +387,6 @@ public class MainActivity extends FragmentActivity implements
 										public void onClick(
 												final DialogInterface dialog,
 												final int which) {
-											Log.i("PhotoPlus",
-													"Delete cancelled");
 											deleteNotified = false;
 										}
 									})

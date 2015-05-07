@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.dovoq.cubecandy.SquareImageView
+    <com.dovoq.cubecandy.widget.SquareImageView
         android:id="@+id/search_single_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

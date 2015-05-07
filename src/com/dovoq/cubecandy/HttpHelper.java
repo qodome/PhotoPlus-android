@@ -1,5 +1,7 @@
 package com.dovoq.cubecandy;
 
+import static com.nyssance.android.util.LogUtils.logi;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -8,10 +10,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -19,11 +21,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.google.common.io.ByteStreams;
 
-public class HttpHelper {
+public class HttpHelper implements Constants {
 	private final static String BOUNDARY = "Boundary+A789798EA789798E";
 	private static StringBuffer requestBody;
 
@@ -35,14 +35,12 @@ public class HttpHelper {
 		HttpHelper.requestBody.append(value);
 	}
 
-	public static void upload(final String dir, final String folder,
-			final String fileName) throws ClientProtocolException, IOException,
-			JSONException {
+	public static void upload(String dir, String path)
+			throws ClientProtocolException, IOException, JSONException {
 		DefaultHttpClient client = new DefaultHttpClient();
-		HttpGet get = new HttpGet(
-				((("http://dovoq.com/upload_params/s3/?filename=photoplus/free/" + folder) + "/") + fileName));
-		get.setHeader("Authorization",
-				"Token e91c2126c2a9ba77000a932fc11a85bbb29e8f54");
+		HttpGet get = new HttpGet(BASE_URL + "/upload_params/s3/?filename="
+				+ path);
+		get.setHeader("Authorization", "Token " + DEFAULT_TOKEN);
 		HttpResponse response = client.execute(get);
 		if (response.getStatusLine().getStatusCode() == 200) {
 			BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -52,7 +50,6 @@ public class HttpHelper {
 			while ((line = r.readLine()) != null) {
 				total.append(line);
 			}
-			Log.i("PhotoPlus", total.toString());
 			final JSONObject jsonObj = new JSONObject(total.toString());
 			HttpHelper.requestBody = new StringBuffer();
 
@@ -63,7 +60,6 @@ public class HttpHelper {
 				try {
 					HttpHelper.addEntry(key, (String) jsonObj.get(key));
 				} catch (JSONException e) {
-					// Something went wrong!
 				}
 			}
 
@@ -78,7 +74,7 @@ public class HttpHelper {
 			URL url;
 			DataOutputStream dataOS;
 			try {
-				url = new URL("http://media.dovoq.com/");
+				url = new URL(MEDIA_URL);
 				conn = (HttpURLConnection) url.openConnection();
 				conn.setDoOutput(true);
 				conn.setDoInput(true);
@@ -90,7 +86,7 @@ public class HttpHelper {
 				dataOS = new DataOutputStream(conn.getOutputStream());
 				dataOS.writeBytes(HttpHelper.requestBody.toString());
 
-				File fn = new File((dir + fileName));
+				File fn = new File(dir, FilenameUtils.getName(path));
 				if (!fn.exists()) {
 					return;
 				}
@@ -103,17 +99,12 @@ public class HttpHelper {
 				dataOS.close();
 				int responseCode = conn.getResponseCode();
 				if ((responseCode != 201)) {
-					Log.i("PhotoPlus", "http upload failed with code "
+					logi("http upload failed with code "
 							+ Integer.valueOf(responseCode));
 				} else {
-					Log.i("PhotoPlus", "http upload success");
+					logi("http upload success");
 				}
-			} catch (MalformedURLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}

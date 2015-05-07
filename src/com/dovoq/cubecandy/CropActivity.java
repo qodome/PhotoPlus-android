@@ -1,5 +1,7 @@
 package com.dovoq.cubecandy;
 
+import static com.nyssance.android.util.LogUtils.logi;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 
 import com.edmodo.cropper.CropImageView;
@@ -24,11 +25,11 @@ public class CropActivity extends FragmentActivity {
 		setContentView(R.layout.activity_crop);
 		try {
 			if (previousBitmap != null) {
-				Log.i("PhotoPlus", "recycle previous bitmap");
+				logi("recycle previous bitmap");
 				previousBitmap.recycle();
 				previousBitmap = null;
 			} else {
-				Log.i("PhotoPlus", "previous null");
+				logi("previous null");
 			}
 			Bitmap b = MediaStore.Images.Media.getBitmap(getContentResolver(),
 					Uri.parse(getIntent().getStringExtra("BitmapImage")));
@@ -47,8 +48,6 @@ public class CropActivity extends FragmentActivity {
 							/ (double) sizeLimit;
 					width = (int) (b.getWidth() / scaleFactor);
 				}
-				Log.i("PhotoPlus", "width: " + Integer.valueOf(width)
-						+ " height: " + Integer.valueOf(height));
 				scaledBitmap = Bitmap.createScaledBitmap(b, width, height,
 						false);
 				b.recycle();
@@ -59,11 +58,7 @@ public class CropActivity extends FragmentActivity {
 			getCropImageView().setImageBitmap(scaledBitmap);
 			previousBitmap = scaledBitmap;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
@@ -71,17 +66,16 @@ public class CropActivity extends FragmentActivity {
 		Bitmap croppedImage = getCropImageView().getCroppedImage().copy(
 				Bitmap.Config.ARGB_8888, false);
 		String fn = "croppedImage.png";
-		FileOutputStream stream;
+		FileOutputStream stream = null;
 		try {
 			stream = openFileOutput(fn, MODE_PRIVATE);
 			croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-			stream.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			}
 		}
 		croppedImage.recycle();
 		Intent result = new Intent(this, MainActivity.class);
