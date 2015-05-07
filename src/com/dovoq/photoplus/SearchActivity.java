@@ -33,7 +33,7 @@ import android.widget.EditText;
 
 import com.google.common.base.Objects;
 
-public class SearchActivity extends FragmentActivity {
+public class SearchActivity extends FragmentActivity implements Constants {
 	public Context self;
 	private Bitmap sharedBitmap;
 	public String folderName;
@@ -356,32 +356,28 @@ public class SearchActivity extends FragmentActivity {
 			om = new OverlayManager(this);
 			om.dumpSearchResultToFile(sharedBitmap);
 		}
-		Intent intent = new Intent();
+		Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+		intent.setType("image/*");
 		ComponentName comp = new ComponentName("com.tencent.mm",
 				"com.tencent.mm.ui.tools.ShareToTimeLineUI");
 		intent.setComponent(comp);
-		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-		intent.setType("image/*");
-		ArrayList<Uri> imageUris = new ArrayList<Uri>();
+		ArrayList<Uri> uris = new ArrayList<>();
 		if (flagShareFolder == 0) {
-			for (int i = 0; (i < 3); i++) {
-				for (int j = 0; (j < 3); j++) {
-					imageUris
-							.add(Uri.fromFile(new File(
-									((((folderName + "test") + Integer
-											.valueOf(i)) + Integer.valueOf(j)) + ".png"))));
+			File directory = new File(DIRECTORY_TMP);
+			for (File file : directory.listFiles()) {
+				if (!file.isHidden() && file.getName().endsWith(".png")) {
+					uris.add(Uri.fromFile(file));
 				}
 			}
 		} else {
 			File zipFolder = new File(folderName + subFolderName + "/");
 			if (zipFolder.exists()) {
-				File[] files = zipFolder.listFiles();
-				for (int i = 0; i < files.length; ++i) {
-					imageUris.add(Uri.fromFile(files[i]));
+				for (File file : zipFolder.listFiles()) {
+					uris.add(Uri.fromFile(file));
 				}
 			}
 		}
-		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 		startActivity(intent);
 	}
 
