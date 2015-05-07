@@ -73,7 +73,7 @@
             android:layout_weight="1" />
 
         <CheckBox
-            android:id="@+id/enable_share"
+            android:id="@id/repost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"

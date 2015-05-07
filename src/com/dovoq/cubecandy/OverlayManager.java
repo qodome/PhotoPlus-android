@@ -10,7 +10,10 @@ import java.util.EnumMap;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,7 +24,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.view.View;
 
+import com.dovoq.cubecandy.util.BitmapUtils;
 import com.dovoq.cubecandy.util.CropUtils;
+import com.dovoq.cubecandy.util.Utils;
 import com.google.common.base.Objects;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -289,14 +294,14 @@ public class OverlayManager implements Constants {
 		mPhotoMap = photo;
 	}
 
-	public Bitmap addIDtoBitmap(final Bitmap b, final String id) {
-		Canvas canvas = new Canvas(b);
+	public Bitmap addIDtoBitmap(Bitmap bitmap, String id) {
+		Canvas canvas = new Canvas(bitmap);
 		Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		paint.setColor(0xFF000000);
+		paint.setColor(0);
 		paint.setTextSize(20);
-		paint.setShadowLayer(1f, 0f, 1f, Color.TRANSPARENT);
+		paint.setShadowLayer(1, 0, 1, Color.TRANSPARENT);
 		canvas.drawText(id, 217, 712, paint);
-		return b;
+		return bitmap;
 	}
 
 	public void dumpSearchResultToFile(final Bitmap sharedBitmap) {
@@ -351,75 +356,71 @@ public class OverlayManager implements Constants {
 		}
 	}
 
-	public String dumpToFile(boolean canShare) throws IOException,
+	public String dumpToFile1(boolean canShare) throws IOException,
 			WriterException {
-		// 创建九倍大小的图片
-		Bitmap src = getBitmapForDraw(false);
-		Bitmap srcNine = Bitmap.createScaledBitmap(src,
-				(mBgs.get(0).getWidth() * 3), (mBgs.get(0).getWidth() * 3),
-				false);
-		int[] intArray = Utils.getIntArray(srcNine.getWidth()
-				* srcNine.getHeight());
 		int[] barArray = Utils.getIntArray((qrCodeSize * qrCodeSize));
-		srcNine.getPixels(intArray, 0, srcNine.getWidth(), 0, 0,
-				srcNine.getWidth(), srcNine.getHeight());
+
 		String id = CropUtils.generateId("a");
-		Bitmap bitmap;
+
+		Resources res = mActivity.getResources();
+		Bitmap background = BitmapFactory.decodeResource(res, R.drawable.bg);
+		int width = 480;
+		int height = 852;
+
 		Bitmap qrCode;
 		View view = mActivity.getWindow().getDecorView();
 		view.setDrawingCacheEnabled(true);
-		bitmap = view.getDrawingCache();
+		Bitmap screen = view.getDrawingCache();
 		Rect frame = new Rect();
 		mActivity.getWindow().getDecorView()
 				.getWindowVisibleDisplayFrame(frame);
+		Bitmap all = Bitmap.createBitmap(screen, mRect.left, mRect.top,
+				mRect.width(), mRect.height());
+		all = Bitmap.createScaledBitmap(all, width * 3, width * 3, false);
 
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				bitmap = Bitmap.createBitmap(bitmap, mRect.left * i, mRect.top
-						* j, mRect.width() / 3, mRect.height() / 3);
+		int i = 0;
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				Bitmap content = Bitmap.createBitmap(all, width * x, width * y,
+						width, width);
+				// if (canShare) {
+				// bitmap = mBgs.get((i * 3) + j).copy(
+				// Bitmap.Config.ARGB_8888, true);
+				// } else {
+				// bitmap = mBg.copy(Bitmap.Config.ARGB_8888, true);
+				// }
 
-				if (canShare) {
-					bitmap = mBgs.get((i * 3) + j).copy(
-							Bitmap.Config.ARGB_8888, true);
-				} else {
-					bitmap = mBg.copy(Bitmap.Config.ARGB_8888, true);
-				}
-				bitmap.setPixels(intArray, (i * mBgs.get(0).getWidth()
-						* mBgs.get(0).getWidth() * 3 + j
-						* mBgs.get(0).getWidth()),
-						(mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0)
-								.getHeight() - mBgs.get(0).getWidth()) / 2,
-						mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
-				if ((i * 3 + j) % 2 == 1 && canShare) {
+				// Bitmap card = background.copy(Config.ARGB_8888, true);
+				Bitmap card = BitmapUtils.merge(mActivity.getResources(),
+						background.copy(Config.ARGB_8888, true), content, 0,
+						(height - width) / 2, width, width);
+
+				// Canvas canvas = new Canvas(card);
+				// Drawable drawable = new BitmapDrawable(res, content);
+				// int top = (height - width) / 2;
+				// drawable.setBounds(0, top, width, top + width);
+				// drawable.draw(canvas);
+
+				if ((y * 3 + x) % 2 == 1 && canShare) {
 					qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE,
 							qrCodeSize, qrCodeSize);
 					qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0,
 							qrCodeSize, qrCodeSize);
-					bitmap.setPixels(barArray, 0, qrCodeSize,
+					screen.setPixels(barArray, 0, qrCodeSize,
 							boarcodeBoarderGap, (mBgs.get(0).getHeight()
 									- boarcodeBoarderGap - qrCodeSize),
 							qrCodeSize, qrCodeSize);
-					bitmap = addIDtoBitmap(bitmap, ("转发ID: " + id));
+					screen = addIDtoBitmap(screen, ("转发ID: " + id));
 				}
 				FileOutputStream out = new FileOutputStream(new File(
-						TEMPORARY_DIRECTORY, String.valueOf(i)
-								+ String.valueOf(j) + ".png"));
-				bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+						TEMPORARY_DIRECTORY, i + ".jpg"));
+				card.compress(Bitmap.CompressFormat.JPEG, 100, out);
 				out.close();
+				i++;
 			}
 		}
 		if (canShare) { // 上传图片
-			srcNine = Bitmap.createScaledBitmap(src, mBgs.get(1).getWidth(),
-					mBgs.get(1).getWidth(), false);
-			intArray = Utils.getIntArray(srcNine.getWidth()
-					* srcNine.getHeight());
-			srcNine.getPixels(intArray, 0, srcNine.getWidth(), 0, 0,
-					srcNine.getWidth(), srcNine.getHeight());
-			bitmap = mBgs.get(1).copy(Bitmap.Config.ARGB_8888, true);
-			bitmap.setPixels(intArray, 0, mBgs.get(1).getWidth(), 0,
-					(mBgs.get(1).getHeight() - mBgs.get(1).getWidth()) / 2,
-					mBgs.get(1).getWidth(), mBgs.get(1).getWidth());
-
+			Bitmap bitmap = mBgs.get(1).copy(Bitmap.Config.ARGB_8888, true);
 			qrCode = encodeAsBitmap(id, BarcodeFormat.QR_CODE, qrCodeSize,
 					qrCodeSize);
 			qrCode.getPixels(barArray, 0, qrCode.getWidth(), 0, 0, qrCodeSize,

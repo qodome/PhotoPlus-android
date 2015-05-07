@@ -8,7 +8,7 @@
         android:title="test" />
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="enable_share"
+        android:key="repost"
         android:summary="share"
         android:title="share" />
 

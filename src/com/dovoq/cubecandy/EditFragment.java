@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dovoq.cubecandy.util.ViewUtils;
 import com.dovoq.cubecandy.widget.SquareImageView;
 
 public class EditFragment extends Fragment {
@@ -26,7 +27,8 @@ public class EditFragment extends Fragment {
 		if (initDone) {
 			SquareImageView imageView = (SquareImageView) findViewById(R.id.photo_grid_view);
 			imageView.setImageBitmap(show);
-			om.mRect = Utils.locateView(imageView);
+			om.mRect = ViewUtils.locateView(imageView);
+			((MainActivity) getActivity()).mRect = ViewUtils.locateView(imageView);
 		}
 	}
 

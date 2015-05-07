@@ -343,7 +343,7 @@ public class SearchActivity extends FragmentActivity implements Constants {
 		ArrayList<Uri> uris = new ArrayList<>();
 		if (flagShareFolder == 0) {
 			for (File file : TEMPORARY_DIRECTORY.listFiles()) {
-				if (!file.isHidden() && file.getName().endsWith(".png")) {
+				if (!file.isHidden() && file.getName().endsWith(".jpg")) {
 					uris.add(Uri.fromFile(file));
 				}
 			}

@@ -5,6 +5,7 @@ import static com.nyssance.android.util.LogUtils.loge;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -43,6 +47,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ViewFlipper;
 
+import com.dovoq.cubecandy.util.BitmapUtils;
+import com.dovoq.cubecandy.util.CropUtils;
+import com.dovoq.cubecandy.util.ViewUtils;
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 
 public class MainActivity extends FragmentActivity implements
@@ -92,6 +100,8 @@ public class MainActivity extends FragmentActivity implements
 	private float mLastZ;
 	private boolean deleteNotified = false;
 
+	public Rect mRect;
+
 	public void init() {
 		setContentView(R.layout.activity_main);
 		OM = new OverlayManager(this);
@@ -100,7 +110,7 @@ public class MainActivity extends FragmentActivity implements
 		getSupportFragmentManager().beginTransaction()
 				.add(R.id.fragment_container, mEditFragment).commit();
 		mEditText = (EditText) findViewById(R.id.input_text);
-		mCheckBox = (CheckBox) findViewById(R.id.enable_share);
+		mCheckBox = (CheckBox) findViewById(R.id.repost);
 		mEditText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -125,11 +135,11 @@ public class MainActivity extends FragmentActivity implements
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						SharedPreferences.Editor ed = mPreferences.edit();
-						ed.putBoolean("enable_share", isChecked);
+						ed.putBoolean("repost", isChecked);
 						ed.commit();
 					}
 				});
-		mCheckBox.setChecked(mPreferences.getBoolean("enable_share", false));
+		mCheckBox.setChecked(mPreferences.getBoolean("repost", false));
 		if (!Environment.MEDIA_MOUNTED.equals(Environment
 				.getExternalStorageState())) {
 			loge("External storage not mounted");
@@ -261,25 +271,45 @@ public class MainActivity extends FragmentActivity implements
 		startActivityForResult(intent, LOAD_PHOTO);
 	}
 
-	public void share(final View v) throws IOException, WriterException {
-		String uploadFn = OM.dumpToFile(mPreferences.getBoolean("enable_share",
-				false));
+	public void share(View v) throws IOException, WriterException {
+		Boolean repost = mPreferences.getBoolean("repost", false);
+		Bitmap bgImage = BitmapFactory.decodeResource(getResources(),
+				repost ? R.drawable.bg1 : R.drawable.bg);
+		int width = 480;
+		int height = bgImage.getHeight() * width / bgImage.getWidth();
+		Bitmap card = Bitmap.createScaledBitmap(bgImage, width, height, false); // 需要分享的卡片
+		Bitmap content = ViewUtils.getSnapshot(this, mRect);
+		card = BitmapUtils.merge(getResources(), card, content, 0,
+				(height - width) / 2, width, width);
+		Bitmap bg = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
+		Bitmap bg0 = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg0);
+		Bitmap bg8 = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg8);
+		ArrayList<Uri> uris;
+		if (repost) { // 加id并上传
+			String id = CropUtils.generateId("a");
+			card = BitmapUtils.addText(card, "转发ID: " + id);
+			FileOutputStream out = new FileOutputStream(new File(
+					TEMPORARY_DIRECTORY, id + ".jpg"));
+			card.compress(Bitmap.CompressFormat.JPEG, 100, out);
+			out.close();
+			new MainActivity.UploadFilesTask().execute(
+					TEMPORARY_DIRECTORY.getAbsolutePath(),
+					CropUtils.generatePath(id + ".jpg"));
+			uris = CropUtils.getImages(card, 3, bg0, bg8, getResources());
+		} else {
+			uris = CropUtils.getImages(card, 3, bg, bg, getResources());
+		}
 		Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 		intent.setType("image/*");
 		ComponentName comp = new ComponentName("com.tencent.mm",
 				"com.tencent.mm.ui.tools.ShareToTimeLineUI");
 		intent.setComponent(comp);
-		ArrayList<Uri> uris = new ArrayList<>();
-		for (File file : TEMPORARY_DIRECTORY.listFiles()) {
-			if (!file.isHidden() && file.getName().endsWith(".png")) {
-				uris.add(Uri.fromFile(file));
-			}
-		}
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 		startActivity(intent);
-		if (mPreferences.getBoolean("enable_share", false)) {
-			new MainActivity.UploadFilesTask().execute(
-					TEMPORARY_DIRECTORY.getAbsolutePath(), uploadFn);
+		if (mPreferences.getBoolean("repost", false)) {
+
 		}
 	}
 
