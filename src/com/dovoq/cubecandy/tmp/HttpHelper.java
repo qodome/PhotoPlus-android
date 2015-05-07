@@ -1,4 +1,4 @@
-package com.dovoq.cubecandy;
+package com.dovoq.cubecandy.tmp;
 
 import static com.nyssance.android.util.LogUtils.logi;
 
@@ -21,6 +21,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.dovoq.cubecandy.Constants;
 import com.google.common.io.ByteStreams;
 
 public class HttpHelper implements Constants {

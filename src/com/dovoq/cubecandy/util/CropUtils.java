@@ -9,14 +9,9 @@ import org.apache.commons.io.FilenameUtils;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import com.dovoq.cubecandy.Constants;
-import com.nyssance.android.util.LogUtils;
 
 public class CropUtils implements Constants {
 	public static String generateId(String type) { // 东八时区 2015-03-01 00:00:00 起

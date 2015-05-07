@@ -32,6 +32,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.dovoq.cubecandy.fragments.SearchMultipleFragment;
+import com.dovoq.cubecandy.fragments.SearchSingleFragment;
+import com.dovoq.cubecandy.tmp.OverlayManager;
 import com.dovoq.cubecandy.util.CropUtils;
 import com.google.common.base.Objects;
 

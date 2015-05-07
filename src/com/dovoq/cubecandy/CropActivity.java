@@ -14,7 +14,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-import com.dovoq.cubecandy.util.Utils;
+import com.dovoq.cubecandy.tmp.Utils;
 import com.edmodo.cropper.CropImageView;
 
 public class CropActivity extends FragmentActivity {

@@ -1,4 +1,4 @@
-package com.dovoq.cubecandy;
+package com.dovoq.cubecandy.tmp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,9 +24,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.view.View;
 
+import com.dovoq.cubecandy.Constants;
+import com.dovoq.cubecandy.R;
+import com.dovoq.cubecandy.R.drawable;
 import com.dovoq.cubecandy.util.BitmapUtils;
 import com.dovoq.cubecandy.util.CropUtils;
-import com.dovoq.cubecandy.util.Utils;
 import com.google.common.base.Objects;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

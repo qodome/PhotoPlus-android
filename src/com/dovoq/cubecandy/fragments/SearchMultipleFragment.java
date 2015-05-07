@@ -1,8 +1,12 @@
-package com.dovoq.cubecandy;
+package com.dovoq.cubecandy.fragments;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.dovoq.cubecandy.R;
+import com.dovoq.cubecandy.R.id;
+import com.dovoq.cubecandy.R.layout;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;

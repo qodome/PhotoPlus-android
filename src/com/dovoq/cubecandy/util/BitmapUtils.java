@@ -2,10 +2,10 @@ package com.dovoq.cubecandy.util;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -24,7 +24,7 @@ public class BitmapUtils {
 		drawable.draw(canvas);
 		return bitmap;
 	}
-	
+
 	public static Bitmap addText(Bitmap bitmap, String id) {
 		Canvas canvas = new Canvas(bitmap);
 		Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);

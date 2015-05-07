@@ -1,4 +1,4 @@
-package com.dovoq.cubecandy;
+package com.dovoq.cubecandy.fragments;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dovoq.cubecandy.R;
+import com.dovoq.cubecandy.R.id;
+import com.dovoq.cubecandy.R.layout;
 import com.dovoq.cubecandy.widget.SquareImageView;
 
 public class SearchSingleFragment extends Fragment {

@@ -19,10 +19,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -47,11 +45,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ViewFlipper;
 
+import com.dovoq.cubecandy.fragments.EditFragment;
+import com.dovoq.cubecandy.tmp.HttpHelper;
+import com.dovoq.cubecandy.tmp.OverlayManager;
 import com.dovoq.cubecandy.util.BitmapUtils;
 import com.dovoq.cubecandy.util.CropUtils;
 import com.dovoq.cubecandy.util.ViewUtils;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
 
 public class MainActivity extends FragmentActivity implements
 		GestureDetector.OnGestureListener, SensorEventListener, Constants {
@@ -271,7 +270,7 @@ public class MainActivity extends FragmentActivity implements
 		startActivityForResult(intent, LOAD_PHOTO);
 	}
 
-	public void share(View v) throws IOException, WriterException {
+	public void share(View view) {
 		Boolean repost = mPreferences.getBoolean("repost", false);
 		Bitmap bgImage = BitmapFactory.decodeResource(getResources(),
 				repost ? R.drawable.bg1 : R.drawable.bg);
@@ -290,10 +289,14 @@ public class MainActivity extends FragmentActivity implements
 		if (repost) { // 加id并上传
 			String id = CropUtils.generateId("a");
 			card = BitmapUtils.addText(card, "转发ID: " + id);
-			FileOutputStream out = new FileOutputStream(new File(
-					TEMPORARY_DIRECTORY, id + ".jpg"));
-			card.compress(Bitmap.CompressFormat.JPEG, 100, out);
-			out.close();
+			FileOutputStream out;
+			try {
+				out = new FileOutputStream(new File(TEMPORARY_DIRECTORY, id
+						+ ".jpg"));
+				card.compress(Bitmap.CompressFormat.JPEG, 100, out);
+				out.close();
+			} catch (IOException e) {
+			}
 			new MainActivity.UploadFilesTask().execute(
 					TEMPORARY_DIRECTORY.getAbsolutePath(),
 					CropUtils.generatePath(id + ".jpg"));
@@ -308,9 +311,6 @@ public class MainActivity extends FragmentActivity implements
 		intent.setComponent(comp);
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 		startActivity(intent);
-		if (mPreferences.getBoolean("repost", false)) {
-
-		}
 	}
 
 	public void search(final View v) {

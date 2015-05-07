@@ -1,4 +1,4 @@
-package com.dovoq.cubecandy.util;
+package com.dovoq.cubecandy.tmp;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
