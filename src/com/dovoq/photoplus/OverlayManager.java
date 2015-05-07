@@ -339,8 +339,8 @@ public class OverlayManager implements Constants {
 						(mBgs.get(0).getWidth() * 3), 0, (mBgs.get(0)
 								.getHeight() - mBgs.get(0).getWidth()) / 2,
 						mBgs.get(0).getWidth(), mBgs.get(0).getWidth());
-				fn = new File(DIRECTORY_TMP + "test" + Integer.valueOf(i)
-						+ Integer.valueOf(j) + ".png");
+				fn = new File(TEMPORARY_DIRECTORY, String.valueOf(i) + String.valueOf(j)
+						+ ".png");
 				if (!fn.exists()) {
 					try {
 						fn.createNewFile();
@@ -350,8 +350,8 @@ public class OverlayManager implements Constants {
 					}
 				}
 				try {
-					out = new FileOutputStream(DIRECTORY_TMP + "test"
-							+ Integer.valueOf(i) + Integer.valueOf(j) + ".png");
+					out = new FileOutputStream(new File(TEMPORARY_DIRECTORY,
+							String.valueOf(i) + String.valueOf(j) + ".png"));
 					output.compress(Bitmap.CompressFormat.PNG, 100, out);
 					out.close();
 				} catch (FileNotFoundException e) {
@@ -418,10 +418,8 @@ public class OverlayManager implements Constants {
 							qrCodeSize, qrCodeSize);
 					bitmap = addIDtoBitmap(bitmap, ("转发ID: " + id));
 				}
-
-				FileOutputStream out = new FileOutputStream(DIRECTORY_TMP
-						+ "test" + Integer.valueOf(i) + Integer.valueOf(j)
-						+ ".png");
+				FileOutputStream out = new FileOutputStream(new File(TEMPORARY_DIRECTORY,
+						String.valueOf(i) + String.valueOf(j) + ".png"));
 				bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 				out.close();
 			}
@@ -446,8 +444,8 @@ public class OverlayManager implements Constants {
 					.get(0).getHeight() - boarcodeBoarderGap - qrCodeSize),
 					qrCodeSize, qrCodeSize);
 			bitmap = addIDtoBitmap(bitmap, "转发ID: " + id);
-			FileOutputStream out = new FileOutputStream(DIRECTORY_TMP + id
-					+ ".jpg");
+			FileOutputStream out = new FileOutputStream(new File(TEMPORARY_DIRECTORY, id
+					+ ".jpg"));
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 			out.close();
 			return (id + ".jpg");

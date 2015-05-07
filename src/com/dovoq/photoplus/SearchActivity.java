@@ -363,8 +363,7 @@ public class SearchActivity extends FragmentActivity implements Constants {
 		intent.setComponent(comp);
 		ArrayList<Uri> uris = new ArrayList<>();
 		if (flagShareFolder == 0) {
-			File directory = new File(DIRECTORY_TMP);
-			for (File file : directory.listFiles()) {
+			for (File file : TEMPORARY_DIRECTORY.listFiles()) {
 				if (!file.isHidden() && file.getName().endsWith(".png")) {
 					uris.add(Uri.fromFile(file));
 				}

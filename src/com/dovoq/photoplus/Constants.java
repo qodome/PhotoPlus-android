@@ -1,8 +1,10 @@
 package com.dovoq.photoplus;
 
+import java.io.File;
+
 import android.os.Environment;
 
 public interface Constants {
-	public static String DIRECTORY_TMP = Environment
-			.getExternalStorageDirectory().getAbsolutePath() + "/PhotoPlus/";
+	File TEMPORARY_DIRECTORY = new File(Environment.getExternalStorageDirectory(),
+			"PhotoPlus");
 }

@@ -151,6 +151,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		TEMPORARY_DIRECTORY.mkdirs();
 		mSensorManager = (SensorManager) (getSystemService(SENSOR_SERVICE));
 		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(this, mSensor,
@@ -246,8 +247,7 @@ public class MainActivity extends FragmentActivity implements
 				break;
 			case LOAD_CAMERA:
 				intent.putExtra("BitmapImage",
-						Uri.fromFile(new File(DIRECTORY_TMP + "capture.jpg"))
-								.toString());
+						Uri.fromFile(new File(TEMPORARY_DIRECTORY, "capture.jpg")));
 				startActivityForResult(intent, LOAD_CROP_VIEW);
 				break;
 			}
@@ -288,8 +288,7 @@ public class MainActivity extends FragmentActivity implements
 				"com.tencent.mm.ui.tools.ShareToTimeLineUI");
 		intent.setComponent(comp);
 		ArrayList<Uri> uris = new ArrayList<>();
-		File directory = new File(DIRECTORY_TMP);
-		for (File file : directory.listFiles()) {
+		for (File file : TEMPORARY_DIRECTORY.listFiles()) {
 			if (!file.isHidden() && file.getName().endsWith(".png")) {
 				uris.add(Uri.fromFile(file));
 			}
@@ -297,8 +296,8 @@ public class MainActivity extends FragmentActivity implements
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 		startActivity(intent);
 		if (mPreferences.getBoolean("enable_share", false)) {
-			new MainActivity.UploadFilesTask().execute(DIRECTORY_TMP,
-					getFolderName(), uploadFn);
+			new MainActivity.UploadFilesTask().execute(
+					TEMPORARY_DIRECTORY.getAbsolutePath(), getFolderName(), uploadFn);
 		}
 	}
 
@@ -309,7 +308,7 @@ public class MainActivity extends FragmentActivity implements
 	public void camera(final View v) {
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-				Uri.fromFile(new File((DIRECTORY_TMP + "capture.jpg"))));
+				Uri.fromFile(new File(TEMPORARY_DIRECTORY, "capture.jpg")));
 		startActivityForResult(takePictureIntent, LOAD_CAMERA);
 	}
 
