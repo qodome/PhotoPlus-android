@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Photo+</string>
+    <string name="me">Me</string>
+    <string name="profile">Profile</string>
+    <string name="repost">Repost</string>
+    <!-- Tips -->
+    <string name="tip0">写点什么，还可以试试空格</string>
+    <string name="tip1">摇一摇手机清除已编辑内容</string>
+    <!-- OP -->
+    <string name="open_0">我们是小清新的朋友圈</string>
+    <string name="open_1">我们是自拍狂的朋友圈</string>
+    <string name="open_2">我们是表达帝的朋友圈</string>
+    <string name="open_3">非战斗人员请调小音量 !</string>
+    <string name="open_4">想怎么玩, 就怎么玩 !\n刷爆朋友圈 !</string>
+    <!--  -->
+    <string name="photo_mode">Photos</string>
+    <string name="plus_mode">Plus</string>
+    <!--  -->
+    <string name="generate_template">Generate Template</string>
+    <string name="not_currently_id">Not Currently ID</string>
+    <string name="not_exists">Not Exists</string>
+    <string name="upload_and_allow_repost">Upload And Allow Repost</string>
+    <string name="search_hint">Input Repost ID</string>
+
+</resources>
