@@ -17,7 +17,7 @@ public class ViewUtils {
 				rect.height());
 	}
 
-	public static Rect locateView(View view) {
+	public static Rect getFrame(View view) {
 		Rect rect = new Rect();
 		int[] location = new int[2];
 		if (view != null) {

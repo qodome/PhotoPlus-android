@@ -1,5 +1,9 @@
 package com.dovoq.cubecandy;
 
+import static com.dovoq.cubecandy.util.CropUtils.generateId;
+import static com.dovoq.cubecandy.util.CropUtils.generatePath;
+import static com.dovoq.cubecandy.util.CropUtils.getQRCode;
+import static com.dovoq.cubecandy.util.CropUtils.getImages;
 import static com.nyssance.android.util.LogUtils.loge;
 
 import java.io.File;
@@ -51,7 +55,7 @@ import com.dovoq.cubecandy.util.ViewUtils;
 import com.google.zxing.BarcodeFormat;
 
 public class MainActivity extends MyActivity implements
-		GestureDetector.OnGestureListener, SensorEventListener, Constants {
+		GestureDetector.OnGestureListener, SensorEventListener {
 	public static class UploadFilesTask extends
 			AsyncTask<String, Integer, Long> {
 		public Long doInBackground(final String... info) {
@@ -281,10 +285,9 @@ public class MainActivity extends MyActivity implements
 				R.drawable.bg8);
 		ArrayList<Uri> uris;
 		if (repost) { // 加id并上传
-			String id = CropUtils.generateId("a");
+			String id = generateId("a");
 			card = BitmapUtils.addText(card, "转发 ID: " + id);
-			Bitmap code = CropUtils.getQRCode(id, BarcodeFormat.QR_CODE, 128,
-					128);
+			Bitmap code = getQRCode(id, BarcodeFormat.QR_CODE, 128, 128);
 			card = BitmapUtils.merge(getResources(), card, code, 32,
 					card.getHeight() - 160, 128, 128);
 			FileOutputStream out;
@@ -296,11 +299,11 @@ public class MainActivity extends MyActivity implements
 			} catch (IOException e) {
 			}
 			new MainActivity.UploadFilesTask().execute(
-					TEMPORARY_DIRECTORY.getAbsolutePath(),
-					CropUtils.generatePath(id + ".jpg"));
-			uris = CropUtils.getImages(card, 3, bg0, bg8, getResources());
+					TEMPORARY_DIRECTORY.getAbsolutePath(), generatePath(id
+							+ ".jpg"));
+			uris = getImages(card, 3, bg0, bg8, getResources());
 		} else {
-			uris = CropUtils.getImages(card, 3, bg, bg, getResources());
+			uris = getImages(card, 3, bg, bg, getResources());
 		}
 		startShareActivity(uris);
 	}

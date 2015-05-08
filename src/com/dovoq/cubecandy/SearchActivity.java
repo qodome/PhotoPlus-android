@@ -1,5 +1,7 @@
 package com.dovoq.cubecandy;
 
+import static com.dovoq.cubecandy.util.CropUtils.generatePath;
+import static com.dovoq.cubecandy.util.CropUtils.getImages;
 import static com.nyssance.android.util.LogUtils.logi;
 
 import java.io.File;
@@ -12,7 +14,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -29,9 +30,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.dovoq.cubecandy.fragments.CardDetail;
-import com.dovoq.cubecandy.util.CropUtils;
 
-public class SearchActivity extends MyActivity implements Constants {
+public class SearchActivity extends MyActivity {
 	public Context self;
 	private Bitmap sharedBitmap;
 	public String folderName;
@@ -46,7 +46,6 @@ public class SearchActivity extends MyActivity implements Constants {
 	// unpackZip(zipFolder.getAbsolutePath(),response.getEntity().getContent());
 
 	public class QueryJPGFilesTask extends AsyncTask<String, Integer, Bitmap> {
-
 		public Bitmap doInBackground(final String... info) {
 			String url = MEDIA_URL + "/" + info[0];
 			DefaultHttpClient client = new DefaultHttpClient();
@@ -64,12 +63,7 @@ public class SearchActivity extends MyActivity implements Constants {
 							+ Integer.valueOf(response.getStatusLine()
 									.getStatusCode()));
 				}
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			return b;
 		}
@@ -110,15 +104,6 @@ public class SearchActivity extends MyActivity implements Constants {
 		mShareButton = (Button) findViewById(R.id.repost);
 	}
 
-	private boolean isNumeric(String string) {
-		try {
-			long t = Long.valueOf(string);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return true;
-	}
-
 	public void search(View view) {
 		mShareButton.setEnabled(false);
 		String id = mEditText.getText().toString().toLowerCase(Locale.ENGLISH);
@@ -135,9 +120,37 @@ public class SearchActivity extends MyActivity implements Constants {
 							}).setIcon(android.R.drawable.ic_dialog_alert)
 					.show();
 		} else {
-			new QueryJPGFilesTask()
-					.execute(CropUtils.generatePath(id) + ".jpg");
+			new QueryJPGFilesTask().execute(generatePath(id) + ".jpg");
 		}
+	}
+
+	public void repost(View view) {
+		if (flagShareFolder == 0) {
+			startShareActivity(getImages(sharedBitmap, 3,
+					BitmapFactory
+							.decodeResource(getResources(), R.drawable.bg0),
+					BitmapFactory
+							.decodeResource(getResources(), R.drawable.bg8),
+					getResources()));
+		} else {
+			ArrayList<Uri> uris = new ArrayList<>();
+			File zipFolder = new File(folderName + subFolderName + "/");
+			if (zipFolder.exists()) {
+				for (File file : zipFolder.listFiles()) {
+					uris.add(Uri.fromFile(file));
+				}
+			}
+			startShareActivity(uris);
+		}
+	}
+
+	private boolean isNumeric(String string) {
+		try {
+			Long.valueOf(string);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 
 	private boolean unpackZip(String path, InputStream is) {
@@ -168,29 +181,8 @@ public class SearchActivity extends MyActivity implements Constants {
 			}
 			zis.close();
 		} catch (IOException e) {
-			e.printStackTrace();
 			return false;
 		}
 		return true;
-	}
-
-	public void repost(View view) {
-		Bitmap bg0 = BitmapFactory.decodeResource(getResources(),
-				R.drawable.bg0);
-		Bitmap bg8 = BitmapFactory.decodeResource(getResources(),
-				R.drawable.bg8);
-		ArrayList<Uri> uris = new ArrayList<>();
-		if (flagShareFolder == 0) {
-			uris = CropUtils.getImages(sharedBitmap, 3, bg0, bg8,
-					getResources());
-		} else {
-			File zipFolder = new File(folderName + subFolderName + "/");
-			if (zipFolder.exists()) {
-				for (File file : zipFolder.listFiles()) {
-					uris.add(Uri.fromFile(file));
-				}
-			}
-		}
-		startShareActivity(uris);
 	}
 }

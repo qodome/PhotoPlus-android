@@ -8,7 +8,7 @@ import android.graphics.Rect;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 
-public class MyActivity extends FragmentActivity {
+public class MyActivity extends FragmentActivity implements Constants {
 	public Rect mRect;
 
 	protected void startShareActivity(ArrayList<? extends Parcelable> items) {

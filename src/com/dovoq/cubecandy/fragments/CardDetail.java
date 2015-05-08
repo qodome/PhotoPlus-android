@@ -18,7 +18,7 @@ public class CardDetail extends Fragment {
 
 	public void setImage(Bitmap bitmap) {
 		mPhoto.setImageBitmap(bitmap);
-		((MyActivity) getActivity()).mRect = ViewUtils.locateView(mPhoto);
+		((MyActivity) getActivity()).mRect = ViewUtils.getFrame(mPhoto);
 	}
 
 	@Nullable
