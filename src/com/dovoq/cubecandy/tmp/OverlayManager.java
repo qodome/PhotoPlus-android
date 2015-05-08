@@ -22,6 +22,7 @@ public class OverlayManager implements Constants {
 	private final String[] bgDesc = { "bg0_0", "bg2_e6e6e6", "bg10_0",
 			"bg20_0", "bg30_0", "bg40_0", "bg50_ffffff", "bg60_ffffff",
 			"bg70_ffffff", "bg80_ffffff", "bg90_ffffff" };
+	// 可用Long.parseLong()转换0x类型的color
 	private final Integer[] bgColor = { Integer.valueOf(0xFF000000),
 			Integer.valueOf(0xFFe6e6e6), Integer.valueOf(0xFF000000),
 			Integer.valueOf(0xFF000000), Integer.valueOf(0xFF000000),

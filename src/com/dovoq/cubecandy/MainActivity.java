@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -43,7 +42,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ViewFlipper;
 
-import com.dovoq.cubecandy.fragments.EditFragment;
+import com.dovoq.cubecandy.fragments.PlusEditor;
 import com.dovoq.cubecandy.tmp.HttpHelper;
 import com.dovoq.cubecandy.tmp.OverlayManager;
 import com.dovoq.cubecandy.util.BitmapUtils;
@@ -77,7 +76,7 @@ public class MainActivity extends MyActivity implements
 	private final static int LOAD_CAMERA = 4242;
 
 	private OverlayManager OM;
-	private EditFragment mEditFragment;
+	private PlusEditor mEditFragment;
 	private EditText mEditText;
 	private CheckBox mCheckBox;
 
@@ -98,13 +97,11 @@ public class MainActivity extends MyActivity implements
 	private float mLastZ;
 	private boolean deleteNotified = false;
 
-	public Rect mRect;
-
 	public void init() {
 		setContentView(R.layout.activity_main);
 		OM = new OverlayManager(this);
-		mEditFragment = new EditFragment();
-		mEditFragment.setBitmap(OM);
+		mEditFragment = new PlusEditor();
+		// mEditFragment.setBitmap(OM);
 		getSupportFragmentManager().beginTransaction()
 				.add(R.id.fragment_container, mEditFragment).commit();
 		mEditText = (EditText) findViewById(R.id.input_text);
@@ -119,7 +116,7 @@ public class MainActivity extends MyActivity implements
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
 				OM.inputString(s);
-				mEditFragment.setBitmap(OM);
+				// mEditFragment.setBitmap(OM);
 			}
 
 			@Override
@@ -229,12 +226,13 @@ public class MainActivity extends MyActivity implements
 					String fn = data.getStringExtra("filename");
 					FileInputStream is;
 					try {
-						mEditFragment.recycleBitmap();
-						OM.recyclePhoto();
+						// mEditFragment.recycleBitmap();
+						// OM.recyclePhoto();
 						is = openFileInput(fn);
 						Bitmap bmp = BitmapFactory.decodeStream(is);
-						OM.setPhoto(bmp);
-						mEditFragment.setBitmap(OM);
+						// OM.setPhoto(bmp);
+						// mEditFragment.setBitmap(OM);
+						mEditFragment.setImage(bmp);
 					} catch (FileNotFoundException e) {
 					}
 				}
@@ -250,12 +248,12 @@ public class MainActivity extends MyActivity implements
 
 	public void font(final View v) {
 		OM.toggleTF();
-		mEditFragment.setBitmap(OM);
+		// mEditFragment.setBitmap(OM);
 	}
 
 	public void background(final View v) {
 		OM.toggleBG();
-		mEditFragment.setBitmap(OM);
+		// mEditFragment.setBitmap(OM);
 	}
 
 	public void loadPhoto(final View v) {
@@ -402,7 +400,7 @@ public class MainActivity extends MyActivity implements
 												final int which) {
 											mEditText.setText("");
 											OM.reset();
-											mEditFragment.setBitmap(OM);
+											mEditFragment.setImage(null);
 											deleteNotified = false;
 										}
 									})

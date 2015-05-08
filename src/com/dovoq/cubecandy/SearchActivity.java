@@ -7,10 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -24,16 +24,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.dovoq.cubecandy.fragments.SearchMultipleFragment;
-import com.dovoq.cubecandy.fragments.SearchSingleFragment;
-import com.dovoq.cubecandy.tmp.OverlayManager;
+import com.dovoq.cubecandy.fragments.CardDetail;
 import com.dovoq.cubecandy.util.CropUtils;
-import com.google.common.base.Objects;
 
 public class SearchActivity extends MyActivity implements Constants {
 	public Context self;
@@ -41,118 +37,13 @@ public class SearchActivity extends MyActivity implements Constants {
 	public String folderName;
 	private String subFolderName;
 	private int flagShareFolder = 0;
-	private Fragment prevFragment = null;
-	private SearchSingleFragment singleFragment = null;
-	private SearchMultipleFragment multipleFragment = null;
-	private String prevSearchString = null;
+
+	private CardDetail singleFragment;
 
 	private EditText mEditText;
 	private Button mShareButton;
 
-	public class QueryZIPFilesTask extends AsyncTask<String, Integer, String> {
-		public String doInBackground(String... info) {
-			String url = MEDIA_URL + "/" + info[0];
-			DefaultHttpClient client = new DefaultHttpClient();
-			HttpGet get = new HttpGet(url);
-			HttpResponse response;
-			String ret = null;
-			try {
-				response = client.execute(get);
-				if (response.getStatusLine().getStatusCode() == 200) {
-					File zipFolder = new File(folderName,
-							FilenameUtils.getBaseName(url));
-					zipFolder.mkdirs();
-					unpackZip(zipFolder.getAbsolutePath(), response.getEntity()
-							.getContent());
-					logi("QueryZIPFilesTask got zip file");
-				} else {
-					logi("http response: "
-							+ Integer.valueOf(response.getStatusLine()
-									.getStatusCode()));
-				}
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return ret;
-		}
-
-		public void onProgressUpdate(final Integer... progress) {
-		}
-
-		public void onPostExecute(final String fn) {
-			if (fn != null) {
-				File zipFolder = new File(folderName + fn + "/");
-				if (zipFolder.exists()) {
-					if (singleFragment != null) {
-						singleFragment.recycleBitmap();
-						singleFragment = null;
-					}
-					if (multipleFragment != null) {
-						multipleFragment.recycleBitmap();
-						multipleFragment = null;
-					}
-
-					if (prevFragment != null) {
-						getSupportFragmentManager().beginTransaction()
-								.remove(prevFragment).commit();
-					}
-					multipleFragment = new SearchMultipleFragment();
-					multipleFragment.mContext = self;
-					multipleFragment.setBitmap(folderName + fn + "/");
-					getSupportFragmentManager().beginTransaction()
-							.add(R.id.fragment_container, multipleFragment)
-							.commit();
-					prevFragment = multipleFragment;
-					mShareButton.setEnabled(true);
-					flagShareFolder = 1;
-					subFolderName = fn;
-				} else {
-					mShareButton.setEnabled(false);
-					new AlertDialog.Builder(self)
-							.setTitle("错误")
-							.setMessage("图片未找到")
-							.setNeutralButton(android.R.string.ok,
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												final DialogInterface dialog,
-												final int which) {
-										}
-									})
-							.setIcon(android.R.drawable.ic_dialog_alert).show();
-				}
-			} else {
-				if (singleFragment != null) {
-					singleFragment.recycleBitmap();
-					singleFragment = null;
-				}
-				if (multipleFragment != null) {
-					multipleFragment.recycleBitmap();
-					multipleFragment = null;
-				}
-				if (prevFragment != null) {
-					getSupportFragmentManager().beginTransaction()
-							.remove(prevFragment).commit();
-					prevFragment = null;
-				}
-				mShareButton.setEnabled(false);
-				new AlertDialog.Builder(self)
-						.setTitle("错误")
-						.setMessage("图片未找到")
-						.setNeutralButton(android.R.string.ok,
-								new DialogInterface.OnClickListener() {
-									public void onClick(
-											final DialogInterface dialog,
-											final int which) {
-									}
-								}).setIcon(android.R.drawable.ic_dialog_alert)
-						.show();
-			}
-		}
-	}
+	// unpackZip(zipFolder.getAbsolutePath(),response.getEntity().getContent());
 
 	public class QueryJPGFilesTask extends AsyncTask<String, Integer, Bitmap> {
 
@@ -187,21 +78,7 @@ public class SearchActivity extends MyActivity implements Constants {
 		}
 
 		public void onPostExecute(final Bitmap b) {
-			if (Objects.equal(b, null)) {
-				if (singleFragment != null) {
-					singleFragment.recycleBitmap();
-					singleFragment = null;
-				}
-				if (multipleFragment != null) {
-					multipleFragment.recycleBitmap();
-					multipleFragment = null;
-				}
-				if (prevFragment != null) {
-					getSupportFragmentManager().beginTransaction()
-							.remove(prevFragment).commit();
-					prevFragment = null;
-				}
-				mShareButton.setEnabled(false);
+			if (b == null) {
 				new AlertDialog.Builder(self)
 						.setTitle("错误")
 						.setMessage("图片未找到")
@@ -214,24 +91,7 @@ public class SearchActivity extends MyActivity implements Constants {
 								}).setIcon(android.R.drawable.ic_dialog_alert)
 						.show();
 			} else {
-				if (singleFragment != null) {
-					singleFragment.recycleBitmap();
-					singleFragment = null;
-				}
-				if (multipleFragment != null) {
-					multipleFragment.recycleBitmap();
-					multipleFragment = null;
-				}
-
-				if (prevFragment != null) {
-					getSupportFragmentManager().beginTransaction()
-							.remove(prevFragment).commit();
-				}
-				singleFragment = new SearchSingleFragment();
-				singleFragment.setBitmap(b);
-				getSupportFragmentManager().beginTransaction()
-						.add(R.id.fragment_container, singleFragment).commit();
-				prevFragment = singleFragment;
+				singleFragment.setImage(b);
 				sharedBitmap = b.copy(Bitmap.Config.ARGB_8888, true);
 				mShareButton.setEnabled(true);
 				flagShareFolder = 0;
@@ -243,28 +103,26 @@ public class SearchActivity extends MyActivity implements Constants {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
-		singleFragment = new SearchSingleFragment();
-		multipleFragment = new SearchMultipleFragment();
-		multipleFragment.mContext = this;
-		self = this;
-		prevFragment = null;
+		singleFragment = new CardDetail();
+		getSupportFragmentManager().beginTransaction()
+				.add(R.id.fragment_container, singleFragment).commit();
 		mEditText = (EditText) findViewById(R.id.input_text);
 		mShareButton = (Button) findViewById(R.id.repost);
 	}
 
-	private boolean isNumeric(final String str) {
+	private boolean isNumeric(String string) {
 		try {
-			long t = Long.parseLong(str);
-		} catch (NumberFormatException nfe) {
+			long t = Long.valueOf(string);
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
 	}
 
 	public void search(View view) {
-		String prefix = mEditText.getText().toString().substring(0, 1);
-		String input = mEditText.getText().toString().substring(1);
-		if (input.length() != 10 || isNumeric(input) == false) {
+		mShareButton.setEnabled(false);
+		String id = mEditText.getText().toString().toLowerCase(Locale.ENGLISH);
+		if (id.length() < 8 || !isNumeric(id.substring(1))) {
 			new AlertDialog.Builder(this)
 					.setTitle("错误")
 					.setMessage("ID格式错误")
@@ -276,33 +134,9 @@ public class SearchActivity extends MyActivity implements Constants {
 								}
 							}).setIcon(android.R.drawable.ic_dialog_alert)
 					.show();
-			return;
-		}
-		if (prevSearchString == null
-				|| !prevSearchString.equals(mEditText.getText().toString())) {
-			if (singleFragment != null) {
-				singleFragment.recycleBitmap();
-				singleFragment = null;
-			}
-			if (multipleFragment != null) {
-				multipleFragment.recycleBitmap();
-				multipleFragment = null;
-			}
-			if (prevFragment != null) {
-				getSupportFragmentManager().beginTransaction()
-						.remove(prevFragment).commit();
-				prevFragment = null;
-			}
-			prevSearchString = new String(mEditText.getText().toString());
-			input = input.substring(0, (input.length() - 3));
-			String id = mEditText.getText().toString();
-			if (prefix.equals("a")) {
-				new QueryJPGFilesTask().execute(CropUtils.generatePath(id)
-						+ ".jpg");
-			} else if (prefix.equals("z")) {
-				new QueryZIPFilesTask().execute(CropUtils.generatePath(id)
-						+ ".zip");
-			}
+		} else {
+			new QueryJPGFilesTask()
+					.execute(CropUtils.generatePath(id) + ".jpg");
 		}
 	}
 
