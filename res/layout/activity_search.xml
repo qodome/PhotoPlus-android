@@ -15,16 +15,15 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:hint="请输入要转发的图片ID"
-            android:text="" />
+            android:hint="@string/search_hint" />
 
         <Button
             android:id="@id/search"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="right"
+            android:gravity="end"
             android:onClick="search"
-            android:text="搜索" />
+            android:text="@android:string/search_go" />
     </LinearLayout>
 
     <LinearLayout
@@ -47,12 +46,11 @@
             android:gravity="left" />
 
         <Button
-            android:id="@id/share"
+            android:id="@id/repost"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:onClick="share"
-            android:text="分享"
-            android:visibility="gone" />
+            android:onClick="repost"
+            android:text="@string/repost" />
 
         <TextView
             android:layout_width="wrap_content"

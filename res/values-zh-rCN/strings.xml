@@ -2,5 +2,26 @@
 <resources>
 
     <string name="app_name">格格</string>
+    <string name="me">我</string>
+    <string name="profile">个人信息</string>
+    <string name="repost">转发</string>
+    <!-- Tips -->
+    <string name="tip0">写点什么，还可以试试空格</string>
+    <string name="tip1">摇一摇手机清除已编辑内容</string>
+    <!-- OP -->
+    <string name="open_0">我们是小清新的朋友圈</string>
+    <string name="open_1">我们是自拍狂的朋友圈</string>
+    <string name="open_2">我们是表达帝的朋友圈</string>
+    <string name="open_3">非战斗人员请调小音量 !</string>
+    <string name="open_4">想怎么玩, 就怎么玩 !\n刷爆朋友圈 !</string>
+    <!--  -->
+    <string name="photo_mode">九宫</string>
+    <string name="plus_mode">九图</string>
+    <!--  -->
+    <string name="generate_template">生成模版</string>
+    <string name="not_currently_id">不正确的id</string>
+    <string name="not_exists">图片不存在或已被删除</string>
+    <string name="upload_and_allow_repost">上传并允许转发</string>
+    <string name="search_hint">请输入要转发的图片id</string>
 
 </resources>

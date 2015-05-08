@@ -17,17 +17,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,12 +35,11 @@ import com.dovoq.cubecandy.tmp.OverlayManager;
 import com.dovoq.cubecandy.util.CropUtils;
 import com.google.common.base.Objects;
 
-public class SearchActivity extends FragmentActivity implements Constants {
+public class SearchActivity extends MyActivity implements Constants {
 	public Context self;
 	private Bitmap sharedBitmap;
 	public String folderName;
 	private String subFolderName;
-	private OverlayManager om;
 	private int flagShareFolder = 0;
 	private Fragment prevFragment = null;
 	private SearchSingleFragment singleFragment = null;
@@ -243,7 +239,20 @@ public class SearchActivity extends FragmentActivity implements Constants {
 		}
 	}
 
-	public boolean isNumeric(final String str) {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_search);
+		singleFragment = new SearchSingleFragment();
+		multipleFragment = new SearchMultipleFragment();
+		multipleFragment.mContext = this;
+		self = this;
+		prevFragment = null;
+		mEditText = (EditText) findViewById(R.id.input_text);
+		mShareButton = (Button) findViewById(R.id.repost);
+	}
+
+	private boolean isNumeric(final String str) {
 		try {
 			long t = Long.parseLong(str);
 		} catch (NumberFormatException nfe) {
@@ -252,7 +261,7 @@ public class SearchActivity extends FragmentActivity implements Constants {
 		return true;
 	}
 
-	public void search(final View v) {
+	public void search(View view) {
 		String prefix = mEditText.getText().toString().substring(0, 1);
 		String input = mEditText.getText().toString().substring(1);
 		if (input.length() != 10 || isNumeric(input) == false) {
@@ -286,7 +295,6 @@ public class SearchActivity extends FragmentActivity implements Constants {
 			}
 			prevSearchString = new String(mEditText.getText().toString());
 			input = input.substring(0, (input.length() - 3));
-			String folder = String.valueOf((Integer.parseInt(input) / 864000));
 			String id = mEditText.getText().toString();
 			if (prefix.equals("a")) {
 				new QueryJPGFilesTask().execute(CropUtils.generatePath(id)
@@ -306,7 +314,6 @@ public class SearchActivity extends FragmentActivity implements Constants {
 			ZipEntry ze;
 			byte[] buffer = new byte[1024];
 			int count;
-
 			while ((ze = zis.getNextEntry()) != null) {
 				filename = ze.getName();
 
@@ -333,23 +340,15 @@ public class SearchActivity extends FragmentActivity implements Constants {
 		return true;
 	}
 
-	public void share(final View v) {
-		if (flagShareFolder == 0) {
-			om = new OverlayManager(this);
-			om.dumpSearchResultToFile(sharedBitmap);
-		}
-		Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-		intent.setType("image/*");
-		ComponentName comp = new ComponentName("com.tencent.mm",
-				"com.tencent.mm.ui.tools.ShareToTimeLineUI");
-		intent.setComponent(comp);
+	public void repost(View view) {
+		Bitmap bg0 = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg0);
+		Bitmap bg8 = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg8);
 		ArrayList<Uri> uris = new ArrayList<>();
 		if (flagShareFolder == 0) {
-			for (File file : TEMPORARY_DIRECTORY.listFiles()) {
-				if (!file.isHidden() && file.getName().endsWith(".jpg")) {
-					uris.add(Uri.fromFile(file));
-				}
-			}
+			uris = CropUtils.getImages(sharedBitmap, 3, bg0, bg8,
+					getResources());
 		} else {
 			File zipFolder = new File(folderName + subFolderName + "/");
 			if (zipFolder.exists()) {
@@ -358,21 +357,6 @@ public class SearchActivity extends FragmentActivity implements Constants {
 				}
 			}
 		}
-		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-		startActivity(intent);
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_search);
-		singleFragment = new SearchSingleFragment();
-		multipleFragment = new SearchMultipleFragment();
-		multipleFragment.mContext = this;
-		self = this;
-		prevFragment = null;
-		mEditText = (EditText) findViewById(R.id.input_text);
-		mShareButton = (Button) findViewById(R.id.share);
-		mShareButton.setVisibility(View.VISIBLE);
+		startShareActivity(uris);
 	}
 }

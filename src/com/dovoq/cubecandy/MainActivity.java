@@ -13,7 +13,6 @@ import java.util.List;
 import org.json.JSONException;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,7 +31,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.GestureDetector;
@@ -51,8 +49,9 @@ import com.dovoq.cubecandy.tmp.OverlayManager;
 import com.dovoq.cubecandy.util.BitmapUtils;
 import com.dovoq.cubecandy.util.CropUtils;
 import com.dovoq.cubecandy.util.ViewUtils;
+import com.google.zxing.BarcodeFormat;
 
-public class MainActivity extends FragmentActivity implements
+public class MainActivity extends MyActivity implements
 		GestureDetector.OnGestureListener, SensorEventListener, Constants {
 	public static class UploadFilesTask extends
 			AsyncTask<String, Integer, Long> {
@@ -150,7 +149,6 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		mSensorManager = (SensorManager) (getSystemService(SENSOR_SERVICE));
 		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(this, mSensor,
@@ -238,8 +236,6 @@ public class MainActivity extends FragmentActivity implements
 						OM.setPhoto(bmp);
 						mEditFragment.setBitmap(OM);
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 				}
 				break;
@@ -288,12 +284,16 @@ public class MainActivity extends FragmentActivity implements
 		ArrayList<Uri> uris;
 		if (repost) { // 加id并上传
 			String id = CropUtils.generateId("a");
-			card = BitmapUtils.addText(card, "转发ID: " + id);
+			card = BitmapUtils.addText(card, "转发 ID: " + id);
+			Bitmap code = CropUtils.getQRCode(id, BarcodeFormat.QR_CODE, 128,
+					128);
+			card = BitmapUtils.merge(getResources(), card, code, 32,
+					card.getHeight() - 160, 128, 128);
 			FileOutputStream out;
 			try {
 				out = new FileOutputStream(new File(TEMPORARY_DIRECTORY, id
 						+ ".jpg"));
-				card.compress(Bitmap.CompressFormat.JPEG, 100, out);
+				card.compress(Bitmap.CompressFormat.JPEG, 60, out);
 				out.close();
 			} catch (IOException e) {
 			}
@@ -304,13 +304,7 @@ public class MainActivity extends FragmentActivity implements
 		} else {
 			uris = CropUtils.getImages(card, 3, bg, bg, getResources());
 		}
-		Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-		intent.setType("image/*");
-		ComponentName comp = new ComponentName("com.tencent.mm",
-				"com.tencent.mm.ui.tools.ShareToTimeLineUI");
-		intent.setComponent(comp);
-		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-		startActivity(intent);
+		startShareActivity(uris);
 	}
 
 	public void search(final View v) {
