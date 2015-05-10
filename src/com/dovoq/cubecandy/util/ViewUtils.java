@@ -2,19 +2,26 @@ package com.dovoq.cubecandy.util;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.view.View;
 
 public class ViewUtils {
 
-	public static Bitmap getSnapshot(Activity activity, Rect rect) {
-		View view = activity.getWindow().getDecorView();
+	public static Bitmap getSnapshot(View view) {
+		Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),
+				Config.ARGB_8888);
+		view.draw(new Canvas(bitmap));
+		return bitmap;
+	}
+
+	public static Bitmap getScreenshot(Activity activity) {
+		View view = activity.getWindow().getDecorView().getRootView();
 		view.setDrawingCacheEnabled(true);
-		Bitmap screen = view.getDrawingCache();
-		Rect frame = new Rect();
-		activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
-		return Bitmap.createBitmap(screen, rect.left, rect.top, rect.width(),
-				rect.height());
+		Bitmap bitmap = view.getDrawingCache();
+		// view.setDrawingCacheEnabled(false);
+		return Bitmap.createBitmap(bitmap);
 	}
 
 	public static Rect getFrame(View view) {

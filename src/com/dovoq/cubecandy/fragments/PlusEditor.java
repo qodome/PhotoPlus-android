@@ -38,6 +38,7 @@ import com.dovoq.cubecandy.SearchActivity;
 import com.dovoq.cubecandy.util.BitmapUtils;
 import com.dovoq.cubecandy.util.HttpUtils;
 import com.dovoq.cubecandy.util.ViewUtils;
+import com.dovoq.cubecandy.widget.CanvasView;
 import com.google.zxing.BarcodeFormat;
 
 public class PlusEditor extends BaseEditor {
@@ -48,6 +49,8 @@ public class PlusEditor extends BaseEditor {
 	private int mTileIndex;
 	// 可用Long.parseLong()转换0x类型的color
 
+	@InjectView(R.id.my_canvas)
+	CanvasView mCanvasView;
 	@InjectView(android.R.id.input)
 	EditText mEditText;
 	@InjectView(R.id.grid)
@@ -160,7 +163,7 @@ public class PlusEditor extends BaseEditor {
 		int width = 480;
 		int height = bgImage.getHeight() * width / bgImage.getWidth();
 		Bitmap card = Bitmap.createScaledBitmap(bgImage, width, height, false); // 需要分享的卡片
-		Bitmap content = ViewUtils.getSnapshot(getActivity(), mRect);
+		Bitmap content = ViewUtils.getSnapshot(mCanvasView);
 		card = BitmapUtils.merge(getResources(), card, content, 0,
 				(height - width) / 2, width, width);
 		Bitmap bg = BitmapFactory.decodeResource(getResources(), R.drawable.bg);

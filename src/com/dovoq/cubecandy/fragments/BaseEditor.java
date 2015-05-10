@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,13 +23,11 @@ import android.widget.ImageView;
 
 import com.dovoq.cubecandy.CropActivity;
 import com.dovoq.cubecandy.R;
-import com.dovoq.cubecandy.util.ViewUtils;
 
 public abstract class BaseEditor extends MyFragment {
 	protected ImageView mPhoto;
 	protected CheckBox mCheckBox;
 
-	protected Rect mRect;
 	protected SharedPreferences mPreferences;
 
 	@Override
@@ -79,7 +76,6 @@ public abstract class BaseEditor extends MyFragment {
 						is = getActivity().openFileInput(fn);
 						Bitmap bitmap = BitmapFactory.decodeStream(is);
 						mPhoto.setImageBitmap(bitmap);
-						mRect = ViewUtils.getFrame(mPhoto);
 					} catch (FileNotFoundException e) {
 					}
 				}
