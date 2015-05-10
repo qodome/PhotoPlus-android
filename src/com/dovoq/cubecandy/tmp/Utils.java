@@ -7,14 +7,6 @@ import javax.microedition.khronos.egl.EGLDisplay;
 
 public class Utils {
 
-	public static int[] getIntArray(int size) {
-		return new int[size];
-	}
-
-	public static int getMaskedValue(int i, int mask) {
-		return i & mask;
-	}
-
 	public static int getMaximumTextureSize() {
 		EGL10 egl = (EGL10) EGLContext.getEGL();
 		EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);

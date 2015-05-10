@@ -4,6 +4,7 @@ import static com.dovoq.cubecandy.util.CropUtils.generateId;
 import static com.dovoq.cubecandy.util.CropUtils.generatePath;
 import static com.dovoq.cubecandy.util.CropUtils.getImages;
 import static com.dovoq.cubecandy.util.CropUtils.getQRCode;
+import static com.dovoq.cubecandy.util.FileUtils.listAssets;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,27 +39,29 @@ import com.dovoq.cubecandy.util.BitmapUtils;
 import com.dovoq.cubecandy.util.HttpUtils;
 import com.dovoq.cubecandy.util.ViewUtils;
 import com.google.zxing.BarcodeFormat;
-import com.nyssance.android.util.LogUtils;
 
 public class PlusEditor extends BaseEditor {
-	private float mFontSize = 40;
-	private ArrayList<Typeface> mFonts = new ArrayList<Typeface>();
-	private ArrayList<Integer> mTiles = new ArrayList<Integer>();
+	private float mFontSize = 30;
+	private ArrayList<Typeface> mFonts = new ArrayList<>();
+	private ArrayList<String> mTiles = new ArrayList<>();
 	private int mFontIndex;
 	private int mTileIndex;
+	// 可用Long.parseLong()转换0x类型的color
 
 	@InjectView(android.R.id.input)
 	EditText mEditText;
 	@InjectView(R.id.grid)
 	GridLayout mGridLayout;
-	private ArrayList<TextView> mLabels;
+	private ArrayList<TextView> mLabels = new ArrayList<>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mFonts.add(Typeface.DEFAULT);
-		// mFonts.add(Typeface.createFromAsset(getActivity().getAssets(),
-		// "fonts/hkwwt.TTF"));
+		for (String s : listAssets(getActivity(), "fonts")) {
+			mFonts.add(Typeface.createFromAsset(getActivity().getAssets(), s));
+		}
+		mTiles = listAssets(getActivity(), "tiles");
 	}
 
 	@Nullable
@@ -82,8 +86,7 @@ public class PlusEditor extends BaseEditor {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
-				// OM.inputString(s);
-				// mEditFragment.setBitmap(OM);
+				changeText(mEditText.getText().toString());
 			}
 
 			@Override
@@ -92,10 +95,10 @@ public class PlusEditor extends BaseEditor {
 		});
 		for (int i = 0; i < 9; i++) {
 			TextView tv = (TextView) mGridLayout.getChildAt(i);
-			tv.setText("" + i);
 			tv.setTextColor(getResources().getColor(android.R.color.black));
 			tv.setTypeface(mFonts.get(mFontIndex));
 			tv.setTextSize(mFontSize);
+			mLabels.add(tv);
 		}
 	}
 
@@ -112,13 +115,16 @@ public class PlusEditor extends BaseEditor {
 	}
 
 	private void changeText(String string) {
+		String path = mTiles.get(mTileIndex);
+		BitmapDrawable image = new BitmapDrawable(getResources(),
+				BitmapUtils.getBitmapFromAsset(getActivity(), path));
 		for (TextView label : mLabels) { // 初始化所有Label
 			label.setBackgroundColor(getResources().getColor(
 					android.R.color.transparent));
 			label.setText(null);
 		}
 		Typeface font = mFonts.get(mFontIndex);
-		for (int i = 0; i < Math.min(36, string.length()); i++) {
+		for (int i = 0; i < Math.min(9, string.length()); i++) {
 			int j = i;
 			TextView label = mLabels.get(j);
 			label.setTypeface(font);
@@ -126,7 +132,7 @@ public class PlusEditor extends BaseEditor {
 			label.setText(string.subSequence(i, i + 1));
 			// label.setTextColor();
 			if (string.subSequence(i, i + 1) != " ") {
-				// label.setBackground(getResources().getDrawable(id, theme));
+				label.setBackgroundDrawable(image);
 			}
 		}
 	}
@@ -158,7 +164,6 @@ public class PlusEditor extends BaseEditor {
 				R.drawable.bg8);
 		ArrayList<Uri> uris;
 		if (repost) { // 加id并上传
-			LogUtils.loge("repost");
 			String id = generateId("a");
 			card = BitmapUtils.addText(card, "转发 ID: " + id);
 			Bitmap code = getQRCode(id, BarcodeFormat.QR_CODE, 128, 128);

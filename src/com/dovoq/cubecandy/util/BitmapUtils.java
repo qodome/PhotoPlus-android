@@ -1,8 +1,14 @@
 package com.dovoq.cubecandy.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -37,6 +43,15 @@ public class BitmapUtils {
 		paint.setTextSize(22);
 		paint.setShadowLayer(1, 0, 1, Color.TRANSPARENT);
 		canvas.drawText(id, 216, 692, paint); // 217 712
+		return bitmap;
+	}
+
+	public static Bitmap getBitmapFromAsset(Context context, String path) {
+		Bitmap bitmap = null;
+		try {
+			bitmap = BitmapFactory.decodeStream(context.getAssets().open(path));
+		} catch (IOException e) {
+		}
 		return bitmap;
 	}
 }

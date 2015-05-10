@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -20,23 +20,26 @@
             android:id="@+id/my_action_font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:background="@drawable/text_51x51"
             android:gravity="start" />
-
-        <EditText
-            android:id="@android:id/input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="text" />
 
         <Button
             android:id="@+id/my_action_tile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:background="@drawable/color_51x51"
             android:gravity="end" />
-    </LinearLayout>
+
+        <EditText
+            android:id="@android:id/input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/my_action_tile"
+            android:layout_toRightOf="@id/my_action_font"
+            android:inputType="text" />
+    </RelativeLayout>
 
     <include
         android:layout_width="match_parent"
