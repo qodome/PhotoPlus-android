@@ -15,4 +15,9 @@ public interface Constants {
 
 	String BASE_URL = "http://" + DOMAIN;
 	String MEDIA_URL = "http://media." + DOMAIN;
+
+	int SWIPE_MIN_DISTANCE = 120;
+	int LOAD_PHOTO = 42;
+	int LOAD_CROP_VIEW = 422;
+	int LOAD_CAMERA = 4242;
 }

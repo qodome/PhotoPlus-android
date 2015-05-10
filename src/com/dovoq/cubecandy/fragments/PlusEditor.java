@@ -1,35 +1,196 @@
 package com.dovoq.cubecandy.fragments;
 
+import static com.dovoq.cubecandy.util.CropUtils.generateId;
+import static com.dovoq.cubecandy.util.CropUtils.generatePath;
+import static com.dovoq.cubecandy.util.CropUtils.getImages;
+import static com.dovoq.cubecandy.util.CropUtils.getQRCode;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 
-import com.dovoq.cubecandy.MyActivity;
 import com.dovoq.cubecandy.R;
+import com.dovoq.cubecandy.SearchActivity;
+import com.dovoq.cubecandy.util.BitmapUtils;
+import com.dovoq.cubecandy.util.HttpUtils;
 import com.dovoq.cubecandy.util.ViewUtils;
-import com.dovoq.cubecandy.widget.SquareImageView;
+import com.google.zxing.BarcodeFormat;
+import com.nyssance.android.util.LogUtils;
 
-public class PlusEditor extends Fragment {
-	private SquareImageView mPhoto;
+public class PlusEditor extends BaseEditor {
+	private float mFontSize = 40;
+	private ArrayList<Typeface> mFonts = new ArrayList<Typeface>();
+	private ArrayList<Integer> mTiles = new ArrayList<Integer>();
+	private int mFontIndex;
+	private int mTileIndex;
 
-	public void setImage(Bitmap bitmap) {
-		mPhoto.setImageBitmap(bitmap);
-		((MyActivity) getActivity()).mRect = ViewUtils.getFrame(mPhoto);
+	@InjectView(android.R.id.input)
+	EditText mEditText;
+	@InjectView(R.id.grid)
+	GridLayout mGridLayout;
+	private ArrayList<TextView> mLabels;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mFonts.add(Typeface.DEFAULT);
+		// mFonts.add(Typeface.createFromAsset(getActivity().getAssets(),
+		// "fonts/hkwwt.TTF"));
 	}
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_edit, container, false);
+		View view = inflater.inflate(R.layout.fragment_plus_editor, container,
+				false);
+		ButterKnife.inject(this, view);
+		return view;
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		mPhoto = (SquareImageView) view.findViewById(R.id.photo_grid_view);
+		super.onViewCreated(view, savedInstanceState);
+		mEditText.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// OM.inputString(s);
+				// mEditFragment.setBitmap(OM);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		});
+		for (int i = 0; i < 9; i++) {
+			TextView tv = (TextView) mGridLayout.getChildAt(i);
+			tv.setText("" + i);
+			tv.setTextColor(getResources().getColor(android.R.color.black));
+			tv.setTypeface(mFonts.get(mFontIndex));
+			tv.setTextSize(mFontSize);
+		}
+	}
+
+	@OnClick(R.id.my_action_font)
+	void changeFont() {
+		mFontIndex = (mFontIndex + 1) % mFonts.size();
+		changeText(mEditText.getText().toString());
+	}
+
+	@OnClick(R.id.my_action_tile)
+	void changeTile() {
+		mTileIndex = (mTileIndex + 1) % mTiles.size();
+		changeText(mEditText.getText().toString());
+	}
+
+	private void changeText(String string) {
+		for (TextView label : mLabels) { // 初始化所有Label
+			label.setBackgroundColor(getResources().getColor(
+					android.R.color.transparent));
+			label.setText(null);
+		}
+		Typeface font = mFonts.get(mFontIndex);
+		for (int i = 0; i < Math.min(36, string.length()); i++) {
+			int j = i;
+			TextView label = mLabels.get(j);
+			label.setTypeface(font);
+			label.setTextSize(mFontSize);
+			label.setText(string.subSequence(i, i + 1));
+			// label.setTextColor();
+			if (string.subSequence(i, i + 1) != " ") {
+				// label.setBackground(getResources().getDrawable(id, theme));
+			}
+		}
+	}
+
+	@OnClick(R.id.action_item_open)
+	void selectPhoto(View view) { // 选单张照片
+		Intent intent = new Intent(
+				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Intent.ACTION_OPEN_DOCUMENT
+						: Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		startActivityForResult(intent, LOAD_PHOTO);
+	}
+
+	@OnClick(R.id.action_item_share)
+	void share(View view) {
+		Boolean repost = mPreferences.getBoolean("repost", false);
+		Bitmap bgImage = BitmapFactory.decodeResource(getResources(),
+				repost ? R.drawable.bg1 : R.drawable.bg);
+		int width = 480;
+		int height = bgImage.getHeight() * width / bgImage.getWidth();
+		Bitmap card = Bitmap.createScaledBitmap(bgImage, width, height, false); // 需要分享的卡片
+		Bitmap content = ViewUtils.getSnapshot(getActivity(), mRect);
+		card = BitmapUtils.merge(getResources(), card, content, 0,
+				(height - width) / 2, width, width);
+		Bitmap bg = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
+		Bitmap bg0 = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg0);
+		Bitmap bg8 = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg8);
+		ArrayList<Uri> uris;
+		if (repost) { // 加id并上传
+			LogUtils.loge("repost");
+			String id = generateId("a");
+			card = BitmapUtils.addText(card, "转发 ID: " + id);
+			Bitmap code = getQRCode(id, BarcodeFormat.QR_CODE, 128, 128);
+			card = BitmapUtils.merge(getResources(), card, code, 32,
+					card.getHeight() - 160, 128, 128);
+			FileOutputStream out;
+			try {
+				out = new FileOutputStream(new File(TEMPORARY_DIRECTORY, id
+						+ ".jpg"));
+				card.compress(Bitmap.CompressFormat.JPEG, 60, out);
+				out.close();
+			} catch (IOException e) {
+			}
+			new HttpUtils.UploadFilesTask().execute(
+					TEMPORARY_DIRECTORY.getAbsolutePath(), generatePath(id
+							+ ".jpg"));
+			uris = getImages(card, 3, bg0, bg8, getResources());
+		} else {
+			uris = getImages(card, 3, bg, bg, getResources());
+		}
+		startShareActivity(uris);
+	}
+
+	@OnClick(R.id.action_search)
+	void search(View view) {
+		startActivity(new Intent(getActivity(), SearchActivity.class));
+	}
+
+	protected void camera(View view) {
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+				Uri.fromFile(new File(TEMPORARY_DIRECTORY, "capture.jpg")));
+		startActivityForResult(takePictureIntent, LOAD_CAMERA);
 	}
 }

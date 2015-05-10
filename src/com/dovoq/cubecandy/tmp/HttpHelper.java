@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import com.dovoq.cubecandy.Constants;
 import com.google.common.io.ByteStreams;
+import com.nyssance.android.util.LogUtils;
 
 public class HttpHelper implements Constants {
 	private final static String BOUNDARY = "Boundary+A789798EA789798E";
@@ -38,11 +39,15 @@ public class HttpHelper implements Constants {
 
 	public static void upload(String dir, String path)
 			throws ClientProtocolException, IOException, JSONException {
+		LogUtils.loge("repost b");
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet get = new HttpGet(BASE_URL + "/upload_params/s3/?filename="
 				+ path);
+		LogUtils.loge("repost c");
 		get.setHeader("Authorization", "Token " + DEFAULT_TOKEN);
+		LogUtils.loge("repost d");
 		HttpResponse response = client.execute(get);
+		LogUtils.loge(response.toString());
 		if (response.getStatusLine().getStatusCode() == 200) {
 			BufferedReader r = new BufferedReader(new InputStreamReader(
 					response.getEntity().getContent()));
@@ -56,6 +61,7 @@ public class HttpHelper implements Constants {
 
 			@SuppressWarnings("unchecked")
 			Iterator<String> iter = jsonObj.keys();
+			LogUtils.loge("repost0");
 			while (iter.hasNext()) {
 				String key = iter.next();
 				try {
@@ -74,6 +80,7 @@ public class HttpHelper implements Constants {
 			HttpURLConnection conn = null;
 			URL url;
 			DataOutputStream dataOS;
+			LogUtils.loge("repost11");
 			try {
 				url = new URL(MEDIA_URL);
 				conn = (HttpURLConnection) url.openConnection();
@@ -86,11 +93,12 @@ public class HttpHelper implements Constants {
 						("multipart/form-data; boundary=" + HttpHelper.BOUNDARY));
 				dataOS = new DataOutputStream(conn.getOutputStream());
 				dataOS.writeBytes(HttpHelper.requestBody.toString());
-
+				LogUtils.loge("repost2");
 				File fn = new File(dir, FilenameUtils.getName(path));
 				if (!fn.exists()) {
 					return;
 				}
+				LogUtils.loge("repost3");
 				byte[] bytes;
 				bytes = ByteStreams.toByteArray(new BufferedInputStream(
 						new FileInputStream(fn)));

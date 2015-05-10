@@ -114,16 +114,16 @@ public class OverlayManager implements Constants {
 		textMapDefault = Bitmap.createBitmap(gridArray, bg.get(0).getWidth(),
 				bg.get(0).getHeight(), Bitmap.Config.ARGB_8888).copy(
 				Bitmap.Config.ARGB_8888, true);
-		textTF = new Typeface[] {
-				Typeface.DEFAULT,
-				Typeface.createFromAsset(mActivity.getAssets(),
-						"fonts/hkwwt.TTF"),
-				Typeface.createFromAsset(mActivity.getAssets(), "fonts/xjl.ttf"),
-				Typeface.createFromAsset(mActivity.getAssets(),
-						"fonts/whxw.ttf"),
-				Typeface.createFromAsset(mActivity.getAssets(),
-						"fonts/fzjt.TTF"),
-				Typeface.createFromAsset(mActivity.getAssets(), "fonts/ys.otf") };
+		// textTF = new Typeface[] {
+		// Typeface.DEFAULT,
+		// Typeface.createFromAsset(mActivity.getAssets(),
+		// "fonts/hkwwt.TTF"),
+		// Typeface.createFromAsset(mActivity.getAssets(), "fonts/xjl.ttf"),
+		// Typeface.createFromAsset(mActivity.getAssets(),
+		// "fonts/whxw.ttf"),
+		// Typeface.createFromAsset(mActivity.getAssets(),
+		// "fonts/fzjt.TTF"),
+		// Typeface.createFromAsset(mActivity.getAssets(), "fonts/ys.otf") };
 		textCS = new String("");
 		resetState = true;
 	}

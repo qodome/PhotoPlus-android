@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item name="repost" type="id"/>
+    <item name="action_item_comment" type="id"/>
+    <item name="action_item_repost" type="id"/>
     <!--  -->
 
 </resources>
