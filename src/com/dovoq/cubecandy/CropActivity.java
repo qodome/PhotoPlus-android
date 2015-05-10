@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,7 +19,6 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-import com.dovoq.cubecandy.tmp.Utils;
 import com.edmodo.cropper.CropImageView;
 
 public class CropActivity extends FragmentActivity {
@@ -36,7 +40,7 @@ public class CropActivity extends FragmentActivity {
 					Uri.parse(getIntent().getStringExtra("BitmapImage")));
 			Bitmap scaledBitmap = null;
 			int width = 0, height = 0;
-			int sizeLimit = Utils.getMaximumTextureSize() / 2;
+			int sizeLimit = getMaximumTextureSize() / 2;
 			if (b.getWidth() > sizeLimit || b.getHeight() > sizeLimit) {
 				if (b.getWidth() > b.getHeight()) {
 					width = sizeLimit;
@@ -87,5 +91,49 @@ public class CropActivity extends FragmentActivity {
 
 	public CropImageView getCropImageView() {
 		return (CropImageView) findViewById(R.id.crop_image_view);
+	}
+
+	private int getMaximumTextureSize() {
+		EGL10 egl = (EGL10) EGLContext.getEGL();
+		EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
+
+		// Initialise
+		int[] version = new int[2];
+		egl.eglInitialize(display, version);
+
+		// Query total number of configurations
+		int[] totalConfigurations = new int[1];
+		egl.eglGetConfigs(display, null, 0, totalConfigurations);
+
+		// Query actual list configurations
+		EGLConfig[] configurationsList = new EGLConfig[totalConfigurations[0]];
+		egl.eglGetConfigs(display, configurationsList, totalConfigurations[0],
+				totalConfigurations);
+
+		int[] textureSize = new int[1];
+		int maximumTextureSize = 0;
+
+		// Iterate through all the configurations to located the maximum texture
+		// size
+		for (int i = 0; i < totalConfigurations[0]; i++) {
+			// Only need to check for width since opengl textures are always
+			// squared
+			egl.eglGetConfigAttrib(display, configurationsList[i],
+					EGL10.EGL_MAX_PBUFFER_WIDTH, textureSize);
+
+			// Keep track of the maximum texture size
+			if (maximumTextureSize < textureSize[0]) {
+				maximumTextureSize = textureSize[0];
+			}
+
+			// Log.i("GLHelper", Integer.toString(textureSize[0]));
+		}
+
+		// Release
+		egl.eglTerminate(display);
+		// Log.i("GLHelper", "Maximum GL texture size: " +
+		// Integer.toString(maximumTextureSize));
+
+		return maximumTextureSize;
 	}
 }

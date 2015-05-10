@@ -41,7 +41,7 @@ import com.dovoq.cubecandy.util.ViewUtils;
 import com.google.zxing.BarcodeFormat;
 
 public class PlusEditor extends BaseEditor {
-	private float mFontSize = 30;
+	private float mFontSize = 40;
 	private ArrayList<Typeface> mFonts = new ArrayList<>();
 	private ArrayList<String> mTiles = new ArrayList<>();
 	private int mFontIndex;
@@ -77,6 +77,8 @@ public class PlusEditor extends BaseEditor {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		// 文字输入框
+		mEditText.setHint(R.string.tip0);
 		mEditText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -116,8 +118,12 @@ public class PlusEditor extends BaseEditor {
 
 	private void changeText(String string) {
 		String path = mTiles.get(mTileIndex);
-		BitmapDrawable image = new BitmapDrawable(getResources(),
-				BitmapUtils.getBitmapFromAsset(getActivity(), path));
+		BitmapDrawable image = null;
+		try {
+			image = new BitmapDrawable(getResources(), getActivity()
+					.getAssets().open(path));
+		} catch (IOException e) {
+		}
 		for (TextView label : mLabels) { // 初始化所有Label
 			label.setBackgroundColor(getResources().getColor(
 					android.R.color.transparent));

@@ -2,14 +2,13 @@ package com.dovoq.cubecandy.fragments;
 
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
-
-import com.dovoq.cubecandy.Constants;
-
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import butterknife.ButterKnife;
+
+import com.dovoq.cubecandy.Constants;
 
 public class MyFragment extends Fragment implements Constants {
 

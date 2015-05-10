@@ -32,7 +32,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 import com.dovoq.cubecandy.R;
-import com.nyssance.android.util.LogUtils;
 
 public class CardDetail extends MyFragment {
 	private Bitmap sharedBitmap;
