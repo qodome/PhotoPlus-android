@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -46,9 +45,8 @@ public abstract class BaseEditor extends MyFragment {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
-						Editor ed = mPreferences.edit();
-						ed.putBoolean("repost", isChecked);
-						ed.commit();
+						mPreferences.edit().putBoolean("repost", isChecked)
+								.apply();
 					}
 				});
 		mCheckBox.setChecked(mPreferences.getBoolean("repost", false));

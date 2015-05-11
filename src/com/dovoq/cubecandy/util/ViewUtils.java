@@ -16,12 +16,12 @@ public class ViewUtils {
 		return bitmap;
 	}
 
+	// http://magiclen.org/android-drawingcache/ DrawingCache() 性能较差
 	public static Bitmap getScreenshot(Activity activity) {
-		View view = activity.getWindow().getDecorView().getRootView();
+		View view = activity.getWindow().getDecorView();
+		view.destroyDrawingCache(); // 不销毁的话每次都是第一次的cache
 		view.setDrawingCacheEnabled(true);
-		Bitmap bitmap = view.getDrawingCache();
-		// view.setDrawingCacheEnabled(false);
-		return Bitmap.createBitmap(bitmap);
+		return view.getDrawingCache();
 	}
 
 	public static Rect getFrame(View view) {

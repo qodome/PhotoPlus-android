@@ -11,9 +11,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.io.FilenameUtils;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -36,18 +39,17 @@ import butterknife.OnClick;
 import com.dovoq.cubecandy.R;
 import com.dovoq.cubecandy.SearchActivity;
 import com.dovoq.cubecandy.util.BitmapUtils;
-import com.dovoq.cubecandy.util.HttpUtils;
+import com.dovoq.cubecandy.util.S3Utils;
 import com.dovoq.cubecandy.util.ViewUtils;
 import com.dovoq.cubecandy.widget.CanvasView;
 import com.google.zxing.BarcodeFormat;
 
 public class PlusEditor extends BaseEditor {
-	private float mFontSize = 40;
+	private float mFontSize = 30;
 	private ArrayList<Typeface> mFonts = new ArrayList<>();
 	private ArrayList<String> mTiles = new ArrayList<>();
 	private int mFontIndex;
 	private int mTileIndex;
-	// 可用Long.parseLong()转换0x类型的color
 
 	@InjectView(R.id.my_canvas)
 	CanvasView mCanvasView;
@@ -100,7 +102,6 @@ public class PlusEditor extends BaseEditor {
 		});
 		for (int i = 0; i < 9; i++) {
 			TextView tv = (TextView) mGridLayout.getChildAt(i);
-			tv.setTextColor(getResources().getColor(android.R.color.black));
 			tv.setTypeface(mFonts.get(mFontIndex));
 			tv.setTextSize(mFontSize);
 			mLabels.add(tv);
@@ -121,16 +122,19 @@ public class PlusEditor extends BaseEditor {
 
 	private void changeText(String string) {
 		String path = mTiles.get(mTileIndex);
+		float size = mFontSize; // FIXME: 根据机型调整
 		BitmapDrawable image = null;
 		try {
 			image = new BitmapDrawable(getResources(), getActivity()
 					.getAssets().open(path));
 		} catch (IOException e) {
 		}
+		int color = Color.parseColor(String.format("#%06x", 0xFFFFFF & Long
+				.parseLong(FilenameUtils.getBaseName(path).split("_")[1], 16))); // 容错且不处理透明
 		for (TextView label : mLabels) { // 初始化所有Label
 			label.setBackgroundColor(getResources().getColor(
 					android.R.color.transparent));
-			label.setText(null);
+			label.setText("");
 		}
 		Typeface font = mFonts.get(mFontIndex);
 		for (int i = 0; i < Math.min(9, string.length()); i++) {
@@ -139,7 +143,7 @@ public class PlusEditor extends BaseEditor {
 			label.setTypeface(font);
 			label.setTextSize(mFontSize);
 			label.setText(string.subSequence(i, i + 1));
-			// label.setTextColor();
+			label.setTextColor(color);
 			if (string.subSequence(i, i + 1) != " ") {
 				label.setBackgroundDrawable(image);
 			}
@@ -186,7 +190,10 @@ public class PlusEditor extends BaseEditor {
 				out.close();
 			} catch (IOException e) {
 			}
-			new HttpUtils.UploadFilesTask().execute(
+			// new S3Utils.S3Upload(BASE_URL
+			// + "/upload_params/s3/?filename=photoplus/free/11111.jpg", 0)
+			// .execute();
+			new S3Utils.UploadFilesTask().execute(
 					TEMPORARY_DIRECTORY.getAbsolutePath(), generatePath(id
 							+ ".jpg"));
 			uris = getImages(card, 3, bg0, bg8, getResources());

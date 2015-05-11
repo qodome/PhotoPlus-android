@@ -64,9 +64,7 @@ public class MainActivity extends FragmentActivity implements Constants,
 		SharedPreferences sp = getSharedPreferences("PhotoPlusPreference",
 				MODE_PRIVATE);
 		if (sp.getBoolean("first_time_init", false)) {
-			SharedPreferences.Editor ed = sp.edit();
-			ed.putBoolean("first_time_init", false);
-			ed.commit();
+			sp.edit().putBoolean("first_time_init", false).apply();
 			loge("First time run, show welcome screens");
 			setContentView(R.layout.welcome);
 			gdt = new GestureDetector(this);
