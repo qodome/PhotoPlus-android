@@ -31,7 +31,7 @@ public class MainActivity extends BaseActivity implements Constants,
 	private GestureDetector gdt;
 	private List<String> welcomeNames;
 	private String[] welcomeNameValues = new String[] { "welcome_1",
-			"welcome_2", "welcome_3", "welcome_4", "welcome_5" };
+			"welcome_2", "welcome_3", "welcome_4" };
 	private List<Bitmap> welcomes;
 	private int welcomeIdx;
 
@@ -186,53 +186,54 @@ public class MainActivity extends BaseActivity implements Constants,
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor == mSensor) {
-			long curTime = System.currentTimeMillis();
-			if (mLastUpdate != 0 && (curTime - mLastUpdate) > 100) {
-				long diffTime = (curTime - mLastUpdate);
-				mLastUpdate = curTime;
-				float x = event.values[0];
-				float y = event.values[1];
-				float z = event.values[2];
-				if ((((Math.abs(x + y + z - mLastX - mLastY - mLastZ)
-						/ diffTime * 10000) > 1000) && (deleteNotified == false))) {
-					deleteNotified = true;
-					new AlertDialog.Builder(this)
-							.setTitle("请确认")
-							.setMessage("确认删除?")
-							.setPositiveButton(android.R.string.ok,
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												final DialogInterface dialog,
-												final int which) {
-											// mEditText.setText("");
-											// OM.reset();
-											// mEditFragment.setImage(null);
-											deleteNotified = false;
-										}
-									})
-							.setNegativeButton(android.R.string.no,
-									new DialogInterface.OnClickListener() {
-										public void onClick(
-												final DialogInterface dialog,
-												final int which) {
-											deleteNotified = false;
-										}
-									})
-							.setIcon(android.R.drawable.ic_dialog_alert)
-							.setCancelable(false).show();
-				}
-				mLastX = x;
-				mLastY = y;
-				mLastZ = z;
-			} else {
-				if ((mLastUpdate == 0)) {
-					mLastUpdate = System.currentTimeMillis();
-					mLastX = event.values[0];
-					mLastY = event.values[1];
-					mLastZ = event.values[2];
-				}
-			}
-		}
+		// 临时去掉摇一摇
+		// if (event.sensor == mSensor) {
+		// long curTime = System.currentTimeMillis();
+		// if (mLastUpdate != 0 && (curTime - mLastUpdate) > 100) {
+		// long diffTime = (curTime - mLastUpdate);
+		// mLastUpdate = curTime;
+		// float x = event.values[0];
+		// float y = event.values[1];
+		// float z = event.values[2];
+		// if ((((Math.abs(x + y + z - mLastX - mLastY - mLastZ)
+		// / diffTime * 10000) > 1000) && (deleteNotified == false))) {
+		// deleteNotified = true;
+		// new AlertDialog.Builder(this)
+		// .setTitle("请确认")
+		// .setMessage("确认删除?")
+		// .setPositiveButton(android.R.string.ok,
+		// new DialogInterface.OnClickListener() {
+		// public void onClick(
+		// final DialogInterface dialog,
+		// final int which) {
+		// // mEditText.setText("");
+		// // OM.reset();
+		// // mEditFragment.setImage(null);
+		// deleteNotified = false;
+		// }
+		// })
+		// .setNegativeButton(android.R.string.no,
+		// new DialogInterface.OnClickListener() {
+		// public void onClick(
+		// final DialogInterface dialog,
+		// final int which) {
+		// deleteNotified = false;
+		// }
+		// })
+		// .setIcon(android.R.drawable.ic_dialog_alert)
+		// .setCancelable(false).show();
+		// }
+		// mLastX = x;
+		// mLastY = y;
+		// mLastZ = z;
+		// } else {
+		// if ((mLastUpdate == 0)) {
+		// mLastUpdate = System.currentTimeMillis();
+		// mLastX = event.values[0];
+		// mLastY = event.values[1];
+		// mLastZ = event.values[2];
+		// }
+		// }
+		// }
 	}
 }

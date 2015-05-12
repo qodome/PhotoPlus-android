@@ -21,8 +21,8 @@ import com.google.zxing.common.BitMatrix;
 
 public class CropUtils implements Constants {
 	public static String generateId(String type) { // 东八时区 2015-03-01 00:00:00 起
-													// 1425168000
-		return type + (System.currentTimeMillis() - 1425139200000L);
+													// 1425139200
+		return type + (System.currentTimeMillis() - 1425168000000L);
 	}
 
 	public static String generatePath(String filename) { // 十天一个文件夹

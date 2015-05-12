@@ -45,7 +45,7 @@ import com.dovoq.cubecandy.widget.CanvasView;
 import com.google.zxing.BarcodeFormat;
 
 public class PlusEditor extends BaseEditor {
-	private float mFontSize = 30;
+	private float mFontSize = 40;
 	private ArrayList<Typeface> mFonts = new ArrayList<>();
 	private ArrayList<String> mTiles = new ArrayList<>();
 	private int mFontIndex;

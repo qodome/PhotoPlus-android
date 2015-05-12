@@ -21,6 +21,15 @@
         app:rowCount="3" >
 
         <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             android:gravity="center" />
@@ -31,6 +40,8 @@
             android:gravity="center" />
 
         <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             android:gravity="center" />
@@ -41,26 +52,29 @@
             android:gravity="center" />
 
         <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             android:gravity="center" />
 
         <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             android:gravity="center" />
 
         <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             android:gravity="center" />
 
         <TextView
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1"
-            android:gravity="center" />
-
-        <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1"
             android:gravity="center" />
