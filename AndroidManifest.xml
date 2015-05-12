@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="15"
+        android:minSdkVersion="16"
         android:targetSdkVersion="22" />
 
     <uses-feature
@@ -23,10 +23,9 @@
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.NoTitleBar" >
+        android:label="@string/app_name" >
         <activity
-            android:name="com.dovoq.cubecandy.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan" >
             <intent-filter>
@@ -36,11 +35,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.dovoq.cubecandy.SearchActivity"
-            android:screenOrientation="portrait"
+            android:name=".SearchActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.dovoq.cubecandy.CropActivity"
+            android:name=".CropActivity"
             android:screenOrientation="portrait" />
     </application>
 

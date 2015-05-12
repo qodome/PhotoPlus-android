@@ -31,8 +31,8 @@ public class S3Utils implements Constants {
 
 	public static class GetS3UploadParams extends HttpTask<UploadParams> {
 
-		public GetS3UploadParams(String url, int cachePolicy) {
-			super(url, cachePolicy);
+		public GetS3UploadParams(String url) {
+			super(url);
 		}
 
 		@Override
@@ -43,8 +43,8 @@ public class S3Utils implements Constants {
 
 	public static class S3Upload extends HttpTask<UploadParams> {
 
-		public S3Upload(String url, int cachePolicy) {
-			super(url, cachePolicy);
+		public S3Upload(String url) {
+			super(url);
 			LogUtils.loge(url);
 		}
 

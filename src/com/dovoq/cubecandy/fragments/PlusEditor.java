@@ -141,11 +141,11 @@ public class PlusEditor extends BaseEditor {
 			int j = i;
 			TextView label = mLabels.get(j);
 			label.setTypeface(font);
-			label.setTextSize(mFontSize);
+			label.setTextSize(size);
 			label.setText(string.subSequence(i, i + 1));
 			label.setTextColor(color);
 			if (string.subSequence(i, i + 1) != " ") {
-				label.setBackgroundDrawable(image);
+				label.setBackground(image);
 			}
 		}
 	}

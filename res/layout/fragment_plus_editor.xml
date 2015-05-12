@@ -18,16 +18,16 @@
 
         <Button
             android:id="@+id/my_action_font"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_alignParentLeft="true"
             android:background="@drawable/text_51x51"
             android:gravity="start" />
 
         <Button
             android:id="@+id/my_action_tile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/color_51x51"
             android:gravity="end" />
@@ -65,8 +65,8 @@
 
         <Button
             android:id="@id/action_item_open"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@drawable/ic_photo" />
 
         <TextView
@@ -76,8 +76,8 @@
 
         <Button
             android:id="@id/action_item_share"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@drawable/ic_share" />
 
         <TextView
@@ -87,8 +87,8 @@
 
         <Button
             android:id="@id/action_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@drawable/ic_search" />
     </LinearLayout>
 
@@ -105,8 +105,8 @@
 
         <Button
             android:id="@+id/camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@drawable/ic_camera" />
 
         <TextView
