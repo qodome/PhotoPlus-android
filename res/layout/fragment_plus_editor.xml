@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/iDoBlue"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -13,8 +14,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
+        android:layout_weight="1" >
 
         <Button
             android:id="@+id/my_action_font"
@@ -43,25 +43,17 @@
 
     <include layout="@layout/canvas" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+    <CheckBox
+        android:id="@android:id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="horizontal" >
-
-        <CheckBox
-            android:id="@android:id/checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/upload_and_allow_repost" />
-    </LinearLayout>
+        android:text="@string/upload_and_allow_repost" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
+        android:layout_weight="1" >
 
         <Button
             android:id="@id/action_item_open"
@@ -90,29 +82,6 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/ic_search" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/camera"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="@drawable/ic_camera" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
     </LinearLayout>
 
 </LinearLayout>

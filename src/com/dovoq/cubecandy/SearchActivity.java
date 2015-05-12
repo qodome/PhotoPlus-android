@@ -8,15 +8,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 import com.dovoq.cubecandy.fragments.CardDetail;
+import com.nyssance.android.app.BaseActivity;
 
-public class SearchActivity extends FragmentActivity {
+public class SearchActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_search);
 		getSupportFragmentManager().beginTransaction()
 				.add(R.id.container, new CardDetail()).commit();
 	}

@@ -16,7 +16,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,8 +24,9 @@ import android.widget.ImageView;
 import android.widget.ViewFlipper;
 
 import com.dovoq.cubecandy.fragments.PlusEditor;
+import com.nyssance.android.app.BaseActivity;
 
-public class MainActivity extends FragmentActivity implements Constants,
+public class MainActivity extends BaseActivity implements Constants,
 		GestureDetector.OnGestureListener, SensorEventListener {
 	private GestureDetector gdt;
 	private List<String> welcomeNames;

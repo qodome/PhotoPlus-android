@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimaryDark">@color/accent_material_light</item>
+        <item name="colorPrimary">@color/accent_material_dark</item>
+        <!-- <item name="android:windowBackground">@color/dim_foreground_material_dark</item> -->
+    </style>
+
+    <style name="MyAppTheme" parent="AppBaseTheme"></style>
+
+</resources>
