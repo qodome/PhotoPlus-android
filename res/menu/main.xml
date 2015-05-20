@@ -6,28 +6,28 @@
         android:id="@id/action_search"
         android:actionViewClass="android.widget.SearchView"
         android:alphabeticShortcut="f"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_search_white_24dp"
         android:title="@android:string/search_go"
         app:showAsAction="ifRoom|collapseActionView">
     </item>
     <item
         android:id="@id/action_item_open"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@drawable/ic_share_white_24dp"
         android:title="@string/share"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@id/action_item_share"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@drawable/ic_share_white_24dp"
         android:title="@string/share"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@id/action_settings"
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/settings"/>
     <item
         android:id="@id/action_help"
         android:alphabeticShortcut="h"
-        android:icon="@android:drawable/ic_menu_help"
+        android:icon="@drawable/ic_help_white_24dp"
         android:title="@string/help"/>
 
 </menu>
